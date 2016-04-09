@@ -13,7 +13,7 @@ clean-pyc:
 	find . -name '*~' -exec rm -f {} +
 
 lint:
-	flake8 grapheneapi/ graphenebase/ grapheneextra/
+	flake8 steemapi/
 
 #test:
 #	py.test tests
