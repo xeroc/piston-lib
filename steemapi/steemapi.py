@@ -23,7 +23,7 @@ class RPCConnection(Exception):
 """ API class """
 
 
-class SteemRPC(object):
+class SteemAPI(object):
     """ STEEM JSON-HTTP-RPC API
 
         This class serves as an abstraction layer for easy use of the
