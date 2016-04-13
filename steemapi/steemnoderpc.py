@@ -49,10 +49,7 @@ class SteemNodeRPC(object):
         return self.call_id
 
     def get_account(self, name):
-        if len(name.split(".")) == 3:
-            return self.get_objects([name])[0]
-        else :
-            return self.get_account_by_name(name)
+        return self.get_accounts([name])[0]
 
     def rpcexec(self, payload):
         """ Execute a call by sending the payload
