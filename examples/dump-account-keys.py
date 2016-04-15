@@ -1,4 +1,4 @@
-from steemrpc import SteemRPC
+from steemapi.steemwalletrpc import SteemWalletRPC
 from pprint import pprint
 import time
 
@@ -10,7 +10,7 @@ def dumpkeys(account, typ):
         print("%10s: %10s: %s %s" % (
             name, typ, key[0], wif))
 
-rpc = SteemRPC("localhost", 8092, "", "")
+rpc = SteemWalletRPC("localhost", 8092, "", "")
 accounts = rpc.list_my_accounts()
 
 assert rpc.is_locked, "Wallet is locked"
