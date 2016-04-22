@@ -30,6 +30,7 @@ Now we can use the predefined transaction formats, e.g. ``vote`` or
 7. sign the transaction with the corresponding private key(s)
 
 **Example A: Vote**
+
 .. code-block:: python
 
         expiration = transactions.formatTimeFromNow(60)
@@ -48,6 +49,7 @@ Now we can use the predefined transaction formats, e.g. ``vote`` or
         tx = tx.sign([wif])
 
 **Example A: Comment**
+
 .. code-block:: python
 
     # Expiration time 60 seconds in the future
