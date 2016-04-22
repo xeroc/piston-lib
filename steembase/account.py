@@ -96,7 +96,7 @@ class PublicKey(Address):
                       PublicKey("xxxxx").unCompressed()
 
     """
-    def __init__(self, pk, prefix=None):
+    def __init__(self, pk, prefix="STM"):
         self.prefix  = prefix
         self._pk     = Base58(pk, prefix=prefix)
         self.address = Address(pubkey=pk, prefix=prefix)
