@@ -23,7 +23,7 @@ class RPCConnection(Exception):
 """ API class """
 
 
-class SteemAPI(object):
+class SteemWalletRPC(object):
     """ STEEM JSON-HTTP-RPC API
 
         This class serves as an abstraction layer for easy use of the
@@ -37,7 +37,7 @@ class SteemAPI(object):
                              defaults to "")
 
         All RPC commands of the steem client are exposed as methods
-        in the class ``steemapi``. Once an instance of steemAPI is
+        in the class ``SteemWalletRPC``. Once an instance of SteemWalletRPC is
         created with host, port, username, and password, e.g.,
 
         .. code-block:: python

@@ -1,8 +1,8 @@
-from steemapi.steemapi import SteemAPI
-from steemapi.steemwsrpc import SteemWebsocketRPC
+from steemapi.steemwalletrpc import SteemWalletRPC
+from steemapi.steemnoderpc import SteemNodeRPC
 from steemapi.steemclient import SteemClient
 
-__all__ = ['steemapi',
+__all__ = ['steemwalletrpc',
+           'steemnoderpc'
            'steemclient',
-           'steemwsrpc'
            ]

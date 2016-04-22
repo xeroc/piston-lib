@@ -3,7 +3,7 @@
 from setuptools import setup
 from pip.req import parse_requirements
 
-VERSION = '0.1'
+VERSION = '0.1.1'
 
 setup(name='steem',
       version=VERSION,
@@ -16,7 +16,7 @@ setup(name='steem',
       maintainer_email='<Fabian@BitShares.eu>',
       url='http://www.github.com/xeroc/python-steem',
       keywords=['steem', 'library', 'api', 'rpc'],
-      packages=["steemapi"],
+      packages=["steemapi", "steembase"],
       classifiers=['License :: OSI Approved :: MIT License',
                    'Operating System :: OS Independent',
                    'Programming Language :: Python :: 3',

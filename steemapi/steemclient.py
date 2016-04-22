@@ -1,5 +1,5 @@
-from .steemapi import SteemAPI
-from .steemwsrpc import SteemWebsocketRPC
+from steemapi.steemwalletrpc import SteemWalletRPC
+from steemapi.steemnoderpc import SteemNodeRPC
 
 import logging as log
 
@@ -27,7 +27,7 @@ class ExampleConfig() :
                 wallet_password       = ""
 
         and allows the use of rpc commands similar to the
-        ``SteemAPI`` class:
+        ``SteemWalletRPC`` class:
 
         .. code-block:: python
 
@@ -101,9 +101,11 @@ class SteemClient() :
 
     #: RPC connection to the cli-wallet
     rpc = None
+    wallet = None
 
     #: Websocket connection to the witness/full node
     ws  = None
+    node  = None
 
     def __init__(self, config):
         """ Initialize configuration
@@ -120,15 +122,13 @@ class SteemClient() :
                 self.wallet_user = config.wallet_user
                 self.wallet_password = config.wallet_password
 
-            self.rpc = SteemAPI(self.wallet_host,
-                                self.wallet_port,
-                                self.wallet_user,
-                                self.wallet_password)
-            SteemAPI.__init__(self,
-                              self.wallet_host,
-                              self.wallet_port,
-                              self.wallet_user,
-                              self.wallet_password)
+            self.rpc = SteemWalletRPC(self.wallet_host,
+                                      self.wallet_port,
+                                      self.wallet_user,
+                                      self.wallet_password)
+
+            # Make a reference to 'wallet'
+            self.wallet = self.rpc
 
         # Connect to Witness Node
         if "witness_url" in available_features:
@@ -139,9 +139,12 @@ class SteemClient() :
                 self.witness_user = config.witness_user
                 self.witness_password = config.witness_password
 
-            self.ws = SteemWebsocketRPC(self.witness_url,
-                                        self.witness_user,
-                                        self.witness_password)
+            self.ws = SteemNodeRPC(self.witness_url,
+                                   self.witness_user,
+                                   self.witness_password)
+
+            # Make a reference to 'node'
+            self.node = self.ws
 
     def getObject(self, oid):
         """ Get an Object either from Websocket store (if available) or

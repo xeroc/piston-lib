@@ -2,8 +2,9 @@
 RPC Interface
 *************
 
-.. note:: This is a low level class that can be used in combination with
-          SteemClient
+.. warning:: This is a low level class that can be used in combination with
+             ``SteemClient``. Do not use this class unless you know what
+             you are doing!
 
 We now need to distinguish functionalities. If we want to only access the
 blockchain and do not want to perform on-chain operations like transfers or
