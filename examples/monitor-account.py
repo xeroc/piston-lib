@@ -1,4 +1,4 @@
-from steemrpc import SteemRPC
+from steemapi.steemnoderpc import SteemNodeRPC
 from pprint import pprint
 import time
 
@@ -15,7 +15,7 @@ import time
     passpword (both empty now).
 
 """
-rpc = SteemRPC("localhost", 8092, "", "")
+rpc = SteemNodeRPC("ws://localhost:8090", "", "")
 
 """
     Last Block that you have process in your backend.
