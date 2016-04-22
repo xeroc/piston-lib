@@ -3,7 +3,7 @@
 from setuptools import setup
 from pip.req import parse_requirements
 
-VERSION = '0.1'
+VERSION = '0.1.1'
 
 setup(name='steem',
       version=VERSION,
