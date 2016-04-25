@@ -39,9 +39,13 @@ class SteemNodeRPC(object):
         self.user = user
         self.password = password
         self.ws = create_connection(url)
-        self.login("", "", api_id=1)
-        self.api_id["database"] = self.database(api_id=1)
-        self.api_id["network_broadcast"] = self.network_broadcast(api_id=1)
+        self.login(user, password, api_id=1)
+
+        for api in ["database",
+                    "network_broadcast"]:
+            self.api_id[api] = self.get_api_by_name(api, api_id=1)
+
+        print(self.api_id)
 
     def get_call_id(self):
         """ Get the ID for the next RPC call """
