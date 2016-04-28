@@ -27,7 +27,9 @@ setup(name='steem',
                    ],
       install_requires=["requests",
                         "websocket-client",
+                        "ecdsa",
+                        "graphenelib"
                         ],
-      # setup_requires=['pytest-runner'],
-      # tests_require=['pytest'],
+      setup_requires=['pytest-runner'],
+      tests_require=['pytest'],
       )
