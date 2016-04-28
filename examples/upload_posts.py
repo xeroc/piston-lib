@@ -32,6 +32,9 @@ def main() :
     parser.add_argument('--permlink',
                         type=str,
                         help='Only publish/update the permlink')
+    parser.add_argument('--category',
+                        type=str,
+                        help='Post in category')
     parser.add_argument('--dir',
                         type=str,
                         help='Directory that holds all posts (default: "posts")')
@@ -39,7 +42,7 @@ def main() :
                         "--dryrun",
                         help="Not not actually post anything",
                         action="store_true")
-    parser.set_defaults(dir="./posts", dryrun=False)
+    parser.set_defaults(dir="./posts", dryrun=False, category="")
     args = parser.parse_args()
 
     if not path.isdir(args.dir):
@@ -68,7 +71,7 @@ def main() :
 
             pprint(client.wallet.post_comment(author,
                                               permlink,
-                                              "", "",
+                                              "", args.category,
                                               subject,
                                               body,
                                               "{}",
