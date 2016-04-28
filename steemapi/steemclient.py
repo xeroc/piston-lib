@@ -134,9 +134,10 @@ class SteemClient() :
         if "witness_url" in available_features:
             self.witness_url = config.witness_url
 
-            if ("witness_user" in available_features and
-                    "witness_password" in available_features):
+            if ("witness_user" in available_features):
                 self.witness_user = config.witness_user
+
+            if ("witness_password" in available_features):
                 self.witness_password = config.witness_password
 
             self.ws = SteemNodeRPC(self.witness_url,

@@ -18,12 +18,20 @@ class SteemNodeRPC(object):
         :param str url: Websocket URL
         :param str user: Username for Authentication
         :param str password: Password for Authentication
+        :param Array apis: List of APIs to register to (default: ["database", "network_broadcast"])
+
+        Available APIs
+
+              * database
+              * network_node
+              * network_broadcast
+              * history
 
         Usage:
 
         .. code-block:: python
 
-            ws = SteemNodeRPC("ws://10.0.0.16:8090","","")
+            ws = SteemNodeRPC("ws://10.0.0.16:8090")
             print(ws.get_account_count())
 
         .. note:: This class allows to call methods available via
@@ -34,18 +42,24 @@ class SteemNodeRPC(object):
     call_id = 0
     api_id = {}
 
-    def __init__(self, url, user="", password=""):
+    def __init__(self,
+                 url,
+                 user="",
+                 password="",
+                 apis=["database",
+                       "network_broadcast"]):
         self.url = url
         self.user = user
         self.password = password
         self.ws = create_connection(url)
         self.login(user, password, api_id=1)
 
-        for api in ["database",
-                    "network_broadcast"]:
-            self.api_id[api] = self.get_api_by_name(api, api_id=1)
-
-        print(self.api_id)
+        for api in apis:
+            api = api.replace("_api", "")
+            self.api_id[api] = self.get_api_by_name("%s_api" % api, api_id=1)
+            if not self.api_id[api]:
+                print("[Warning] No permission to access %s API. " % api +
+                        "The library may not function as desired!")
 
     def get_call_id(self):
         """ Get the ID for the next RPC call """
