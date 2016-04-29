@@ -3,12 +3,21 @@
 from setuptools import setup
 from pip.req import parse_requirements
 
+# Work around mbcs bug in distutils.
+# http://bugs.python.org/issue10945
+import codecs
+try:
+    codecs.lookup('mbcs')
+except LookupError:
+    ascii = codecs.lookup('ascii')
+    codecs.register(lambda name, enc=ascii: {True: enc}.get(name == 'mbcs'))
+
 VERSION = '0.1.3'
 
 setup(name='steem',
       version=VERSION,
       description='Python library for STEEM',
-      long_description=open('README.rst').read(),
+      long_description=open('README.md').read(),
       download_url='https://github.com/xeroc/python-steem/tarball/' + VERSION,
       author='Fabian Schuh',
       author_email='<Fabian@BitShares.eu>',
@@ -32,4 +41,5 @@ setup(name='steem',
                         ],
       setup_requires=['pytest-runner'],
       tests_require=['pytest'],
+      include_package_data=True,
       )

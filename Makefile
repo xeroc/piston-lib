@@ -18,7 +18,13 @@ clean-pyc:
 	find . -name '*~' -exec rm -f {} +
 
 lint:
-	flake8 steemapi/
+	flake8 steemapi/ steembase/
+
+test:
+	py.test tests
+
+test-all:
+	tox
 
 test:
 	python3 setup.py test
@@ -32,6 +38,10 @@ install: build
 install-user: build
 	python3 setup.py install --user
 
+git:
+	git push --all
+	git push --tags
+
 check:
 	python3 setup.py check
 
@@ -39,10 +49,10 @@ dist:
 	python3 setup.py sdist upload -r pypi
 	python3 setup.py bdist --format=zip upload
 
-release: clean check dist steem-readme steem-changelog
+release: clean check dist steem-readme steem-changelog git
 
 steem-readme:
-	piston edit "@xeroc/python-steem-readme" --file README.md
+	piston edit "@xeroc/python-steem-readme" --file README.rst
 
 steem-changelog:
-	git tag -l -n100 $(TAG) | piston post --author xeroc --permlink "python-steem-changelog-$(TAGSTEEM)" --category steem --title "[Changelog] python-steem $(TAG)" \
+	git tag -l -n100 $(TAG) | piston post --author xeroc --permlink "python-steem-changelog-$(TAGSTEEM)" --category steem --title "[Changelog] python-steem $(TAG)" --file "-"

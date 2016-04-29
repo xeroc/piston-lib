@@ -20,7 +20,7 @@ class Signed_Transaction(GrapheneSigned_Transaction):
     """
     def __init__(self, *args, **kwargs):
         super(Signed_Transaction, self).__init__(*args, **kwargs)
-    
+
     def sign(self, wifkeys, chain="STEEM"):
         return super(Signed_Transaction, self).sign(wifkeys, chain)
 

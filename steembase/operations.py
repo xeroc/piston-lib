@@ -53,7 +53,6 @@ class Operation() :
         else:
             self.op = op
             self.name = type(self.op).__name__.lower()  # also store name
-            print(self.name)
             self.opId = operations[self.name]
 
     def __bytes__(self) :
