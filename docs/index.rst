@@ -8,6 +8,7 @@ Python-Steem Libraries
 
    installation
    client
+   asyncclient
    transactions
 
 Low Level Classes
