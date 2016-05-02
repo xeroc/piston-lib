@@ -21,12 +21,6 @@ lint:
 	flake8 steemapi/ steembase/
 
 test:
-	py.test tests
-
-test-all:
-	tox
-
-test:
 	python3 setup.py test
 
 build:
