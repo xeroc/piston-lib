@@ -24,8 +24,6 @@ class Signed_Transaction(GrapheneSigned_Transaction):
     def sign(self, wifkeys, chain="STEEM"):
         return super(Signed_Transaction, self).sign(wifkeys, chain)
 
-timeformat = '%Y-%m-%dT%H:%M:%S%Z'
-
 """
     Auxiliary Calls
 """
