@@ -119,7 +119,7 @@ class Signed_Transaction(GrapheneObject) :
 
         # Do not serialize signatures
         sigs = self.data["signatures"]
-        self.data["signatures"] = []
+        self.data["signatures"] = Array([])
 
         # Get message to sign
         #   bytes(self) will give the wire formated data according to
