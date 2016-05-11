@@ -5,4 +5,5 @@ from steemapi.steemclient import SteemClient
 __all__ = ['steemwalletrpc',
            'steemnoderpc'
            'steemclient',
+           'steemasyncclient'
            ]

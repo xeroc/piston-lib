@@ -20,11 +20,12 @@ class Signed_Transaction(GrapheneSigned_Transaction):
     """
     def __init__(self, *args, **kwargs):
         super(Signed_Transaction, self).__init__(*args, **kwargs)
-    
+
     def sign(self, wifkeys, chain="STEEM"):
         return super(Signed_Transaction, self).sign(wifkeys, chain)
 
-timeformat = '%Y-%m-%dT%H:%M:%S%Z'
+    def verify(self, pubkey, chain="STEEM"):
+        return super(Signed_Transaction, self).verify(pubkey, chain)
 
 """
     Auxiliary Calls
