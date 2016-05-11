@@ -4,7 +4,7 @@ from binascii import hexlify, unhexlify
 import struct
 from collections import OrderedDict
 
-from graphenebase.account import PrivateKey
+from graphenebase.account import PrivateKey, PublicKey
 from graphenebase.types import (
     Array,
     Set,

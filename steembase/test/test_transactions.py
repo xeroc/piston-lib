@@ -8,6 +8,40 @@ from binascii import hexlify
 
 class Testcases(unittest.TestCase) :
 
+    """
+    def test_utf8(self):
+        wif              = "5KQwrPbwdL6PhXujxW37FSSQZ1JiwsST4cqQzDeyXtP79zkvFD3"
+        ref_block_num    = 34294
+        ref_block_prefix = 3707022213
+        expiration       = "2016-04-06T08:29:27"
+
+        op = transactions.Comment(
+            **{"parent_author": "",
+               "parent_permlink": "spam",
+               "author": "xeroc",
+               "permlink": "utf8-test",
+               "title": "UTF8-test",
+               "body": "…\n...",
+               "json_metadata": "{}"}
+        )
+        ops    = [transactions.Operation(op)]
+        tx     = transactions.Signed_Transaction(
+            ref_block_num=ref_block_num,
+            ref_block_prefix=ref_block_prefix,
+            expiration=expiration,
+            operations=ops
+        )
+        tx = tx.sign([wif])
+
+
+
+        txWire = hexlify(bytes(tx)).decode("ascii")
+
+        compare = "f68585abf4dce7c80457010100047370616d057865726f6309757466382d7465737409555446382d746573740975323032360a2e2e2e027b7d00011f62111ae43ce53b48f88a19cd0aeabd6fb09dcc21124216f0f1859cf6431d845531cd3ac8fc784813d67a2ee18241fdc2867ccfe44a605c7c505a43b9996d9a99"
+        self.assertEqual(compare[:-130], txWire[:-130])
+
+    """
+
     def test_Comment(self):
         wif              = "5KQwrPbwdL6PhXujxW37FSSQZ1JiwsST4cqQzDeyXtP79zkvFD3"
         ref_block_num    = 34294
@@ -57,6 +91,8 @@ class Testcases(unittest.TestCase) :
             operations=ops
         )
         tx = tx.sign([wif])
+
+        tx.verify([PrivateKey(wif).pubkey])
 
         txWire = hexlify(bytes(tx)).decode("ascii")
 

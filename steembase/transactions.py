@@ -24,6 +24,9 @@ class Signed_Transaction(GrapheneSigned_Transaction):
     def sign(self, wifkeys, chain="STEEM"):
         return super(Signed_Transaction, self).sign(wifkeys, chain)
 
+    def verify(self, pubkey, chain="STEEM"):
+        return super(Signed_Transaction, self).verify(pubkey, chain)
+
 """
     Auxiliary Calls
 """
