@@ -1,6 +1,7 @@
 import json
 from graphenebase.types import *
 from graphenebase.objects import GrapheneObject, isArgsThisClass
+from graphenebase.account import PublicKey
 
 #: Operation ids
 operations = {}
@@ -61,6 +62,28 @@ class Operation() :
     def __str__(self) :
         return json.dumps([getOperationNameForId(self.opId), JsonObj(self.op)])
 
+
+class Permission(GrapheneObject):
+    def __init__(self, *args, **kwargs) :
+        if isArgsThisClass(self, args):
+                self.data = args[0].data
+        else:
+            if len(args) == 1 and len(kwargs) == 0:
+                kwargs = args[0]
+            accountAuths = Map([
+                [ObjectId(e[0], "account"), Uint16(e[1])]
+                for e in kwargs["account_auths"]
+            ])
+            keyAuths = Map([
+                [PublicKey(e[0], prefix="STM"), Uint16(e[1])]
+                for e in kwargs["key_auths"]
+            ])
+            super().__init__(OrderedDict([
+                ('weight_threshold', Uint32(int(kwargs["weight_threshold"]))),
+                ('account_auths'   , accountAuths),
+                ('key_auths'       , keyAuths),
+            ]))
+
 """
     Actual Operations
 """
@@ -88,6 +111,7 @@ class Comment(GrapheneObject) :
         else:
             if len(args) == 1 and len(kwargs) == 0:
                 kwargs = args[0]
+
             super().__init__(OrderedDict([
                 ('parent_author'   , String(kwargs["parent_author"])),
                 ('parent_permlink' , String(kwargs["parent_permlink"])),
@@ -96,4 +120,44 @@ class Comment(GrapheneObject) :
                 ('title'           , String(kwargs["title"])),
                 ('body'            , String(kwargs["body"])),
                 ('json_metadata'   , String(kwargs["json_metadata"])),
+            ]))
+
+
+class Fee() :
+    def __init__(self, d) :
+        amount, asset = d.split(" ")
+        # padding
+        self.asset = asset + "\x00" * (7-len(asset))
+        if self.asset[:5] == "STEEM":
+            self.amount = int(float(amount) * 10 ** 3)
+        else:
+            raise NotImplementedError
+
+    def __bytes__(self) :
+        return struct.pack("<q", self.amount) + b"\x03" + bytes(self.asset, "ascii")
+
+    def __str__(self) :
+        return '{amount.{prec}f} {asset}'.format(
+            amount=amount * rate,
+            asset=self.asset,
+            prec=base["precision"]
+        )
+
+
+class Account_create(GrapheneObject) :
+    def __init__(self, *args, **kwargs) :
+        if isArgsThisClass(self, args):
+                self.data = args[0].data
+        else:
+            if len(args) == 1 and len(kwargs) == 0:
+                kwargs = args[0]
+            super().__init__(OrderedDict([
+                ('fee'              , Fee(kwargs["fee"])),
+                ('creator'          , String(kwargs["creator"])),
+                ('new_account_name' , String(kwargs["new_account_name"])),
+                ('owner'            , Permission(kwargs["owner"])),
+                ('active'           , Permission(kwargs["active"])),
+                ('posting'          , Permission(kwargs["posting"])),
+                ('memo_key'         , PublicKey(kwargs["memo_key"], prefix="STM")),
+                ('json_metadata'    , String(kwargs["json_metadata"])),
             ]))

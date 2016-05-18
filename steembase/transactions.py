@@ -8,7 +8,7 @@ import time
 
 from graphenebase import PublicKey
 from graphenebase.types import *
-from steembase.signedtransactions import Signed_Transaction as GrapheneSigned_Transaction
+from .signedtransactions import Signed_Transaction as GrapheneSigned_Transaction
 from .operations import *
 from .chains import known_chains
 

@@ -51,7 +51,7 @@ class Signed_Transaction(GrapheneObject) :
                 ('ref_block_prefix', Uint32(kwargs['ref_block_prefix'])),
                 ('expiration', PointInTime(kwargs['expiration'])),
                 ('operations', kwargs['operations']),
-                # ('extensions', kwargs['extensions']),
+                ('extensions', kwargs['extensions']),
                 ('signatures', kwargs['signatures']),
             ]))
 
@@ -119,7 +119,7 @@ class Signed_Transaction(GrapheneObject) :
 
         # Do not serialize signatures
         sigs = self.data["signatures"]
-        self.data["signatures"] = Array([])
+        self.data["signatures"] = []
 
         # Get message to sign
         #   bytes(self) will give the wire formated data according to
