@@ -76,23 +76,32 @@ class Testcases(unittest.TestCase) :
         expiration       = "2016-04-06T08:29:27"
 
         op = transactions.Account_create(
-            **{'active': {'account_auths': [],
-                        'key_auths': [['STM6pbVDAjRFiw6fkiKYCrkz7PFeL7XNAfefrsREwg8MKpJ9VYV9x',
+            **{'creator': 'xeroc',
+               'fee': '10.000 STEEM',
+               'json_metadata': '',
+               'memo_key': 'STM6zLNtyFVToBsBZDsgMhgjpwysYVbsQD6YhP3kRkQhANUB4w7Qp',
+               'new_account_name': 'fsafaasf',
+               'owner': {'account_auths': [],
+                         'key_auths': [['STM5jYVokmZHdEpwo5oCG3ES2Ca4VYzy6tM8pWWkGdgVnwo2mFLFq',
+                                        1], [
+                                       'STM6zLNtyFVToBsBZDsgMhgjpwysYVbsQD6YhP3kRkQhANUB4w7Qp',
                                        1]],
-                        'weight_threshold': 1},
-             'creator': 'xeroc',
-             'fee': '10.000 STEEM',
-             'json_metadata': '',
-             'memo_key': 'STM6zLNtyFVToBsBZDsgMhgjpwysYVbsQD6YhP3kRkQhANUB4w7Qp',
-             'new_account_name': 'fsafaasf',
-             'owner': {'account_auths': [],
-                       'key_auths': [['STM5jYVokmZHdEpwo5oCG3ES2Ca4VYzy6tM8pWWkGdgVnwo2mFLFq',
-                                      1]],
-                       'weight_threshold': 1},
-             'posting': {'account_auths': [],
-                         'key_auths': [['STM8CemMDjdUWSV5wKotEimhK6c4dY7p2PdzC2qM1HpAP8aLtZfE7',
+                         'weight_threshold': 1},
+               'active': {'account_auths': [],
+                          'key_auths': [['STM6pbVDAjRFiw6fkiKYCrkz7PFeL7XNAfefrsREwg8MKpJ9VYV9x',
+                                        1], [
+                                        'STM6zLNtyFVToBsBZDsgMhgjpwysYVbsQD6YhP3kRkQhANUB4w7Qp',
                                         1]],
-                         'weight_threshold': 1}}
+                          'weight_threshold': 1},
+               'posting': {'account_auths': [],
+                           'key_auths': [['STM8CemMDjdUWSV5wKotEimhK6c4dY7p2PdzC2qM1HpAP8aLtZfE7',
+                                          1], [
+                                         'STM6zLNtyFVToBsBZDsgMhgjpwysYVbsQD6YhP3kRkQhANUB4w7Qp',
+                                         1], [
+                                         'STM6pbVDAjRFiw6fkiKYCrkz7PFeL7XNAfefrsREwg8MKpJ9VYV9x',
+                                         1
+                                         ]],
+                           'weight_threshold': 1}}
         )
         ops = [transactions.Operation(op)]
         tx = transactions.Signed_Transaction(
@@ -105,10 +114,66 @@ class Testcases(unittest.TestCase) :
 
         txWire = hexlify(bytes(tx)).decode("ascii")
 
-        compare = "f68585abf4dce7c804570109102700000000000003535445454d0000057865726f63086673616661617366010000000001026f6231b8ed1c5e964b42967759757f8bb879d68e7b09d9ea6eedec21de6fa4c4010001000000000102fe8cc11cc8251de6977636b55c1ab8a9d12b0b26154ac78e56e7c4257d8bcf69010001000000000103b453f46013fdbccb90b09ba169c388c34d84454a3b9fbec68d5a7819a734fca001000314aa202c9158990b3ec51a1aa49b2ab5d300c97b391df3beb34bb74f3c62699e0000011f1e849e5e25bb40e7ae286028d97f91f825d4366af63eb719d0b317c92a8bfd8240ceb08153777924a5f53103372cd7ce37162dc535c9aef8bc4d61fabbae0bd3"
+        compare = "f68585abf4dce7c804570109102700000000000003535445454d0000057865726f63086673616661617366010000000002026f6231b8ed1c5e964b42967759757f8bb879d68e7b09d9ea6eedec21de6fa4c401000314aa202c9158990b3ec51a1aa49b2ab5d300c97b391df3beb34bb74f3c62699e010001000000000202fe8cc11cc8251de6977636b55c1ab8a9d12b0b26154ac78e56e7c4257d8bcf6901000314aa202c9158990b3ec51a1aa49b2ab5d300c97b391df3beb34bb74f3c62699e010001000000000302fe8cc11cc8251de6977636b55c1ab8a9d12b0b26154ac78e56e7c4257d8bcf6901000314aa202c9158990b3ec51a1aa49b2ab5d300c97b391df3beb34bb74f3c62699e010003b453f46013fdbccb90b09ba169c388c34d84454a3b9fbec68d5a7819a734fca001000314aa202c9158990b3ec51a1aa49b2ab5d300c97b391df3beb34bb74f3c62699e0000012031827ea70b06e413d124d14ed8db399597fa5f94566e031b706533a9090395be1c0ed317c8af01d12ca79258ac4d800adff92a84630b567e5ff48cd4b5f716d6"
         self.assertEqual(compare[:-130], txWire[:-130])
 
-if __name__ == '__main__':
+    def compareConstructedTX(self):
+        #    def test_online(self):
+        #        self.maxDiff = None
+        wif              = "5KQwrPbwdL6PhXujxW37FSSQZ1JiwsST4cqQzDeyXtP79zkvFD3"
+        ref_block_num    = 34294
+        ref_block_prefix = 3707022213
+        expiration       = "2016-04-06T08:29:27"
+
+        op = transactions.Account_create(
+            **{'creator': 'xeroc',
+               'fee': '10.000 STEEM',
+               'json_metadata': '',
+               'memo_key': 'STM6zLNtyFVToBsBZDsgMhgjpwysYVbsQD6YhP3kRkQhANUB4w7Qp',
+               'new_account_name': 'fsafaasf',
+               'owner': {'account_auths': [],
+                         'key_auths': [['STM5jYVokmZHdEpwo5oCG3ES2Ca4VYzy6tM8pWWkGdgVnwo2mFLFq',
+                                        1], [
+                                       'STM6zLNtyFVToBsBZDsgMhgjpwysYVbsQD6YhP3kRkQhANUB4w7Qp',
+                                       1]],
+                         'weight_threshold': 1},
+               'active': {'account_auths': [],
+                          'key_auths': [['STM6pbVDAjRFiw6fkiKYCrkz7PFeL7XNAfefrsREwg8MKpJ9VYV9x',
+                                        1], [
+                                        'STM6zLNtyFVToBsBZDsgMhgjpwysYVbsQD6YhP3kRkQhANUB4w7Qp',
+                                        1]],
+                          'weight_threshold': 1},
+               'posting': {'account_auths': [],
+                           'key_auths': [['STM8CemMDjdUWSV5wKotEimhK6c4dY7p2PdzC2qM1HpAP8aLtZfE7',
+                                          1], [
+                                         'STM6zLNtyFVToBsBZDsgMhgjpwysYVbsQD6YhP3kRkQhANUB4w7Qp',
+                                         1], [
+                                         'STM6pbVDAjRFiw6fkiKYCrkz7PFeL7XNAfefrsREwg8MKpJ9VYV9x',
+                                         1
+                                         ]],
+                           'weight_threshold': 1}}
+        )
+        ops = [transactions.Operation(op)]
+        tx = transactions.Signed_Transaction(
+            ref_block_num=ref_block_num,
+            ref_block_prefix=ref_block_prefix,
+            expiration=expiration,
+            operations=ops
+        )
+        tx = tx.sign([wif])
+        txWire = hexlify(bytes(tx)).decode("ascii")
+        pprint(transactions.JsonObj(tx))
+
+        from grapheneapi.grapheneapi import GrapheneAPI
+        rpc = GrapheneAPI("localhost", 8092)
+        compare = rpc.serialize_transaction(transactions.JsonObj(tx))
+
+        # print("\n")
+        # print(txWire[:-130])
+        # print(compare[:-130])
+        self.assertEqual(compare[:-130], txWire[:-130])
+
+    def compareNewWire(self):
         #    def test_online(self):
         #        self.maxDiff = None
         prefix           = "STEEM"
@@ -133,4 +198,8 @@ if __name__ == '__main__':
         print("\n")
         print(txWire[:-130])
         print(compare[:-130])
-        self.assertEqual(compare[:-130], txWire[:-130])
+        # self.assertEqual(compare[:-130], txWire[:-130])
+
+if __name__ == '__main__':
+    t = Testcases()
+    t.compareConstructedTX()

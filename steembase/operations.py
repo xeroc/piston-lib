@@ -1,7 +1,7 @@
 import json
 from graphenebase.types import *
 from graphenebase.objects import GrapheneObject, isArgsThisClass
-from graphenebase.account import PublicKey
+from graphenebase.account import PublicKey, Address
 
 #: Operation ids
 operations = {}
@@ -29,6 +29,9 @@ operations["liquidity_reward"] = 20
 operations["interest"] = 21
 operations["fill_vesting_withdraw"] = 22
 operations["fill_order"] = 23
+
+prefix = "STM"
+# prefix = "TST"
 
 
 def getOperationNameForId(i) :
@@ -70,12 +73,21 @@ class Permission(GrapheneObject):
         else:
             if len(args) == 1 and len(kwargs) == 0:
                 kwargs = args[0]
+
+            # Sort keys (FIXME: ideally, the sorting is part of Public
+            # Key and not located here)
+            kwargs["key_auths"] = sorted(
+                kwargs["key_auths"],
+                key=lambda x: repr(PublicKey(x[0], prefix=prefix)),
+                reverse=False,
+            )
+
             accountAuths = Map([
                 [ObjectId(e[0], "account"), Uint16(e[1])]
                 for e in kwargs["account_auths"]
             ])
             keyAuths = Map([
-                [PublicKey(e[0], prefix="STM"), Uint16(e[1])]
+                [PublicKey(e[0], prefix=prefix), Uint16(e[1])]
                 for e in kwargs["key_auths"]
             ])
             super().__init__(OrderedDict([
@@ -125,23 +137,21 @@ class Comment(GrapheneObject) :
 
 class Fee() :
     def __init__(self, d) :
-        amount, asset = d.split(" ")
-        # padding
-        self.asset = asset + "\x00" * (7-len(asset))
-        if self.asset[:5] == "STEEM":
-            self.amount = int(float(amount) * 10 ** 3)
-        else:
-            raise NotImplementedError
+        self.amount, self.asset = d.split(" ")
 
     def __bytes__(self) :
-        return struct.pack("<q", self.amount) + b"\x03" + bytes(self.asset, "ascii")
+        # padding
+        asset = self.asset + "\x00" * (7 - len(self.asset))
+        if (self.asset == "STEEM" or
+                self.asset == "TESTS"):
+            amount = int(float(self.amount) * 10 ** 3)
+        else:
+            raise NotImplementedError("This kind of fee is not implemented")
+
+        return struct.pack("<q", amount) + b"\x03" + bytes(asset, "ascii")
 
     def __str__(self) :
-        return '{amount.{prec}f} {asset}'.format(
-            amount=amount * rate,
-            asset=self.asset,
-            prec=base["precision"]
-        )
+        return '%s %s' % (self.amount, self.asset)
 
 
 class Account_create(GrapheneObject) :
@@ -158,6 +168,6 @@ class Account_create(GrapheneObject) :
                 ('owner'            , Permission(kwargs["owner"])),
                 ('active'           , Permission(kwargs["active"])),
                 ('posting'          , Permission(kwargs["posting"])),
-                ('memo_key'         , PublicKey(kwargs["memo_key"], prefix="STM")),
+                ('memo_key'         , PublicKey(kwargs["memo_key"], prefix=prefix)),
                 ('json_metadata'    , String(kwargs["json_metadata"])),
             ]))
