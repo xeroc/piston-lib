@@ -123,6 +123,9 @@ class Comment(GrapheneObject) :
         else:
             if len(args) == 1 and len(kwargs) == 0:
                 kwargs = args[0]
+            meta = ""
+            if "json_metadata" in kwargs and kwargs["json_metadata"]:
+                meta = json.dumps(kwargs["json_metadata"])
 
             super().__init__(OrderedDict([
                 ('parent_author'   , String(kwargs["parent_author"])),
@@ -131,7 +134,7 @@ class Comment(GrapheneObject) :
                 ('permlink'        , String(kwargs["permlink"])),
                 ('title'           , String(kwargs["title"])),
                 ('body'            , String(kwargs["body"])),
-                ('json_metadata'   , String(kwargs["json_metadata"])),
+                ('json_metadata'   , String(meta)),
             ]))
 
 
@@ -161,6 +164,10 @@ class Account_create(GrapheneObject) :
         else:
             if len(args) == 1 and len(kwargs) == 0:
                 kwargs = args[0]
+
+            meta = ""
+            if "json_metadata" in kwargs and kwargs["json_metadata"]:
+                meta = json.dumps(kwargs["json_metadata"])
             super().__init__(OrderedDict([
                 ('fee'              , Fee(kwargs["fee"])),
                 ('creator'          , String(kwargs["creator"])),
@@ -169,5 +176,5 @@ class Account_create(GrapheneObject) :
                 ('active'           , Permission(kwargs["active"])),
                 ('posting'          , Permission(kwargs["posting"])),
                 ('memo_key'         , PublicKey(kwargs["memo_key"], prefix=prefix)),
-                ('json_metadata'    , String(kwargs["json_metadata"])),
+                ('json_metadata'    , String(meta)),
             ]))

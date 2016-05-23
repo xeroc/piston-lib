@@ -25,7 +25,7 @@ class Testcases(unittest.TestCase) :
                "permlink": "foobard",
                "title": "foobare",
                "body": "foobarf",
-               "json_metadata": ""}
+               "json_metadata": {"foo": "bar"}}
         )
         ops    = [transactions.Operation(op)]
         tx     = transactions.Signed_Transaction(
@@ -38,7 +38,7 @@ class Testcases(unittest.TestCase) :
 
         txWire = hexlify(bytes(tx)).decode("ascii")
 
-        compare = "f68585abf4dce7c80457010107666f6f6261726107666f6f6261726207666f6f6261726307666f6f6261726407666f6f6261726507666f6f626172660000011f46428333367ed8a55ab53351c44d08240def16b7942f88dc806c21fb0a72e8063f172d649134df7550111666609b33b382206b14851db58ad07928ed58737663"
+        compare = "f68585abf4dce7c80457010107666f6f6261726107666f6f6261726207666f6f6261726307666f6f6261726407666f6f6261726507666f6f626172660e7b22666f6f223a2022626172227d00011f34a882f3b06894c29f52e06b8a28187b84b817c0e40f124859970b32511a778736d682f24d3a6e6da124b340668d25bbcf85ffa23ca622b307ffe10cf182bb82"
         self.assertEqual(compare[:-130], txWire[:-130])
 
     def test_Vote(self):
@@ -153,6 +153,7 @@ class Testcases(unittest.TestCase) :
                                          ]],
                            'weight_threshold': 1}}
         )
+
         ops = [transactions.Operation(op)]
         tx = transactions.Signed_Transaction(
             ref_block_num=ref_block_num,
@@ -160,6 +161,8 @@ class Testcases(unittest.TestCase) :
             expiration=expiration,
             operations=ops
         )
+        pprint(transactions.JsonObj(tx))
+        print(bytes(tx))
         tx = tx.sign([wif])
         txWire = hexlify(bytes(tx)).decode("ascii")
         pprint(transactions.JsonObj(tx))
@@ -168,9 +171,12 @@ class Testcases(unittest.TestCase) :
         rpc = GrapheneAPI("localhost", 8092)
         compare = rpc.serialize_transaction(transactions.JsonObj(tx))
 
-        # print("\n")
-        # print(txWire[:-130])
-        # print(compare[:-130])
+        print("\n")
+        print(txWire[:-130])
+        print(compare[:-130])
+        print("\n")
+
+        print(txWire[:-130] == compare[:-130])
         self.assertEqual(compare[:-130], txWire[:-130])
 
     def compareNewWire(self):
