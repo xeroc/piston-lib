@@ -188,7 +188,9 @@ class Transfer(GrapheneObject) :
         else:
             if len(args) == 1 and len(kwargs) == 0:
                 kwargs = args[0]
-            if kwargs["memo"][0] == "#":
+            if "memo" not in kwargs:
+                kwargs["memo"] = ""
+            if kwargs["memo"] and kwargs["memo"][0] == "#":
                 raise Exception(
                     "This library does not yet support encrypted memos!"
                 )
