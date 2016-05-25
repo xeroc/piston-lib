@@ -191,9 +191,8 @@ class Testcases(unittest.TestCase) :
         tx = tx.sign([wif])
 
         txWire = hexlify(bytes(tx)).decode("ascii")
-        print(txWire)
 
-        compare = "f68585abf4dce7c80457010403666f6f06b2010000000000035645535453000000012040388e664dc76e0a66c06a6b8e4d633e5c05941bc7ba114080f866148c8e5a1773c7f744301f459533f43845f91c4061a4b95f90097c5f62398472cbbf41657e"
+        compare = "f68585abf4dce7c80457010403666f6f70679f0600000000065645535453000000011f2826e932e7d55db1c5779923227103eba5ec5e6eede19aeb545e49de56317e3f7b75306b53b90aa560cc7b38ba1e5b45468f1b035efd4b8ef2c131ee8b42532e"
         self.assertEqual(compare[:-130], txWire[:-130])
 
     def compareConstructedTX(self):

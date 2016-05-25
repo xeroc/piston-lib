@@ -156,14 +156,16 @@ class Amount() :
         # padding
         asset = self.asset + "\x00" * (7 - len(self.asset))
         amount = int(float(self.amount) * 10 ** self.precision)
-        return struct.pack("<q", amount) + b"\x03" + bytes(asset, "ascii")
+        return struct.pack("<q", amount) + \
+            struct.pack("<b", self.precision) + \
+            bytes(asset, "ascii")
 
     def __str__(self) :
         return '{:.{}f} {}'.format(
             self.amount,
             self.precision,
             self.asset
-            )
+        )
 
 
 class Account_create(GrapheneObject) :
