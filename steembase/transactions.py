@@ -8,11 +8,14 @@ import time
 
 from graphenebase import PublicKey
 from graphenebase.types import *
-from steembase.signedtransactions import Signed_Transaction as GrapheneSigned_Transaction
+from .signedtransactions import Signed_Transaction as GrapheneSigned_Transaction
 from .operations import *
 from .chains import known_chains
 
 timeformat = '%Y-%m-%dT%H:%M:%S%Z'
+
+chain = "STEEM"
+# chain = "TEST"
 
 
 class Signed_Transaction(GrapheneSigned_Transaction):
@@ -21,10 +24,10 @@ class Signed_Transaction(GrapheneSigned_Transaction):
     def __init__(self, *args, **kwargs):
         super(Signed_Transaction, self).__init__(*args, **kwargs)
 
-    def sign(self, wifkeys, chain="STEEM"):
+    def sign(self, wifkeys, chain=chain):
         return super(Signed_Transaction, self).sign(wifkeys, chain)
 
-    def verify(self, pubkey, chain="STEEM"):
+    def verify(self, pubkey, chain=chain):
         return super(Signed_Transaction, self).verify(pubkey, chain)
 
 """
@@ -47,7 +50,7 @@ def formatTimeFromNow(secs=0) :
     """ Properly Format Time that is `x` seconds in the future
 
      :param int secs: Seconds to go in the future (`x>0`) or the past (`x<0`)
-     :return: Properly formated time for Steem (`%Y-%m-%dT%H:%M:%S`)
+     :return: Properly formated time for Graphene (`%Y-%m-%dT%H:%M:%S`)
      :rtype: str
 
     """

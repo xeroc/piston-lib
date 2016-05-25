@@ -46,7 +46,7 @@ dist:
 release: clean check dist steem-readme steem-changelog git
 
 steem-readme:
-	piston edit "@xeroc/python-steem-readme" --file README.rst
+	piston edit "@xeroc/python-steem-readme" --file README.md
 
 steem-changelog:
 	git tag -l -n100 $(TAG) | piston post --author xeroc --permlink "python-steem-changelog-$(TAGSTEEM)" --category steem --title "[Changelog] python-steem $(TAG)" --file "-"

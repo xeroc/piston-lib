@@ -59,7 +59,7 @@ class SteemNodeRPC(object):
             self.api_id[api] = self.get_api_by_name("%s_api" % api, api_id=1)
             if not self.api_id[api]:
                 print("[Warning] No permission to access %s API. " % api +
-                        "The library may not function as desired!")
+                      "The library may not function as desired!")
 
     def get_call_id(self):
         """ Get the ID for the next RPC call """
