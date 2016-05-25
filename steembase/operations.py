@@ -138,7 +138,7 @@ class Comment(GrapheneObject) :
             ]))
 
 
-class Fee() :
+class Amount() :
     def __init__(self, d) :
         self.amount, self.asset = d.split(" ")
 
@@ -146,10 +146,11 @@ class Fee() :
         # padding
         asset = self.asset + "\x00" * (7 - len(self.asset))
         if (self.asset == "STEEM" or
-                self.asset == "TESTS"):
+                self.asset == "TESTS" or
+                self.asset == "VESTS"):
             amount = int(float(self.amount) * 10 ** 3)
         else:
-            raise NotImplementedError("This kind of fee is not implemented")
+            raise NotImplementedError("This kind of amount is not implemented")
 
         return struct.pack("<q", amount) + b"\x03" + bytes(asset, "ascii")
 
@@ -169,7 +170,7 @@ class Account_create(GrapheneObject) :
             if "json_metadata" in kwargs and kwargs["json_metadata"]:
                 meta = json.dumps(kwargs["json_metadata"])
             super().__init__(OrderedDict([
-                ('fee'              , Fee(kwargs["fee"])),
+                ('fee'              , Amount(kwargs["fee"])),
                 ('creator'          , String(kwargs["creator"])),
                 ('new_account_name' , String(kwargs["new_account_name"])),
                 ('owner'            , Permission(kwargs["owner"])),
@@ -177,4 +178,50 @@ class Account_create(GrapheneObject) :
                 ('posting'          , Permission(kwargs["posting"])),
                 ('memo_key'         , PublicKey(kwargs["memo_key"], prefix=prefix)),
                 ('json_metadata'    , String(meta)),
+            ]))
+
+
+class Transfer(GrapheneObject) :
+    def __init__(self, *args, **kwargs) :
+        if isArgsThisClass(self, args):
+                self.data = args[0].data
+        else:
+            if len(args) == 1 and len(kwargs) == 0:
+                kwargs = args[0]
+            if kwargs["memo"][0] == "#":
+                raise Exception(
+                    "This library does not yet support encrypted memos!"
+                )
+            super().__init__(OrderedDict([
+                ('from'          , String(kwargs["from"])),
+                ('to'            , String(kwargs["to"])),
+                ('amount'        , Amount(kwargs["amount"])),
+                ('memo'          , String(kwargs["memo"])),
+            ]))
+
+
+class Transfer_to_vesting(GrapheneObject) :
+    def __init__(self, *args, **kwargs) :
+        if isArgsThisClass(self, args):
+                self.data = args[0].data
+        else:
+            if len(args) == 1 and len(kwargs) == 0:
+                kwargs = args[0]
+            super().__init__(OrderedDict([
+                ('from'          , String(kwargs["from"])),
+                ('to'            , String(kwargs["to"])),
+                ('amount'        , Amount(kwargs["amount"])),
+            ]))
+
+
+class Withdraw_vesting(GrapheneObject) :
+    def __init__(self, *args, **kwargs) :
+        if isArgsThisClass(self, args):
+                self.data = args[0].data
+        else:
+            if len(args) == 1 and len(kwargs) == 0:
+                kwargs = args[0]
+            super().__init__(OrderedDict([
+                ('account'          , String(kwargs["account"])),
+                ('vesting_shares'   , Amount(kwargs["vesting_shares"])),
             ]))
