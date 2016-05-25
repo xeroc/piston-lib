@@ -140,22 +140,30 @@ class Comment(GrapheneObject) :
 
 class Amount() :
     def __init__(self, d) :
-        self.amount, self.asset = d.split(" ")
+        self.amount, self.asset = d.strip().split(" ")
+        self.amount = float(self.amount)
+
+        if self.asset == "STEEM":
+            self.precision = 3
+        elif self.asset == "VESTS":
+            self.precision = 6
+        elif self.asset == "SBD":
+            self.precision = 3
+        else:
+            raise Exception("Asset unknown")
 
     def __bytes__(self) :
         # padding
         asset = self.asset + "\x00" * (7 - len(self.asset))
-        if (self.asset == "STEEM" or
-                self.asset == "TESTS" or
-                self.asset == "VESTS"):
-            amount = int(float(self.amount) * 10 ** 3)
-        else:
-            raise NotImplementedError("This kind of amount is not implemented")
-
+        amount = int(float(self.amount) * 10 ** self.precision)
         return struct.pack("<q", amount) + b"\x03" + bytes(asset, "ascii")
 
     def __str__(self) :
-        return '%s %s' % (self.amount, self.asset)
+        return '{:.{}f} {}'.format(
+            self.amount,
+            self.precision,
+            self.asset
+            )
 
 
 class Account_create(GrapheneObject) :
