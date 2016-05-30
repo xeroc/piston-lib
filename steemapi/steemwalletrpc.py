@@ -108,12 +108,12 @@ class SteemWalletRPC(object):
     def rpcexec(self, payload):
         """ Manual execute a command on API (internally used)
 
-            param str payload: The payload containing the request
-            return: Servers answer to the query
-            rtype: json
-            raises RPCConnection: if no connction can be made
-            raises UnauthorizedError: if the user is not authorized
-            raise ValueError: if the API returns a non-JSON formated
+            :param str payload: The payload containing the request
+            :return: Servers answer to the query
+            :rtype: json
+            :raises RPCConnection: if no connction can be made
+            :raises UnauthorizedError: if the user is not authorized
+            :raise ValueError: if the API returns a non-JSON formated
                               answer
 
             It is not recommended to use this method directly, unless

@@ -1,6 +1,6 @@
-***************
+*************************
 Asynchronous Steem Client
-***************
+*************************
 
 Configuration
 #############
@@ -9,7 +9,7 @@ Configuration
     :members:
 
 SteemAsyncClient
-##############
+################
 
 .. autoclass:: steemapi.steemasyncclient.SteemAsyncClient
     :members:

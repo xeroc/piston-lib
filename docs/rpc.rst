@@ -1,6 +1,6 @@
-*************
-RPC Interface
-*************
+**************
+SteemWalletRPC
+**************
 
 .. warning:: This is a low level class that can be used in combination with
              ``SteemClient``. Do not use this class unless you know what
@@ -21,5 +21,5 @@ cli_wallet that has the required private keys imported. We here assume:
 Definition
 ##########
 
-.. autoclass:: steemapi.steemapi.SteemAPI
+.. autoclass:: steemapi.steemwalletrpc.SteemWalletRPC
     :members: _confirm, rpcexec, __getattr__
