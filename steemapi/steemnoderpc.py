@@ -69,6 +69,9 @@ class SteemNodeRPC(object):
     def get_account(self, name):
         return self.get_accounts([name])[0]
 
+    def get_object(self, o):
+        return self.get_objects([o])[0]
+
     def rpcexec(self, payload):
         """ Execute a call by sending the payload
 
