@@ -51,10 +51,15 @@ class SteemNodeRPC(object):
         self.url = url
         self.user = user
         self.password = password
-        self.ws = create_connection(url)
-        self.login(user, password, api_id=1)
+        self.apis = apis
 
-        for api in apis:
+        self.connect()
+
+    def connect(self):
+        self.ws = create_connection(self.url)
+        self.login(self.user, self.password, api_id=1)
+
+        for api in self.apis:
             api = api.replace("_api", "")
             self.api_id[api] = self.get_api_by_name("%s_api" % api, api_id=1)
             if not self.api_id[api]:
@@ -80,7 +85,16 @@ class SteemNodeRPC(object):
             :raises RPCError: if the server returns an error
         """
         try:
-            self.ws.send(json.dumps(payload))
+            try:
+                self.ws.send(json.dumps(payload))
+            except:
+                # retry after reconnect
+                try:
+                    self.ws.close()
+                finally:
+                    self.connect()
+                self.ws.send(json.dumps(payload))
+
             ret = json.loads(self.ws.recv())
             if 'error' in ret:
                 if 'detail' in ret['error']:
