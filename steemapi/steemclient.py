@@ -148,10 +148,4 @@ class SteemClient() :
             self.node = self.ws
 
     def getObject(self, oid):
-        """ Get an Object either from Websocket store (if available) or
-            from RPC connection.
-        """
-        if self.ws :
-            return self.ws.get_object(oid)[0]
-        else :
-            return self.rpc.get_object(oid)[0]
+        return NotImplementedError
