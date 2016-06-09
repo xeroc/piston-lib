@@ -68,20 +68,19 @@ class SteemNodeRPC(GrapheneWebsocketRPC):
             api = api.replace("_api", "")
             self.api_id[api] = self.get_api_by_name("%s_api" % api, api_id=1)
             if not self.api_id[api]:
-                log.warning("No permission to access %s API. " % api +
-                      "The library may not function as desired!")
+                log.info("No permission to access %s API. " % api)
 
     def get_account(self, name):
         return self.get_accounts([name])[0]
 
     def get_asset(self, name):
-        raise NotImplementedError  ## We overwrite this method from grapehenlib
+        raise NotImplementedError  # We overwrite this method from grapehenlib
 
     def getFullAccountHistory(self, account, begin=1, limit=100, sort="block"):
-        raise NotImplementedError  ## We overwrite this method from grapehenlib
+        raise NotImplementedError  # We overwrite this method from grapehenlib
 
     def get_object(self, o):
-        raise NotImplementedError  ## We overwrite this method from grapehenlib
+        raise NotImplementedError  # We overwrite this method from grapehenlib
 
     def block_stream(self, start=None, mode="irreversible"):
         """ Yields blocks starting from ``start``.
@@ -130,7 +129,7 @@ class SteemNodeRPC(GrapheneWebsocketRPC):
                 yield self.get_block(blocknum)
 
             # Set new start
-            start = head_block
+            start = head_block + 1
 
             # Sleep for one block
             time.sleep(block_interval)
