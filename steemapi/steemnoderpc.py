@@ -60,7 +60,7 @@ class SteemNodeRPC(GrapheneWebsocketRPC):
                 self.ws = create_connection(self.url)
                 break
             except:
-                log.warning("Cannot connect to WS node: %s" % self.url)
+                log.warning("Lost connection to node: %s. Retrying in 10 seconds" % self.url)
                 time.sleep(10)
         self.login(self.user, self.password, api_id=1)
 
