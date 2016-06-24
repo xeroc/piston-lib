@@ -47,23 +47,10 @@ class SteemNodeRPC(GrapheneWebsocketRPC):
                  password="",
                  apis=["database",
                        "network_broadcast"]):
-        self.url = url
-        self.user = user
-        self.password = password
         self.apis = apis
+        super(SteemNodeRPC, self).__init__(url, user, password)
 
-        self.wsconnect()
-
-    def wsconnect(self):
-        while True:
-            try:
-                self.ws = create_connection(self.url)
-                break
-            except:
-                log.warning("Lost connection to node: %s. Retrying in 10 seconds" % self.url)
-                time.sleep(10)
-        self.login(self.user, self.password, api_id=1)
-
+    def register_apis(self):
         for api in self.apis:
             api = api.replace("_api", "")
             self.api_id[api] = self.get_api_by_name("%s_api" % api, api_id=1)
