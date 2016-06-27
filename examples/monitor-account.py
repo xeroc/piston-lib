@@ -75,7 +75,7 @@ if __name__ == '__main__':
     # We are going to loop indefinitely
     while True:
 
-        # Get chain properies to identify the 
+        # Get chain properies to identify the
         # head/last reversible block
         props = rpc.get_dynamic_global_properties()
 

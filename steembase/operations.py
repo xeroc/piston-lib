@@ -125,7 +125,10 @@ class Comment(GrapheneObject) :
                 kwargs = args[0]
             meta = ""
             if "json_metadata" in kwargs and kwargs["json_metadata"]:
-                meta = json.dumps(kwargs["json_metadata"])
+                if isinstance(kwargs["json_metadata"], dict):
+                    meta = json.dumps(kwargs["json_metadata"])
+                else:
+                    meta = kwargs["json_metadata"]
 
             super().__init__(OrderedDict([
                 ('parent_author'   , String(kwargs["parent_author"])),
@@ -178,7 +181,10 @@ class Account_create(GrapheneObject) :
 
             meta = ""
             if "json_metadata" in kwargs and kwargs["json_metadata"]:
-                meta = json.dumps(kwargs["json_metadata"])
+                if isinstance(kwargs["json_metadata"], dict):
+                    meta = json.dumps(kwargs["json_metadata"])
+                else:
+                    meta = kwargs["json_metadata"]
             super().__init__(OrderedDict([
                 ('fee'              , Amount(kwargs["fee"])),
                 ('creator'          , String(kwargs["creator"])),

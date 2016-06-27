@@ -1,5 +1,5 @@
 ************
-WebsocketRPC
+SteemNodeRPC
 ************
 
 .. warning:: This is a low level class that can be used in combination with
@@ -7,8 +7,9 @@ WebsocketRPC
              you are doing!
 
 This class allows to call API methods exposed by the witness node via
-websockets. It does **not** support notifications and is not run
-asynchronously.
+websockets.
 
-.. autoclass:: steemapi.steemwsrpc.SteemWebsocketRPC
-     :members:
+Defintion
+=========
+.. autoclass:: steemapi.steemnoderpc.SteemNodeRPC
+    :members: rpcexec, __getattr__
