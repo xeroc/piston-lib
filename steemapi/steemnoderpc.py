@@ -45,10 +45,12 @@ class SteemNodeRPC(GrapheneWebsocketRPC):
                  url,
                  user="",
                  password="",
-                 apis=["database",
-                       "network_broadcast"]):
-        self.apis = apis
-        super(SteemNodeRPC, self).__init__(url, user, password)
+                 **kwargs):
+        self.apis = kwargs.pop(
+            "apis",
+            ["database", "network_broadcast"]
+        )
+        super(SteemNodeRPC, self).__init__(url, user, password, **kwargs)
 
     def register_apis(self):
         for api in self.apis:
