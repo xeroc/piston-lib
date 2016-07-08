@@ -176,6 +176,32 @@ class Testcases(unittest.TestCase) :
         ref_block_prefix = 3707022213
         expiration       = "2016-04-06T08:29:27"
 
+        op = transactions.Transfer_to_vesting(
+            **{"from": "foo",
+               "to": "baar",
+               "amount": "111.110 STEEM",
+               }
+        )
+        ops = [transactions.Operation(op)]
+        tx = transactions.Signed_Transaction(
+            ref_block_num=ref_block_num,
+            ref_block_prefix=ref_block_prefix,
+            expiration=expiration,
+            operations=ops
+        )
+        tx = tx.sign([wif])
+
+        txWire = hexlify(bytes(tx)).decode("ascii")
+
+        compare = "f68585abf4dce7c80457010303666f6f046261617206b201000000000003535445454d00000001203a34cd45fb4a2585514614be2c1ba2365257ce5470d20c6c6abda39204eeba0b7e057d889ca8b1b1406f1441520a25d32df2ab9fdb532c3377dc66d0fe41bb3d"
+        self.assertEqual(compare[:-130], txWire[:-130])
+
+    def test_order_create(self):
+        wif              = "5KQwrPbwdL6PhXujxW37FSSQZ1JiwsST4cqQzDeyXtP79zkvFD3"
+        ref_block_num    = 34294
+        ref_block_prefix = 3707022213
+        expiration       = "2016-04-06T08:29:27"
+
         op = transactions.Limit_order_create(
             **{"owner": "",
                "orderid": 0,
@@ -196,32 +222,6 @@ class Testcases(unittest.TestCase) :
 
         txWire = hexlify(bytes(tx)).decode("ascii")
         compare = "f68585abf4dce7c8045701050000000000000000000000000003535445454d0000000000000000000003535445454d0000007f46685800011f28a2fc52dcfc19378c5977917b158dfab93e7760259aab7ecdbcb82df7b22e1a5527e02fd3aab7d64302ec550c3edcbba29d73226cf088273e4fafda89eb7de8"
-        self.assertEqual(compare[:-130], txWire[:-130])
-
-    def test_order_create(self):
-        wif              = "5KQwrPbwdL6PhXujxW37FSSQZ1JiwsST4cqQzDeyXtP79zkvFD3"
-        ref_block_num    = 34294
-        ref_block_prefix = 3707022213
-        expiration       = "2016-04-06T08:29:27"
-
-        op = transactions.Transfer_to_vesting(
-            **{"from": "foo",
-               "to": "baar",
-               "amount": "111.110 STEEM",
-               }
-        )
-        ops = [transactions.Operation(op)]
-        tx = transactions.Signed_Transaction(
-            ref_block_num=ref_block_num,
-            ref_block_prefix=ref_block_prefix,
-            expiration=expiration,
-            operations=ops
-        )
-        tx = tx.sign([wif])
-
-        txWire = hexlify(bytes(tx)).decode("ascii")
-
-        compare = "f68585abf4dce7c80457010303666f6f046261617206b201000000000003535445454d00000001203a34cd45fb4a2585514614be2c1ba2365257ce5470d20c6c6abda39204eeba0b7e057d889ca8b1b1406f1441520a25d32df2ab9fdb532c3377dc66d0fe41bb3d"
         self.assertEqual(compare[:-130], txWire[:-130])
 
     def test_order_cancel(self):
