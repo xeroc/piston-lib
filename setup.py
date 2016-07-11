@@ -12,7 +12,7 @@ except LookupError:
     ascii = codecs.lookup('ascii')
     codecs.register(lambda name, enc=ascii: {True: enc}.get(name == 'mbcs'))
 
-VERSION = '0.1.6'
+VERSION = '0.1.7'
 
 setup(name='steem',
       version=VERSION,
@@ -35,7 +35,7 @@ setup(name='steem',
                    'Topic :: Office/Business :: Financial',
                    ],
       install_requires=["ecdsa==0.13",
-                        "graphenelib==0.4.2",
+                        "graphenelib>=0.4.3",
                         "asyncio==3.4.3",
                         "websockets==2.0",
                         "pyyaml==3.11"
