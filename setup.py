@@ -12,7 +12,7 @@ except LookupError:
     ascii = codecs.lookup('ascii')
     codecs.register(lambda name, enc=ascii: {True: enc}.get(name == 'mbcs'))
 
-VERSION = '0.1.7'
+VERSION = '0.2rc1'
 
 setup(name='steem',
       version=VERSION,
@@ -25,7 +25,7 @@ setup(name='steem',
       maintainer_email='<Fabian@BitShares.eu>',
       url='http://www.github.com/xeroc/python-steem',
       keywords=['steem', 'library', 'api', 'rpc'],
-      packages=["steemapi", "steembase"],
+      packages=["steemapi", "steembase", "steemexchange"],
       classifiers=['License :: OSI Approved :: MIT License',
                    'Operating System :: OS Independent',
                    'Programming Language :: Python :: 3',

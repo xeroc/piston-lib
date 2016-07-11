@@ -57,7 +57,7 @@ class SteemNodeRPC(GrapheneWebsocketRPC):
             api = api.replace("_api", "")
             self.api_id[api] = self.get_api_by_name("%s_api" % api, api_id=1)
             if not self.api_id[api] and not isinstance(self.api_id[api], int):
-                log.info("No permission to access %s API. " % api)
+                log.critical("No permission to access %s API. " % api)
 
     def get_account(self, name):
         return self.get_accounts([name])[0]
