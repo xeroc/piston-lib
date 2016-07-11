@@ -107,7 +107,7 @@ class SteemClient() :
     ws  = None
     node  = None
 
-    def __init__(self, config):
+    def __init__(self, config, **kwargs):
         """ Initialize configuration
         """
         available_features = dir(config)
@@ -142,7 +142,8 @@ class SteemClient() :
 
             self.ws = SteemNodeRPC(self.witness_url,
                                    self.witness_user,
-                                   self.witness_password)
+                                   self.witness_password,
+                                   **kwargs)
 
             # Make a reference to 'node'
             self.node = self.ws

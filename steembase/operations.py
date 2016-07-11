@@ -243,3 +243,33 @@ class Withdraw_vesting(GrapheneObject) :
                 ('account'          , String(kwargs["account"])),
                 ('vesting_shares'   , Amount(kwargs["vesting_shares"])),
             ]))
+
+
+class Limit_order_create(GrapheneObject) :
+    def __init__(self, *args, **kwargs) :
+        if isArgsThisClass(self, args):
+                self.data = args[0].data
+        else:
+            if len(args) == 1 and len(kwargs) == 0:
+                kwargs = args[0]
+            super().__init__(OrderedDict([
+                ('owner'          , String(kwargs["owner"])),
+                ('orderid'        , Uint32(int(kwargs["orderid"]))),
+                ('amount_to_sell' , Amount(kwargs["amount_to_sell"])),
+                ('min_to_receive' , Amount(kwargs["min_to_receive"])),
+                ('fill_or_kill'   , Bool(kwargs["fill_or_kill"])),
+                ('expiration'     , PointInTime(kwargs["expiration"])),
+            ]))
+
+
+class Limit_order_cancel(GrapheneObject) :
+    def __init__(self, *args, **kwargs) :
+        if isArgsThisClass(self, args):
+                self.data = args[0].data
+        else:
+            if len(args) == 1 and len(kwargs) == 0:
+                kwargs = args[0]
+            super().__init__(OrderedDict([
+                ('owner'          , String(kwargs["owner"])),
+                ('orderid'        , Uint32(int(kwargs["orderid"]))),
+            ]))
