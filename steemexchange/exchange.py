@@ -179,6 +179,21 @@ class SteemExchange(SteemClient) :
             )):
                 raise WifNotActive
 
+    def executeOps(self, ops):
+        expiration = transactions.formatTimeFromNow(30)
+        ref_block_num, ref_block_prefix = transactions.getBlockParams(self.ws)
+        transaction = transactions.Signed_Transaction(
+            ref_block_num=ref_block_num,
+            ref_block_prefix=ref_block_prefix,
+            expiration=expiration,
+            operations=ops
+        )
+        transaction = transaction.sign([self.config.wif])
+        transaction = transactions.JsonObj(transaction)
+        if not (self.safe_mode):
+            self.ws.broadcast_transaction(transaction, api="network_broadcast")
+        return transaction
+
     def getMyAccount(self):
         """ Returns the structure containing all data relevant to the
             account specified in the configuration
@@ -450,30 +465,19 @@ class SteemExchange(SteemClient) :
             s = {"owner": self.myAccount["name"],
                  "orderid": random.getrandbits(32),
                  "amount_to_sell": '{:.{prec}f} {asset}'.format(
-                    amount * rate,
-                    prec=base["precision"],
-                    asset=base["symbol"]),
+                     amount * rate,
+                     prec=base["precision"],
+                     asset=base["symbol"]),
                  "min_to_receive": '{:.{prec}f} {asset}'.format(
-                    amount,
-                    prec=quote["precision"],
-                    asset=quote["symbol"]),
+                     amount,
+                     prec=quote["precision"],
+                     asset=quote["symbol"]),
                  "fill_or_kill": killfill,
                  "expiration": transactions.formatTimeFromNow(expiration)
                  }
             order = transactions.Limit_order_create(**s)
             ops = [transactions.Operation(order)]
-            expiration = transactions.formatTimeFromNow(30)
-            ref_block_num, ref_block_prefix = transactions.getBlockParams(self.ws)
-            transaction = transactions.Signed_Transaction(
-                ref_block_num=ref_block_num,
-                ref_block_prefix=ref_block_prefix,
-                expiration=expiration,
-                operations=ops
-            )
-            transaction = transaction.sign([self.config.wif])
-            transaction = transactions.JsonObj(transaction)
-            if not (self.safe_mode):
-                self.ws.broadcast_transaction(transaction, api="network_broadcast")
+            transaction = self.executeOps(ops)
         else:
             raise NoWalletException()
 
@@ -524,30 +528,19 @@ class SteemExchange(SteemClient) :
             s = {"owner": self.myAccount["name"],
                  "orderid": random.getrandbits(32),
                  "amount_to_sell": '{:.{prec}f} {asset}'.format(
-                    amount,
-                    prec=quote["precision"],
-                    asset=quote["symbol"]),
+                     amount,
+                     prec=quote["precision"],
+                     asset=quote["symbol"]),
                  "min_to_receive": '{:.{prec}f} {asset}'.format(
-                    amount * rate,
-                    prec=base["precision"],
-                    asset=base["symbol"]),
+                     amount * rate,
+                     prec=base["precision"],
+                     asset=base["symbol"]),
                  "fill_or_kill": killfill,
                  "expiration": transactions.formatTimeFromNow(expiration)
                  }
             order = transactions.Limit_order_create(**s)
             ops = [transactions.Operation(order)]
-            expiration = transactions.formatTimeFromNow(30)
-            ref_block_num, ref_block_prefix = transactions.getBlockParams(self.ws)
-            transaction = transactions.Signed_Transaction(
-                ref_block_num=ref_block_num,
-                ref_block_prefix=ref_block_prefix,
-                expiration=expiration,
-                operations=ops
-            )
-            transaction = transaction.sign([self.config.wif])
-            transaction = transactions.JsonObj(transaction)
-            if not (self.safe_mode):
-                self.ws.broadcast_transaction(transaction, api="network_broadcast")
+            transaction = self.executeOps(ops)
         else:
             raise NoWalletException()
 
@@ -573,18 +566,7 @@ class SteemExchange(SteemClient) :
                  }
             order = transactions.Limit_order_cancel(**s)
             ops = [transactions.Operation(order)]
-            expiration = transactions.formatTimeFromNow(30)
-            ref_block_num, ref_block_prefix = transactions.getBlockParams(self.ws)
-            transaction = transactions.Signed_Transaction(
-                ref_block_num=ref_block_num,
-                ref_block_prefix=ref_block_prefix,
-                expiration=expiration,
-                operations=ops
-            )
-            transaction = transaction.sign([self.config.wif])
-            transaction = transactions.JsonObj(transaction)
-            if not (self.safe_mode):
-                self.ws.broadcast_transaction(transaction, api="network_broadcast")
+            transaction = self.executeOps(ops)
         else:
             raise NoWalletException()
 
@@ -625,3 +607,54 @@ class SteemExchange(SteemClient) :
         for m in orders:
             r[m] = orders[m]["bids"]
         return r
+
+    def transfer(self, amount, asset, recepient, memo=""):
+        """ Transfer SBD or STEEM to another account
+
+            :param float amount: Amount to transfer
+            :param str asset: Asset to transfer ("SBD" or "STEEM")
+            :param str recepient: Recepient of the transfer
+            :param str memo: (Optional) Memo attached to the transfer
+        """
+        if self.safe_mode :
+            log.warn("Safe Mode enabled! Not broadcasting anything!")
+        asset = self._get_asset(asset)
+        if self.rpc:
+            print((
+                self.config.account,
+                recepient,
+                '{:.{prec}f} {asset}'.format(
+                    amount,
+                    prec=asset["precision"],
+                    asset=asset["symbol"]
+                ),
+                memo,
+                not (self.safe_mode)))
+            transaction = self.rpc.transfer(
+                self.config.account,
+                recepient,
+                '{:.{prec}f} {asset}'.format(
+                    amount,
+                    prec=asset["precision"],
+                    asset=asset["symbol"]
+                ),
+                memo,
+                not (self.safe_mode))
+        elif self.config.wif:
+            op = transactions.Transfer(
+                **{"from": self.config.account,
+                   "to": recepient,
+                   "amount": '{:.{prec}f} {asset}'.format(
+                       amount,
+                       prec=asset["precision"],
+                       asset=asset["symbol"]
+                   ),
+                   "memo": memo
+                   }
+            )
+            ops = [transactions.Operation(op)]
+            transaction = self.executeOps(ops)
+        else:
+            raise NoWalletException()
+
+        return transaction
