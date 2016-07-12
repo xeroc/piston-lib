@@ -223,10 +223,6 @@ class Transfer(GrapheneObject) :
                 kwargs = args[0]
             if "memo" not in kwargs:
                 kwargs["memo"] = ""
-            if kwargs["memo"] and kwargs["memo"][0] == "#":
-                raise Exception(
-                    "This library does not yet support encrypted memos!"
-                )
             super().__init__(OrderedDict([
                 ('from'          , String(kwargs["from"])),
                 ('to'            , String(kwargs["to"])),
