@@ -11,4 +11,5 @@ except:
 __all__ = ['transactions',
            'chains',
            'objecttypes',
-           'operations']
+           'operations',
+           'memo']
