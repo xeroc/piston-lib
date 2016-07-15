@@ -594,7 +594,7 @@ class SteemExchange(SteemClient) :
         return r
 
     def get_higest_bid(self):
-        """ Return the highest bids.
+        """ Return the highest bid.
 
             Example:
 
