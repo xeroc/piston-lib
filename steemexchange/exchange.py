@@ -281,20 +281,18 @@ class SteemExchange(SteemClient) :
         """
         ticker = {}
         t = self.ws.get_ticker(api="market_history")
-        steem = self._get_asset("STEEM")
-        sbd = self._get_asset("SBD")
         ticker["STEEM:SBD"] = {'highest_bid': float(t['highest_bid']),
                                'latest': float(t["latest"]),
                                'lowest_ask': float(t["lowest_ask"]),
                                'percent_change': float(t["percent_change"]),
-                               'sbd_volume': float(t["sbd_volume"]) / 10 ** sbd["precision"],
-                               'steem_volume': float(t["steem_volume"]) / 10 ** steem["precision"]}
+                               'sbd_volume': t["sbd_volume"],
+                               'steem_volume': t["steem_volume"]}
         ticker["SBD:STEEM"] = {'highest_bid': 1.0 / float(t['highest_bid']),
                                'latest': 1.0 / (float(t["latest"]) or 1e-6),
                                'lowest_ask': 1.0 / float(t["lowest_ask"]),
                                'percent_change': -float(t["percent_change"]),
-                               'sbd_volume': float(t["sbd_volume"]) / 10 ** sbd["precision"],
-                               'steem_volume': float(t["steem_volume"]) / 10 ** steem["precision"]}
+                               'sbd_volume': t["sbd_volume"],
+                               'steem_volume': t["steem_volume"]}
         return ticker
 
     def return24Volume(self):
@@ -308,10 +306,8 @@ class SteemExchange(SteemClient) :
 
         """
         v = self.ws.get_volume(api="market_history")
-        steem = self._get_asset("STEEM")
-        sbd = self._get_asset("SBD")
-        return {'sbd_volume': float(v["sbd_volume"]) / 10 ** sbd["precision"],
-                'steem_volume': float(v["steem_volume"]) / 10 ** steem["precision"]}
+        return {'sbd_volume': v["sbd_volume"],
+                'steem_volume': v["steem_volume"]}
 
     def returnOrderBook(self, limit=25):
         """ Returns the order book for the SBD/STEEM markets in both orientations.
