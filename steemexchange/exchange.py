@@ -140,8 +140,15 @@ class SteemExchange(SteemClient) :
 
     def __init__(self, config, **kwargs) :
         # Defaults:
-        self.safe_mode = kwargs.pop("safe_mode", True)
         self.prefix = "STM"
+
+        #: Safe mode
+        if "safe_mode" in kwargs:
+            self.safe_mode = kwargs["safe_mode"]
+        elif hasattr(config, "safe_mode"):
+            self.safe_mode = config.safe_mode
+        else:
+            self.safe_mode = True
 
         #: The wif key can be used for creating transactions **if** not
         # connected to a cli_wallet
