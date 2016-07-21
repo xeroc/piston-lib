@@ -364,19 +364,21 @@ class SteemExchange(SteemClient) :
         return r
 
     def returnBalances(self):
-        # riverhead - July 19. 2016 
+        """ Return SBD and STEEM balance of the account
+        """
+        # riverhead - July 19. 2016
         balances = {}
         result = self.ws.get_account(self.config.account)
         balances["STEEM"] = result['balance']
         balances["SBD"]   = result['sbd_balance']
         return balances
-        # ------------------------- 
 
-    def returnOpenOrders(self, currencyPair="all"):
-        # riverhead - July 18. 2016 
+    def returnOpenOrders(self):
+        """ Return open Orders of the account
+        """
+        # riverhead - July 18. 201 6
         orders = self.ws.get_open_orders(self.config.account, limit=1000)
         return orders
-        # ------------------------- 
 
     def returnTradeHistory(self, time=1 * 60 * 60, limit=100):
         """ Returns the trade history for the internal market
