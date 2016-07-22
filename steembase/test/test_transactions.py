@@ -5,6 +5,11 @@ import unittest
 from pprint import pprint
 from binascii import hexlify
 
+wif              = "5KQwrPbwdL6PhXujxW37FSSQZ1JiwsST4cqQzDeyXtP79zkvFD3"
+ref_block_num    = 34294
+ref_block_prefix = 3707022213
+expiration       = "2016-04-06T08:29:27"
+
 
 class Testcases(unittest.TestCase) :
 
@@ -13,11 +18,6 @@ class Testcases(unittest.TestCase) :
         self.maxDiff = None
 
     def test_Comment(self):
-        wif              = "5KQwrPbwdL6PhXujxW37FSSQZ1JiwsST4cqQzDeyXtP79zkvFD3"
-        ref_block_num    = 34294
-        ref_block_prefix = 3707022213
-        expiration       = "2016-04-06T08:29:27"
-
         op = transactions.Comment(
             **{"parent_author": "foobara",
                "parent_permlink": "foobarb",
@@ -42,11 +42,6 @@ class Testcases(unittest.TestCase) :
         self.assertEqual(compare[:-130], txWire[:-130])
 
     def test_Vote(self):
-        wif              = "5KQwrPbwdL6PhXujxW37FSSQZ1JiwsST4cqQzDeyXtP79zkvFD3"
-        ref_block_num    = 34294
-        ref_block_prefix = 3707022213
-        expiration       = "2016-04-06T08:29:27"
-
         op = transactions.Vote(
             **{"voter": "foobara",
                "author": "foobarc",
@@ -70,11 +65,6 @@ class Testcases(unittest.TestCase) :
         self.assertEqual(compare[:-130], txWire[:-130])
 
     def test_create_account(self):
-        wif              = "5KQwrPbwdL6PhXujxW37FSSQZ1JiwsST4cqQzDeyXtP79zkvFD3"
-        ref_block_num    = 34294
-        ref_block_prefix = 3707022213
-        expiration       = "2016-04-06T08:29:27"
-
         op = transactions.Account_create(
             **{'creator': 'xeroc',
                'fee': '10.000 STEEM',
@@ -118,11 +108,6 @@ class Testcases(unittest.TestCase) :
         self.assertEqual(compare[:-130], txWire[:-130])
 
     def test_Transfer(self):
-        wif              = "5KQwrPbwdL6PhXujxW37FSSQZ1JiwsST4cqQzDeyXtP79zkvFD3"
-        ref_block_num    = 34294
-        ref_block_prefix = 3707022213
-        expiration       = "2016-04-06T08:29:27"
-
         op = transactions.Transfer(
             **{"from": "foo",
                "to": "baar",
@@ -145,11 +130,6 @@ class Testcases(unittest.TestCase) :
         self.assertEqual(compare[:-130], txWire[:-130])
 
     def test_Transfer_to_vesting(self):
-        wif              = "5KQwrPbwdL6PhXujxW37FSSQZ1JiwsST4cqQzDeyXtP79zkvFD3"
-        ref_block_num    = 34294
-        ref_block_prefix = 3707022213
-        expiration       = "2016-04-06T08:29:27"
-
         op = transactions.Transfer_to_vesting(
             **{"from": "foo",
                "to": "baar",
@@ -171,11 +151,6 @@ class Testcases(unittest.TestCase) :
         self.assertEqual(compare[:-130], txWire[:-130])
 
     def test_withdraw_vesting(self):
-        wif              = "5KQwrPbwdL6PhXujxW37FSSQZ1JiwsST4cqQzDeyXtP79zkvFD3"
-        ref_block_num    = 34294
-        ref_block_prefix = 3707022213
-        expiration       = "2016-04-06T08:29:27"
-
         op = transactions.Transfer_to_vesting(
             **{"from": "foo",
                "to": "baar",
@@ -197,11 +172,6 @@ class Testcases(unittest.TestCase) :
         self.assertEqual(compare[:-130], txWire[:-130])
 
     def test_order_create(self):
-        wif              = "5KQwrPbwdL6PhXujxW37FSSQZ1JiwsST4cqQzDeyXtP79zkvFD3"
-        ref_block_num    = 34294
-        ref_block_prefix = 3707022213
-        expiration       = "2016-04-06T08:29:27"
-
         op = transactions.Limit_order_create(
             **{"owner": "",
                "orderid": 0,
@@ -224,12 +194,44 @@ class Testcases(unittest.TestCase) :
         compare = "f68585abf4dce7c8045701050000000000000000000000000003535445454d0000000000000000000003535445454d0000007f46685800011f28a2fc52dcfc19378c5977917b158dfab93e7760259aab7ecdbcb82df7b22e1a5527e02fd3aab7d64302ec550c3edcbba29d73226cf088273e4fafda89eb7de8"
         self.assertEqual(compare[:-130], txWire[:-130])
 
-    def test_order_cancel(self):
-        wif              = "5KQwrPbwdL6PhXujxW37FSSQZ1JiwsST4cqQzDeyXtP79zkvFD3"
-        ref_block_num    = 34294
-        ref_block_prefix = 3707022213
-        expiration       = "2016-04-06T08:29:27"
+    def test_account_update(self):
+        op = transactions.Account_update(
+            **{"account": "streemian",
+                "posting": {
+                    "weight_threshold": 1,
+                    "account_auths": [["xeroc", 1], ["fabian", 1]],
+                    "key_auths": [["STM6KChDK2sns9MwugxkoRvPEnyjuTxHN5upGsZ1EtanCffqBVVX3", 1],
+                                  ["STM7sw22HqsXbz7D2CmJfmMwt9rimtk518dRzsR1f8Cgw52dQR1pR", 1]]
+                },
+                "owner": {
+                    "weight_threshold": 1,
+                    "account_auths": [],
+                    "key_auths": [["STM7sw22HqsXbz7D2CmJfmMwt9rimtk518dRzsR1f8Cgw52dQR1pR", 1],
+                                  ["STM6KChDK2sns9MwugxkoRvPEnyjuTxHN5upGsZ1EtanCffqBVVX3", 1]]
+                },
+                "active": {
+                    "weight_threshold": 2,
+                    "account_auths": [],
+                    "key_auths": [["STM6KChDK2sns9MwugxkoRvPEnyjuTxHN5upGsZ1EtanCffqBVVX3", 1],
+                                  ["STM7sw22HqsXbz7D2CmJfmMwt9rimtk518dRzsR1f8Cgw52dQR1pR", 1]]
+                },
+                "memo_key": "STM728uLvStTeAkYJsQefks3FX8yfmpFHp8wXw3RY3kwey2JGDooR",
+                "json_metadata": ""}
+        )
+        ops = [transactions.Operation(op)]
+        tx = transactions.Signed_Transaction(
+            ref_block_num=ref_block_num,
+            ref_block_prefix=ref_block_prefix,
+            expiration=expiration,
+            operations=ops
+        )
+        tx = tx.sign([wif])
 
+        txWire = hexlify(bytes(tx)).decode("ascii")
+        compare = "f68585abf4dce7c80457010a0973747265656d69616e0101000000000202bbcf38855c9ae9d55704ee50ff56552af1242266c10544a75b61005e17fa78a601000389d28937022880a7f0c7deaa6f46b4d87ce08bd5149335cb39b5a8e9b04981c201000102000000000202bbcf38855c9ae9d55704ee50ff56552af1242266c10544a75b61005e17fa78a601000389d28937022880a7f0c7deaa6f46b4d87ce08bd5149335cb39b5a8e9b04981c201000101000000020666616269616e0100057865726f6301000202bbcf38855c9ae9d55704ee50ff56552af1242266c10544a75b61005e17fa78a601000389d28937022880a7f0c7deaa6f46b4d87ce08bd5149335cb39b5a8e9b04981c201000318c1ae46b3e98b26684c87737a04ecb1a390efdc7671ced448a92b745372deff000001206a8896c0ce0c949d901c44232694252348004cf9a74ec2f391c0e0b7a4108e7f71522c186a92c17e23a07cdb108a745b9760316daf16f2043453fbeccb331067"
+        self.assertEqual(compare[:-130], txWire[:-130])
+
+    def test_order_cancel(self):
         op = transactions.Limit_order_cancel(
             **{"owner": "",
                "orderid": 2141244,
@@ -251,15 +253,28 @@ class Testcases(unittest.TestCase) :
     def compareConstructedTX(self):
         #    def test_online(self):
         #        self.maxDiff = None
-        wif              = "5KQwrPbwdL6PhXujxW37FSSQZ1JiwsST4cqQzDeyXtP79zkvFD3"
-        ref_block_num    = 34294
-        ref_block_prefix = 3707022213
-        expiration       = "2016-04-06T08:29:27"
-
-        op = transactions.Limit_order_cancel(
-            **{"owner": "",
-               "orderid": 2141244,
-               }
+        op = transactions.Account_update(
+            **{"account": "streemian",
+                "posting": {
+                    "weight_threshold": 1,
+                    "account_auths": [["xeroc", 1], ["fabian", 1]],
+                    "key_auths": [["STM6KChDK2sns9MwugxkoRvPEnyjuTxHN5upGsZ1EtanCffqBVVX3", 1],
+                                  ["STM7sw22HqsXbz7D2CmJfmMwt9rimtk518dRzsR1f8Cgw52dQR1pR", 1]]
+                },
+                "owner": {
+                    "weight_threshold": 1,
+                    "account_auths": [],
+                    "key_auths": [["STM7sw22HqsXbz7D2CmJfmMwt9rimtk518dRzsR1f8Cgw52dQR1pR", 1],
+                                  ["STM6KChDK2sns9MwugxkoRvPEnyjuTxHN5upGsZ1EtanCffqBVVX3", 1]]
+                },
+                "active": {
+                    "weight_threshold": 2,
+                    "account_auths": [],
+                    "key_auths": [["STM6KChDK2sns9MwugxkoRvPEnyjuTxHN5upGsZ1EtanCffqBVVX3", 1],
+                                  ["STM7sw22HqsXbz7D2CmJfmMwt9rimtk518dRzsR1f8Cgw52dQR1pR", 1]]
+                },
+                "memo_key": "STM728uLvStTeAkYJsQefks3FX8yfmpFHp8wXw3RY3kwey2JGDooR",
+                "json_metadata": ""}
         )
         ops = [transactions.Operation(op)]
         tx = transactions.Signed_Transaction(
@@ -274,6 +289,8 @@ class Testcases(unittest.TestCase) :
         from grapheneapi.grapheneapi import GrapheneAPI
         rpc = GrapheneAPI("localhost", 8092)
         compare = rpc.serialize_transaction(transactions.JsonObj(tx))
+
+        pprint(transactions.JsonObj(tx))
 
         print("\n")
         print(compare[:-130])

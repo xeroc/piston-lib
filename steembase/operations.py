@@ -81,6 +81,11 @@ class Permission(GrapheneObject):
                 key=lambda x: repr(PublicKey(x[0], prefix=prefix)),
                 reverse=False,
             )
+            kwargs["account_auths"] = sorted(
+                kwargs["account_auths"],
+                key=lambda x: x[0],
+                reverse=False,
+            )
 
             accountAuths = Map([
                 [String(e[0]), Uint16(e[1])]
@@ -209,6 +214,35 @@ class Account_create(GrapheneObject) :
                 ('owner'            , Permission(kwargs["owner"])),
                 ('active'           , Permission(kwargs["active"])),
                 ('posting'          , Permission(kwargs["posting"])),
+                ('memo_key'         , PublicKey(kwargs["memo_key"], prefix=prefix)),
+                ('json_metadata'    , String(meta)),
+            ]))
+
+
+class Account_update(GrapheneObject) :
+    def __init__(self, *args, **kwargs) :
+        if isArgsThisClass(self, args):
+                self.data = args[0].data
+        else:
+            if len(args) == 1 and len(kwargs) == 0:
+                kwargs = args[0]
+
+            meta = ""
+            if "json_metadata" in kwargs and kwargs["json_metadata"]:
+                if isinstance(kwargs["json_metadata"], dict):
+                    meta = json.dumps(kwargs["json_metadata"])
+                else:
+                    meta = kwargs["json_metadata"]
+
+            owner = Permission(kwargs["owner"]) if "owner" in kwargs else None
+            active = Permission(kwargs["active"]) if "active" in kwargs else None
+            posting = Permission(kwargs["posting"]) if "posting" in kwargs else None
+
+            super().__init__(OrderedDict([
+                ('account'          , String(kwargs["account"])),
+                ('owner'            , Optional(owner)),
+                ('active'           , Optional(active)),
+                ('posting'          , Optional(posting)),
                 ('memo_key'         , PublicKey(kwargs["memo_key"], prefix=prefix)),
                 ('json_metadata'    , String(meta)),
             ]))
