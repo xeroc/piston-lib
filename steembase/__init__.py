@@ -5,7 +5,7 @@ try:
     import graphenebase.transactions
     import graphenebase.dictionary
 except:
-    raise ImportError("Please install 'graphenelibs'")
+    raise ImportError("Please install 'graphenelib'")
 
 
 __all__ = ['transactions',
