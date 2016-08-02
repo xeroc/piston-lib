@@ -1,7 +1,14 @@
-import asyncio
-from steemapi.steemasyncclient import SteemAsyncClient, Config
+try:
+    import asyncio
+except ImportError:
+    raise ImportError("Missing dependency: asyncio")
 
-import aiohttp
+try:
+    import aiohttp
+except ImportError:
+    raise ImportError("Missing dependency: aiohttp")
+
+from steemapi.steemasyncclient import SteemAsyncClient, Config
 import re
 import dateutil.parser
 from pprint import pprint

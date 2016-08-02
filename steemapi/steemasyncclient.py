@@ -1,7 +1,14 @@
-import asyncio
+try:
+    import asyncio
+except ImportError:
+    raise ImportError("Missing dependency: asyncio")
+try:
+    import yaml
+except ImportError:
+    raise ImportError("Missing dependency: asyncio")
+
 import websockets
 import json
-import yaml
 
 """ Error Classes """
 

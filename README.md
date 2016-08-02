@@ -39,6 +39,12 @@ Upgrade
 
     $ pip install --user --upgrade
 
+Additional dependencies
+-----------------------
+
+`steemapi.steemasyncclient`:
+ * `asyncio==3.4.3`
+ * `pyyaml==3.11`
 
 Documentation
 -------------
