@@ -1,6 +1,6 @@
 from steemapi.steemclient import SteemClient
 from steembase import transactions
-from steembase import PrivateKey
+from steembase.account import PrivateKey
 
 from datetime import datetime
 import time
