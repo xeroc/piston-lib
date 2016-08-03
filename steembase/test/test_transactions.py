@@ -250,31 +250,36 @@ class Testcases(unittest.TestCase) :
         compare = "f68585abf4dce7c804570106003cac20000001206c9888d0c2c31dba1302566f524dfac01a15760b93a8726241a7ae6ba00edfde5b83edaf94a4bd35c2957ded6023576dcbe936338fb9d340e21b5dad6f0028f6"
         self.assertEqual(compare[:-130], txWire[:-130])
 
+    def test_set_route(self):
+        op = transactions.Set_withdraw_vesting_route(
+            **{"from_account": "xeroc",
+               "to_account": "xeroc",
+               "percent": 1000,
+               "auto_vest": False
+               }
+        )
+        ops = [transactions.Operation(op)]
+        tx = transactions.Signed_Transaction(
+            ref_block_num=ref_block_num,
+            ref_block_prefix=ref_block_prefix,
+            expiration=expiration,
+            operations=ops
+        )
+        tx = tx.sign([wif])
+
+        txWire = hexlify(bytes(tx)).decode("ascii")
+        compare = "f68585abf4dce7c804570114057865726f63057865726f63e8030000011f12d2b8f93f9528f31979e0e1f59a6d45346a88c02ab2c4115b10c9e273fc1e99621af0c2188598c84762b7e99ca63f6b6be6fca318dd85b0d7a4f09f95579290"
+        self.assertEqual(compare[:-130], txWire[:-130])
+
     def compareConstructedTX(self):
         #    def test_online(self):
         #        self.maxDiff = None
-        op = transactions.Account_update(
-            **{"account": "streemian",
-                "posting": {
-                    "weight_threshold": 1,
-                    "account_auths": [["xeroc", 1], ["fabian", 1]],
-                    "key_auths": [["STM6KChDK2sns9MwugxkoRvPEnyjuTxHN5upGsZ1EtanCffqBVVX3", 1],
-                                  ["STM7sw22HqsXbz7D2CmJfmMwt9rimtk518dRzsR1f8Cgw52dQR1pR", 1]]
-                },
-                "owner": {
-                    "weight_threshold": 1,
-                    "account_auths": [],
-                    "key_auths": [["STM7sw22HqsXbz7D2CmJfmMwt9rimtk518dRzsR1f8Cgw52dQR1pR", 1],
-                                  ["STM6KChDK2sns9MwugxkoRvPEnyjuTxHN5upGsZ1EtanCffqBVVX3", 1]]
-                },
-                "active": {
-                    "weight_threshold": 2,
-                    "account_auths": [],
-                    "key_auths": [["STM6KChDK2sns9MwugxkoRvPEnyjuTxHN5upGsZ1EtanCffqBVVX3", 1],
-                                  ["STM7sw22HqsXbz7D2CmJfmMwt9rimtk518dRzsR1f8Cgw52dQR1pR", 1]]
-                },
-                "memo_key": "STM728uLvStTeAkYJsQefks3FX8yfmpFHp8wXw3RY3kwey2JGDooR",
-                "json_metadata": ""}
+        op = transactions.Set_withdraw_vesting_route(
+            **{"from_account": "xeroc",
+               "to_account": "xeroc",
+               "percent": 1000,
+               "auto_vest": False
+               }
         )
         ops = [transactions.Operation(op)]
         tx = transactions.Signed_Transaction(
@@ -299,33 +304,6 @@ class Testcases(unittest.TestCase) :
 
         print(txWire[:-130] == compare[:-130])
         self.assertEqual(compare[:-130], txWire[:-130])
-
-    def compareNewWire(self):
-        #    def test_online(self):
-        #        self.maxDiff = None
-        prefix           = "STEEM"
-        wif              = "5KQwrPbwdL6PhXujxW37FSSQZ1JiwsST4cqQzDeyXtP79zkvFD3"
-
-        from grapheneapi.grapheneapi import GrapheneAPI
-        rpc = GrapheneAPI("localhost", 8092)
-        tx = rpc.create_account("xeroc", "fsafaasf", "", False)
-        pprint(tx)
-        compare = rpc.serialize_transaction(tx)
-        ref_block_num    = tx["ref_block_num"]
-        ref_block_prefix = tx["ref_block_prefix"]
-        expiration       = tx["expiration"]
-
-        ops    = [transactions.Operation(transactions.Account_create(**tx["operations"][0][1]))]
-        tx     = transactions.Signed_Transaction(ref_block_num=ref_block_num,
-                                                 ref_block_prefix=ref_block_prefix,
-                                                 expiration=expiration,
-                                                 operations=ops)
-        tx     = tx.sign([wif], chain=prefix)
-        txWire = hexlify(bytes(tx)).decode("ascii")
-        print("\n")
-        print(txWire[:-130])
-        print(compare[:-130])
-        # self.assertEqual(compare[:-130], txWire[:-130])
 
 if __name__ == '__main__':
     t = Testcases()
