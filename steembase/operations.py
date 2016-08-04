@@ -22,13 +22,28 @@ operations["account_witness_proxy"] = 13
 operations["pow"] = 14
 operations["custom"] = 15
 operations["report_over_production"] = 16
-operations["fill_convert_request"] = 17
-operations["comment_reward"] = 18
-operations["curate_reward"] = 19
-operations["liquidity_reward"] = 20
-operations["interest"] = 21
-operations["fill_vesting_withdraw"] = 22
-operations["fill_order"] = 23
+operations["delete_comment"] = 17
+operations["custom_json"] = 18
+operations["comment_options"] = 19
+operations["set_withdraw_vesting_route"] = 20
+operations["limit_order_create2"] = 22
+operations["challenge_authority"] = 23
+operations["prove_authority"] = 24
+operations["request_account_recovery"] = 25
+operations["recover_account"] = 26
+operations["change_recovery_account"] = 27
+operations["escrow_transfer"] = 28
+operations["escrow_dispute"] = 29
+operations["escrow_release"] = 30
+# virtual operations below this point"
+#operations["fill_convert_request"] = 0
+#operations["comment_reward"] = 0
+#operations["curate_reward"] = 0
+#operations["liquidity_reward"] = 0
+#operations["interest"] = 0
+#operations["fill_vesting_withdraw"] = 0
+#operations["fill_order"] = 0
+#operations["comment_payout"] = 0
 
 prefix = "STM"
 # prefix = "TST"
@@ -79,6 +94,11 @@ class Permission(GrapheneObject):
             kwargs["key_auths"] = sorted(
                 kwargs["key_auths"],
                 key=lambda x: repr(PublicKey(x[0], prefix=prefix)),
+                reverse=False,
+            )
+            kwargs["account_auths"] = sorted(
+                kwargs["account_auths"],
+                key=lambda x: x[0],
                 reverse=False,
             )
 
@@ -214,6 +234,35 @@ class Account_create(GrapheneObject) :
             ]))
 
 
+class Account_update(GrapheneObject) :
+    def __init__(self, *args, **kwargs) :
+        if isArgsThisClass(self, args):
+                self.data = args[0].data
+        else:
+            if len(args) == 1 and len(kwargs) == 0:
+                kwargs = args[0]
+
+            meta = ""
+            if "json_metadata" in kwargs and kwargs["json_metadata"]:
+                if isinstance(kwargs["json_metadata"], dict):
+                    meta = json.dumps(kwargs["json_metadata"])
+                else:
+                    meta = kwargs["json_metadata"]
+
+            owner = Permission(kwargs["owner"]) if "owner" in kwargs else None
+            active = Permission(kwargs["active"]) if "active" in kwargs else None
+            posting = Permission(kwargs["posting"]) if "posting" in kwargs else None
+
+            super().__init__(OrderedDict([
+                ('account'          , String(kwargs["account"])),
+                ('owner'            , Optional(owner)),
+                ('active'           , Optional(active)),
+                ('posting'          , Optional(posting)),
+                ('memo_key'         , PublicKey(kwargs["memo_key"], prefix=prefix)),
+                ('json_metadata'    , String(meta)),
+            ]))
+
+
 class Transfer(GrapheneObject) :
     def __init__(self, *args, **kwargs) :
         if isArgsThisClass(self, args):
@@ -285,4 +334,19 @@ class Limit_order_cancel(GrapheneObject) :
             super().__init__(OrderedDict([
                 ('owner'          , String(kwargs["owner"])),
                 ('orderid'        , Uint32(int(kwargs["orderid"]))),
+            ]))
+
+
+class Set_withdraw_vesting_route(GrapheneObject) :
+    def __init__(self, *args, **kwargs) :
+        if isArgsThisClass(self, args):
+                self.data = args[0].data
+        else:
+            if len(args) == 1 and len(kwargs) == 0:
+                kwargs = args[0]
+            super().__init__(OrderedDict([
+                ('from_account'   , String(kwargs["from_account"])),
+                ('to_account'     , String(kwargs["to_account"])),
+                ('percent'        , Uint16((kwargs["percent"]))),
+                ('auto_vest'      , Bool(kwargs["auto_vest"])),
             ]))

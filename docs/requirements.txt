@@ -1,1 +1,3 @@
+pyyaml
+pycrypto==2.6.1
 steem-piston
