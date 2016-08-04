@@ -44,10 +44,7 @@ dist:
 	python3 setup.py bdist --format=zip upload
 	python3 setup.py bdist_wheel upload
 
-release: clean check dist steem-readme steem-changelog git
-
-steem-readme:
-	piston edit "@xeroc/python-steem-readme" --file README.md
+release: clean check dist steem-changelog git
 
 steem-changelog:
 	git tag -l -n100 $(TAG) | piston post --author xeroc --permlink "python-steem-changelog-$(TAGSTEEM)" --category steem --title "[Changelog] python-steem $(TAG)" --file "-"
