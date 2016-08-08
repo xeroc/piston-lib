@@ -271,15 +271,32 @@ class Testcases(unittest.TestCase) :
         compare = "f68585abf4dce7c804570114057865726f63057865726f63e8030000011f12d2b8f93f9528f31979e0e1f59a6d45346a88c02ab2c4115b10c9e273fc1e99621af0c2188598c84762b7e99ca63f6b6be6fca318dd85b0d7a4f09f95579290"
         self.assertEqual(compare[:-130], txWire[:-130])
 
+    def test_convert(self):
+        op = transactions.Convert(
+            **{"owner": "xeroc",
+               "requestid": 2342343235,
+               "amount": "100.000 SBD"}
+        )
+        ops = [transactions.Operation(op)]
+        tx = transactions.Signed_Transaction(
+            ref_block_num=ref_block_num,
+            ref_block_prefix=ref_block_prefix,
+            expiration=expiration,
+            operations=ops
+        )
+        tx = tx.sign([wif])
+
+        txWire = hexlify(bytes(tx)).decode("ascii")
+        compare = "f68585abf4dce7c804570108057865726f6343529d8ba086010000000000035342440000000000011f3d22eb66e5cddcc90f5d6ca0bd7a43e0ab811ecd480022af8a847c45eac720b342188d55643d8cb1711f516e9879be2fa7dfa329b518f19df4afaaf4f41f7715"
+        self.assertEqual(compare[:-130], txWire[:-130])
+
     def compareConstructedTX(self):
         #    def test_online(self):
         #        self.maxDiff = None
-        op = transactions.Set_withdraw_vesting_route(
-            **{"from_account": "xeroc",
-               "to_account": "xeroc",
-               "percent": 1000,
-               "auto_vest": False
-               }
+        op = transactions.Convert(
+            **{"owner": "xeroc",
+               "requestid": 2342343235,
+               "amount": "100.000 SBD"}
         )
         ops = [transactions.Operation(op)]
         tx = transactions.Signed_Transaction(

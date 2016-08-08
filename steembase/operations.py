@@ -350,3 +350,17 @@ class Set_withdraw_vesting_route(GrapheneObject) :
                 ('percent'        , Uint16((kwargs["percent"]))),
                 ('auto_vest'      , Bool(kwargs["auto_vest"])),
             ]))
+
+
+class Convert(GrapheneObject) :
+    def __init__(self, *args, **kwargs) :
+        if isArgsThisClass(self, args):
+                self.data = args[0].data
+        else:
+            if len(args) == 1 and len(kwargs) == 0:
+                kwargs = args[0]
+            super().__init__(OrderedDict([
+                ('owner'      , String(kwargs["owner"])),
+                ('requestid'  , Uint32(kwargs["requestid"])),
+                ('amount'     , Amount(kwargs["amount"])),
+            ]))
