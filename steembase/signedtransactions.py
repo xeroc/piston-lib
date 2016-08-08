@@ -188,7 +188,7 @@ class Signed_Transaction(GrapheneObject) :
             k = pubkey.unCompressed()[2:]
             if k not in pubKeysFound and repr(pubkey) not in pubKeysFound:
                 k = PublicKey(PublicKey(k).compressed())
-                f = format(k, chain)
+                f = format(k, "STM")
                 raise Exception("Signature for %s missing!" % f)
 
         return True
