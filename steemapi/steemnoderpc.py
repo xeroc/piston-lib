@@ -60,7 +60,9 @@ class SteemNodeRPC(GrapheneWebsocketRPC):
                 log.critical("No permission to access %s API. " % api)
 
     def get_account(self, name):
-        return self.get_accounts([name])[0]
+        account = self.get_accounts([name])
+        if account:
+            return account[0]
 
     def get_asset(self, name):
         raise NotImplementedError  # We overwrite this method from grapehenlib
