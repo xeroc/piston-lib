@@ -125,27 +125,23 @@ class SteemNodeRPC(GrapheneWebsocketRPC):
             # Sleep for one block
             time.sleep(block_interval)
 
-    def stream(self, opName, *args, **kwargs):
+    def stream(self, opNames, *args, **kwargs):
         """ Yield specific operations (e.g. comments) only
 
-            :param str opName: Name of the operation, e.g. vote,
-                                comment, transfer, transfer_to_vesting,
-                                withdraw_vesting, limit_order_create,
-                                limit_order_cancel, feed_publish,
-                                convert, account_create, account_update,
-                                witness_update, account_witness_vote,
-                                account_witness_proxy, pow, custom,
-                                report_over_production,
-                                fill_convert_request, comment_reward,
-                                curate_reward, liquidity_reward,
-                                interest, fill_vesting_withdraw,
-                                fill_order,
+            :param array opNames: List of operations to filter for, e.g.
+                vote, comment, transfer, transfer_to_vesting,
+                withdraw_vesting, limit_order_create, limit_order_cancel,
+                feed_publish, convert, account_create, account_update,
+                witness_update, account_witness_vote, account_witness_proxy,
+                pow, custom, report_over_production, fill_convert_request,
+                comment_reward, curate_reward, liquidity_reward, interest,
+                fill_vesting_withdraw, fill_order,
             :param int start: Begin at this block
         """
+        if isinstance(opNames, str):
+            opNames = [opNames]
         for block in self.block_stream(*args, **kwargs):
-            if not len(block["transactions"]):
-                continue
             for tx in block["transactions"]:
                 for op in tx["operations"]:
-                    if op[0] == opName:
+                    if op[0] in opNames:
                         yield op[1]
