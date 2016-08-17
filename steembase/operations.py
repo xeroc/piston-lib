@@ -195,7 +195,7 @@ class Amount() :
     def __bytes__(self) :
         # padding
         asset = self.asset + "\x00" * (7 - len(self.asset))
-        amount = int(float(self.amount) * 10 ** self.precision)
+        amount = round(float(self.amount) * 10 ** self.precision)
         return struct.pack("<q", amount) + \
             struct.pack("<b", self.precision) + \
             bytes(asset, "ascii")
