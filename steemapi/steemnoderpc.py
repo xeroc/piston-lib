@@ -73,6 +73,35 @@ class SteemNodeRPC(GrapheneWebsocketRPC):
     def get_object(self, o):
         raise NotImplementedError  # We overwrite this method from grapehenlib
 
+    def account_history(self, account, first=99999999999, limit=-1, only_ops=[]):
+        """ Returns a generator for individual account transactions. The
+            latest operation will be first. This call can be used in a
+            ``for`` loop.
+
+            :param str account: account name to get history for
+            :param int first: sequence number of the first transaction to return
+            :param int limit: limit number of transactions to return
+            :param array only_ops: Limit generator by these operations
+        """
+        cnt = 0
+        _limit = 100
+        if _limit > first:
+            _limit = first
+        while first >= _limit:
+            # RPC call
+            txs = self.get_account_history(account, first, _limit)
+            for i in txs[::-1]:
+                if not only_ops or i[1]["op"][0] in only_ops:
+                    cnt += 1
+                    yield i
+                    if limit >= 0 and cnt >= limit:
+                        break
+            if limit >= 0 and cnt >= limit:
+                break
+            if len(txs) < _limit:
+                break
+            first = txs[0][0] - 1  # new first
+
     def block_stream(self, start=None, mode="irreversible"):
         """ Yields blocks starting from ``start``.
 
