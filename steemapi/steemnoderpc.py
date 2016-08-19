@@ -185,16 +185,16 @@ class SteemNodeRPC(GrapheneWebsocketRPC):
         if limit and limit < step:
             step = limit
 
-        fetched_users = 0
+        number_of_fetched_users = 0
         progress = step
 
-        while progress == step and (not limit or fetched_users < limit):
+        while progress == step and (not limit or number_of_fetched_users < limit):
             users = self.lookup_accounts(start, step)
             progress = len(users)
 
             if progress > 0:
                 yield from users
-                fetched_users += progress
+                number_of_fetched_users += progress
 
                 # concatenate last fetched account name with lowest possible
                 # ascii character to get next lowest possible login as lower_bound
