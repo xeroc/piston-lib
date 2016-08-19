@@ -174,3 +174,28 @@ class SteemNodeRPC(GrapheneWebsocketRPC):
                 for op in tx["operations"]:
                     if op[0] in opNames:
                         yield op[1]
+
+    def list_accounts(self, start=None, step=1000, limit=None):
+        """ Yield list of user accounts in alphabetical order
+
+        :param str start: Name of account, which should be yield first
+        :param int step: Describes how many accounts should be fetched in each rpc request
+        :param int limit: Limit number of returned user accounts
+        """
+        if limit and limit < step:
+            step = limit
+
+        number_of_fetched_users = 0
+        progress = step
+
+        while progress == step and (not limit or number_of_fetched_users < limit):
+            users = self.lookup_accounts(start, step)
+            progress = len(users)
+
+            if progress > 0:
+                yield from users
+                number_of_fetched_users += progress
+
+                # concatenate last fetched account name with lowest possible
+                # ascii character to get next lowest possible login as lower_bound
+                start = users[-1] + '\0'
