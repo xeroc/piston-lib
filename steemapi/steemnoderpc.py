@@ -11,6 +11,10 @@ class RPCError(Exception):
     pass
 
 
+class NoAccessApi(Exception):
+    pass
+
+
 class SteemNodeRPC(GrapheneWebsocketRPC):
     """ This class allows to call API methods synchronously, without
         callbacks. It logs in and registers to the APIs:
@@ -57,7 +61,7 @@ class SteemNodeRPC(GrapheneWebsocketRPC):
             api = api.replace("_api", "")
             self.api_id[api] = self.get_api_by_name("%s_api" % api, api_id=1)
             if not self.api_id[api] and not isinstance(self.api_id[api], int):
-                log.critical("No permission to access %s API. " % api)
+                raise NoAccessApi("No permission to access %s API. " % api)
 
     def get_account(self, name):
         account = self.get_accounts([name])
