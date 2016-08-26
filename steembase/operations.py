@@ -2,6 +2,10 @@ import json
 from graphenebase.types import *
 from graphenebase.objects import GrapheneObject, isArgsThisClass
 from graphenebase.account import PublicKey, Address
+from graphenebase.operations import (
+    getOperationNameForId,
+    Operation as GrapheneOperation,
+)
 
 #: Operation ids
 operations = {}
@@ -48,37 +52,27 @@ operations["escrow_release"] = 30
 prefix = "STM"
 # prefix = "TST"
 
+class Operation(GrapheneOperation) :
 
-def getOperationNameForId(i) :
-    """ Convert an operation id into the corresponding string
-    """
-    for key in operations :
-        if int(operations[key]) is int(i) :
-            return key
-    return "Unknown Operation ID %d" % i
-
-
-class Operation() :
     def __init__(self, op) :
-        if isinstance(op, list) and len(op) == 2:
-            self.opId = operations[op[0]]
-            name = op[0]
-            self.name = name[0].upper() + name[1:]
-            try:
-                klass = eval(self.name)
-            except:
-                raise NotImplementedError("Unimplemented Operation %s" % self.name)
-            self.op = klass(op[1])
-        else:
-            self.op = op
-            self.name = type(self.op).__name__.lower()  # also store name
-            self.opId = operations[self.name]
+        super(Operation, self).__init__(op)
 
-    def __bytes__(self) :
-        return bytes(Id(self.opId)) + bytes(self.op)
+    def operations(self):
+        return operations
+
+    def getOperationNameForId(self, i) :
+        for key in operations :
+            if int(operations[key]) is int(i) :
+                return key
+        return "Unknown Operation ID %d" % i
+
+    def _getklass(self, name):
+        module = __import__("steembase.operations", fromlist=["operations"])
+        class_ = getattr(module, name)
+        return class_
 
     def __str__(self) :
-        return json.dumps([getOperationNameForId(self.opId), JsonObj(self.op)])
+        return json.dumps([self.getOperationNameForId(self.opId), JsonObj(self.op)])
 
 
 class Permission(GrapheneObject):
