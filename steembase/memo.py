@@ -2,7 +2,8 @@ import sys
 import hashlib
 from binascii import hexlify, unhexlify
 from Crypto.Cipher import AES
-from graphenebase.account import PrivateKey, PublicKey
+from steembase.account import PrivateKey, PublicKey
+from graphenebase.base58 import base58encode, base58decode
 import struct
 
 " This class and the methods require python3 "
@@ -114,8 +115,6 @@ def decode_memo(priv, message) :
                string
 
     """
-    from graphenebase.base58 import base58encode, base58decode
-
     " decode structure "
     raw = base58decode(message[1:])
     from_key = PublicKey(raw[:66])
@@ -128,10 +127,14 @@ def decode_memo(priv, message) :
     raw = raw[8:]
     cipher = raw
 
-    assert repr(to_key) == repr(priv.pubkey), "Incorrect PrivateKey"
+    if repr(to_key) == repr(priv.pubkey):
+        shared_secret = get_shared_secret(priv, from_key)
+    elif repr(from_key) == repr(priv.pubkey):
+        shared_secret = get_shared_secret(priv, to_key)
+    else:
+        raise ValueError("Incorrect PrivateKey")
 
     " Init encryption "
-    shared_secret = get_shared_secret(priv, from_key)
     aes, checksum = init_aes(shared_secret, nonce)
 
     " Check "
@@ -146,3 +149,13 @@ def decode_memo(priv, message) :
         return _unpad(message.decode('utf8'), 16)
     except :
         raise ValueError(message)
+
+
+def involved_keys(message):
+    " decode structure "
+    raw = base58decode(message[1:])
+    from_key = PublicKey(raw[:66])
+    raw = raw[66:]
+    to_key = PublicKey(raw[:66])
+
+    return [from_key, to_key]
