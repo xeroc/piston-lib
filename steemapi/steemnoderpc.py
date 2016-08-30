@@ -11,6 +11,10 @@ class RPCError(Exception):
     pass
 
 
+class NoAccessApi(Exception):
+    pass
+
+
 class SteemNodeRPC(GrapheneWebsocketRPC):
     """ This class allows to call API methods synchronously, without
         callbacks. It logs in and registers to the APIs:
@@ -57,10 +61,12 @@ class SteemNodeRPC(GrapheneWebsocketRPC):
             api = api.replace("_api", "")
             self.api_id[api] = self.get_api_by_name("%s_api" % api, api_id=1)
             if not self.api_id[api] and not isinstance(self.api_id[api], int):
-                log.critical("No permission to access %s API. " % api)
+                raise NoAccessApi("No permission to access %s API. " % api)
 
     def get_account(self, name):
-        return self.get_accounts([name])[0]
+        account = self.get_accounts([name])
+        if account:
+            return account[0]
 
     def get_asset(self, name):
         raise NotImplementedError  # We overwrite this method from grapehenlib
@@ -70,6 +76,35 @@ class SteemNodeRPC(GrapheneWebsocketRPC):
 
     def get_object(self, o):
         raise NotImplementedError  # We overwrite this method from grapehenlib
+
+    def account_history(self, account, first=99999999999, limit=-1, only_ops=[]):
+        """ Returns a generator for individual account transactions. The
+            latest operation will be first. This call can be used in a
+            ``for`` loop.
+
+            :param str account: account name to get history for
+            :param int first: sequence number of the first transaction to return
+            :param int limit: limit number of transactions to return
+            :param array only_ops: Limit generator by these operations
+        """
+        cnt = 0
+        _limit = 100
+        if _limit > first:
+            _limit = first
+        while first >= _limit:
+            # RPC call
+            txs = self.get_account_history(account, first, _limit)
+            for i in txs[::-1]:
+                if not only_ops or i[1]["op"][0] in only_ops:
+                    cnt += 1
+                    yield i
+                    if limit >= 0 and cnt >= limit:
+                        break
+            if limit >= 0 and cnt >= limit:
+                break
+            if len(txs) < _limit:
+                break
+            first = txs[0][0] - 1  # new first
 
     def block_stream(self, start=None, mode="irreversible"):
         """ Yields blocks starting from ``start``.
@@ -123,27 +158,48 @@ class SteemNodeRPC(GrapheneWebsocketRPC):
             # Sleep for one block
             time.sleep(block_interval)
 
-    def stream(self, opName, *args, **kwargs):
+    def stream(self, opNames, *args, **kwargs):
         """ Yield specific operations (e.g. comments) only
 
-            :param str opName: Name of the operation, e.g. vote,
-                                comment, transfer, transfer_to_vesting,
-                                withdraw_vesting, limit_order_create,
-                                limit_order_cancel, feed_publish,
-                                convert, account_create, account_update,
-                                witness_update, account_witness_vote,
-                                account_witness_proxy, pow, custom,
-                                report_over_production,
-                                fill_convert_request, comment_reward,
-                                curate_reward, liquidity_reward,
-                                interest, fill_vesting_withdraw,
-                                fill_order,
+            :param array opNames: List of operations to filter for, e.g.
+                vote, comment, transfer, transfer_to_vesting,
+                withdraw_vesting, limit_order_create, limit_order_cancel,
+                feed_publish, convert, account_create, account_update,
+                witness_update, account_witness_vote, account_witness_proxy,
+                pow, custom, report_over_production, fill_convert_request,
+                comment_reward, curate_reward, liquidity_reward, interest,
+                fill_vesting_withdraw, fill_order,
             :param int start: Begin at this block
         """
+        if isinstance(opNames, str):
+            opNames = [opNames]
         for block in self.block_stream(*args, **kwargs):
-            if not len(block["transactions"]):
-                continue
             for tx in block["transactions"]:
                 for op in tx["operations"]:
-                    if op[0] == opName:
+                    if op[0] in opNames:
                         yield op[1]
+
+    def list_accounts(self, start=None, step=1000, limit=None):
+        """ Yield list of user accounts in alphabetical order
+
+        :param str start: Name of account, which should be yield first
+        :param int step: Describes how many accounts should be fetched in each rpc request
+        :param int limit: Limit number of returned user accounts
+        """
+        if limit and limit < step:
+            step = limit
+
+        number_of_fetched_users = 0
+        progress = step
+
+        while progress == step and (not limit or number_of_fetched_users < limit):
+            users = self.lookup_accounts(start, step)
+            progress = len(users)
+
+            if progress > 0:
+                yield from users
+                number_of_fetched_users += progress
+
+                # concatenate last fetched account name with lowest possible
+                # ascii character to get next lowest possible login as lower_bound
+                start = users[-1] + '\0'
