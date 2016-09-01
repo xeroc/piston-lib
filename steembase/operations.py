@@ -3,7 +3,6 @@ from graphenebase.types import *
 from graphenebase.objects import GrapheneObject, isArgsThisClass
 from graphenebase.account import PublicKey, Address
 from graphenebase.operations import (
-    getOperationNameForId,
     Operation as GrapheneOperation,
 )
 
@@ -40,17 +39,18 @@ operations["escrow_transfer"] = 28
 operations["escrow_dispute"] = 29
 operations["escrow_release"] = 30
 # virtual operations below this point"
-#operations["fill_convert_request"] = 0
-#operations["comment_reward"] = 0
-#operations["curate_reward"] = 0
-#operations["liquidity_reward"] = 0
-#operations["interest"] = 0
-#operations["fill_vesting_withdraw"] = 0
-#operations["fill_order"] = 0
-#operations["comment_payout"] = 0
+# operations["fill_convert_request"] = 0
+# operations["comment_reward"] = 0
+# operations["curate_reward"] = 0
+# operations["liquidity_reward"] = 0
+# operations["interest"] = 0
+# operations["fill_vesting_withdraw"] = 0
+# operations["fill_order"] = 0
+# operations["comment_payout"] = 0
 
 prefix = "STM"
 # prefix = "TST"
+
 
 class Operation(GrapheneOperation) :
 
@@ -59,6 +59,9 @@ class Operation(GrapheneOperation) :
 
     def operations(self):
         return operations
+
+    def getOperationKlass(self):
+        return Operation
 
     def getOperationNameForId(self, i) :
         for key in operations :
