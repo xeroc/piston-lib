@@ -22,7 +22,7 @@ class SteemNodeRPC(GrapheneWebsocketRPC):
         * database
         * history
 
-        :param str url: Websocket URL
+        :param str urls: Either a single Websocket URL, or a list of URLs
         :param str user: Username for Authentication
         :param str password: Password for Authentication
         :param Array apis: List of APIs to register to (default: ["database", "network_broadcast"])
@@ -46,7 +46,7 @@ class SteemNodeRPC(GrapheneWebsocketRPC):
     api_id = {}
 
     def __init__(self,
-                 url,
+                 urls,
                  user="",
                  password="",
                  **kwargs):
@@ -54,7 +54,7 @@ class SteemNodeRPC(GrapheneWebsocketRPC):
             "apis",
             ["database", "network_broadcast"]
         )
-        super(SteemNodeRPC, self).__init__(url, user, password, **kwargs)
+        super(SteemNodeRPC, self).__init__(urls, user, password, **kwargs)
 
     def register_apis(self):
         for api in self.apis:
