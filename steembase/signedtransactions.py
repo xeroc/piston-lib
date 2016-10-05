@@ -20,7 +20,7 @@ class Signed_Transaction(GrapheneSigned_Transaction) :
     def sign(self, wifkeys, chain="STEEM") :
         return super(Signed_Transaction, self).sign(wifkeys, chain)
 
-    def verify(self, pubkeys, chain="STEEM"):
+    def verify(self, pubkeys=[], chain="STEEM"):
         return super(Signed_Transaction, self).verify(pubkeys, chain)
 
     def getOperationKlass(self):
