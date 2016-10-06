@@ -174,6 +174,8 @@ class SteemNodeRPC(GrapheneWebsocketRPC):
         if isinstance(opNames, str):
             opNames = [opNames]
         for block in self.block_stream(*args, **kwargs):
+            if "transactions" not in block:
+                continue
             for tx in block["transactions"]:
                 for op in tx["operations"]:
                     if op[0] in opNames:
