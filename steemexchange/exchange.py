@@ -11,10 +11,6 @@ import random
 log = logging.getLogger(__name__)
 
 
-class NoWalletException(Exception):
-    pass
-
-
 class InvalidWifKey(Exception):
     pass
 
@@ -195,7 +191,8 @@ class SteemExchange(SteemClient) :
             expiration=expiration,
             operations=ops
         )
-        transaction = transaction.sign([self.config.wif])
+        if self.config.wif:
+            transaction = transaction.sign([self.config.wif])
         transaction = transactions.JsonObj(transaction)
         if not (self.safe_mode):
             self.ws.broadcast_transaction(transaction, api="network_broadcast")
@@ -466,7 +463,7 @@ class SteemExchange(SteemClient) :
                 killfill,
                 expiration,
                 not (self.safe_mode))
-        elif self.config.wif:
+        else:
             s = {"owner": self.myAccount["name"],
                  "orderid": random.getrandbits(32),
                  "amount_to_sell": '{:.{prec}f} {asset}'.format(
@@ -483,8 +480,6 @@ class SteemExchange(SteemClient) :
             order = transactions.Limit_order_create(**s)
             ops = [transactions.Operation(order)]
             transaction = self.executeOps(ops)
-        else:
-            raise NoWalletException()
 
         return transaction
 
@@ -529,7 +524,7 @@ class SteemExchange(SteemClient) :
                 killfill,
                 expiration,
                 not (self.safe_mode))
-        elif self.config.wif:
+        else:
             s = {"owner": self.myAccount["name"],
                  "orderid": random.getrandbits(32),
                  "amount_to_sell": '{:.{prec}f} {asset}'.format(
@@ -546,8 +541,6 @@ class SteemExchange(SteemClient) :
             order = transactions.Limit_order_create(**s)
             ops = [transactions.Operation(order)]
             transaction = self.executeOps(ops)
-        else:
-            raise NoWalletException()
 
         return transaction
 
@@ -565,15 +558,13 @@ class SteemExchange(SteemClient) :
                 self.config.account,
                 orderNumber,
                 not self.safe_mode)
-        elif self.config.wif:
+        else:
             s = {"owner": self.myAccount["name"],
                  "orderid": orderNumber,
                  }
             order = transactions.Limit_order_cancel(**s)
             ops = [transactions.Operation(order)]
             transaction = self.executeOps(ops)
-        else:
-            raise NoWalletException()
 
         return transaction
 
@@ -645,7 +636,7 @@ class SteemExchange(SteemClient) :
                 ),
                 memo,
                 not (self.safe_mode))
-        elif self.config.wif:
+        else:
             op = transactions.Transfer(
                 **{"from": self.config.account,
                    "to": recepient,
@@ -659,7 +650,5 @@ class SteemExchange(SteemClient) :
             )
             ops = [transactions.Operation(op)]
             transaction = self.executeOps(ops)
-        else:
-            raise NoWalletException()
 
         return transaction
