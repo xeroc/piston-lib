@@ -453,10 +453,10 @@ class Transfer_from_savings(GrapheneObject):
 
             super().__init__(OrderedDict([
                 ('from', String(kwargs["from"])),
+                ('request_id', Uint32(int(kwargs["request_id"]))),
                 ('to', String(kwargs["to"])),
                 ('amount', Amount(kwargs["amount"])),
                 ('memo', String(kwargs["memo"])),
-                ('request_id', Uint32(int(kwargs["request_id"]))),
             ]))
 
 
