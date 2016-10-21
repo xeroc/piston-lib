@@ -11,10 +11,6 @@ import random
 log = logging.getLogger(__name__)
 
 
-class NoWalletException(Exception):
-    pass
-
-
 class InvalidWifKey(Exception):
     pass
 
@@ -83,7 +79,7 @@ class ExampleConfig() :
     witness_password      = ""
 
     #: The account used here
-    account               = "fabian"
+    account               = None
     wif                   = None
 
 
@@ -195,7 +191,8 @@ class SteemExchange(SteemClient) :
             expiration=expiration,
             operations=ops
         )
-        transaction = transaction.sign([self.config.wif])
+        if self.config.wif:
+            transaction = transaction.sign([self.config.wif])
         transaction = transactions.JsonObj(transaction)
         if not (self.safe_mode):
             self.ws.broadcast_transaction(transaction, api="network_broadcast")
@@ -205,7 +202,10 @@ class SteemExchange(SteemClient) :
         """ Returns the structure containing all data relevant to the
             account specified in the configuration
         """
-        return self.ws.get_account(self.config.account)
+        if self.config.account:
+            return self.ws.get_account(self.config.account)
+        else:
+            return None
 
     def formatTimeFromNow(self, secs=0):
         """ Properly Format Time that is `x` seconds in the future
@@ -321,45 +321,33 @@ class SteemExchange(SteemClient) :
 
             :param int limit: Limit the amount of orders (default: 25)
 
+            Market is SBD:STEEM and prices are STEEM:MARKET
+
             Sample output:
 
             .. code-block:: js
 
-                {'SBD:STEEM': {'asks': [{'price': 3.086436224481787,
-                                         'sbd': 318547,
-                                         'steem': 983175},
-                                        {'price': 3.086429621198315,
-                                         'sbd': 2814903,
-                                         'steem': 8688000}],
-                               'bids': [{'price': 3.0864376216446257,
-                                         'sbd': 545133,
-                                         'steem': 1682519},
-                                        {'price': 3.086440512632327,
-                                         'sbd': 333902,
-                                         'steem': 1030568}]},
-                 'STEEM:SBD': {'asks': [{'price': '0.32399827090802763',
-                                         'sbd': 318547,
-                                         'steem': 983175},
-                                        {'price': '0.32399896408839779',
-                                         'sbd': 2814903,
-                                         'steem': 8688000}],
-                               'bids': [{'price': '0.32399812424109331',
-                                         'sbd': 545133,
-                                         'steem': 1682519},
-                                        {'price': '0.32399782076056660',
-                                         'sbd': 333902,
-                                         'steem': 1030568}]}}
+                {'asks': [{'price': 3.086436224481787,
+                           'sbd': 318547,
+                           'steem': 983175},
+                          {'price': 3.086429621198315,
+                           'sbd': 2814903,
+                           'steem': 8688000}],
+                 'bids': [{'price': 3.0864376216446257,
+                           'sbd': 545133,
+                           'steem': 1682519},
+                          {'price': 3.086440512632327,
+                           'sbd': 333902,
+                           'steem': 1030568}]},
         """
         orders = self.ws.get_order_book(limit, api="market_history")
-        r = {}
-        r["STEEM:SBD"] = orders
-        r["SBD:STEEM"] = {"bids": [], "asks": []}
+        r = {"asks":[], "bids":[]}
         for side in ["bids", "asks"]:
             for o in orders[side]:
-                r["SBD:STEEM"][side].append({
-                    'price': 1.0 / float(o["price"]),
-                    'sbd': o["sbd"],
-                    'steem': o["steem"],
+                r[side].append({
+                    'price': float(o["price"]),
+                    'sbd': o["sbd"] / 10 ** 3,
+                    'steem': o["steem"] / 10 ** 3,
                 })
         return r
 
@@ -475,7 +463,7 @@ class SteemExchange(SteemClient) :
                 killfill,
                 expiration,
                 not (self.safe_mode))
-        elif self.config.wif:
+        else:
             s = {"owner": self.myAccount["name"],
                  "orderid": random.getrandbits(32),
                  "amount_to_sell": '{:.{prec}f} {asset}'.format(
@@ -492,8 +480,6 @@ class SteemExchange(SteemClient) :
             order = transactions.Limit_order_create(**s)
             ops = [transactions.Operation(order)]
             transaction = self.executeOps(ops)
-        else:
-            raise NoWalletException()
 
         return transaction
 
@@ -538,7 +524,7 @@ class SteemExchange(SteemClient) :
                 killfill,
                 expiration,
                 not (self.safe_mode))
-        elif self.config.wif:
+        else:
             s = {"owner": self.myAccount["name"],
                  "orderid": random.getrandbits(32),
                  "amount_to_sell": '{:.{prec}f} {asset}'.format(
@@ -555,8 +541,6 @@ class SteemExchange(SteemClient) :
             order = transactions.Limit_order_create(**s)
             ops = [transactions.Operation(order)]
             transaction = self.executeOps(ops)
-        else:
-            raise NoWalletException()
 
         return transaction
 
@@ -574,15 +558,13 @@ class SteemExchange(SteemClient) :
                 self.config.account,
                 orderNumber,
                 not self.safe_mode)
-        elif self.config.wif:
+        else:
             s = {"owner": self.myAccount["name"],
                  "orderid": orderNumber,
                  }
             order = transactions.Limit_order_cancel(**s)
             ops = [transactions.Operation(order)]
             transaction = self.executeOps(ops)
-        else:
-            raise NoWalletException()
 
         return transaction
 
@@ -654,7 +636,7 @@ class SteemExchange(SteemClient) :
                 ),
                 memo,
                 not (self.safe_mode))
-        elif self.config.wif:
+        else:
             op = transactions.Transfer(
                 **{"from": self.config.account,
                    "to": recepient,
@@ -668,7 +650,5 @@ class SteemExchange(SteemClient) :
             )
             ops = [transactions.Operation(op)]
             transaction = self.executeOps(ops)
-        else:
-            raise NoWalletException()
 
         return transaction

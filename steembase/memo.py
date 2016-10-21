@@ -2,6 +2,7 @@ import sys
 import hashlib
 from binascii import hexlify, unhexlify
 from Crypto.Cipher import AES
+from graphenebase.types import varint, varintdecode
 from steembase.account import PrivateKey, PublicKey
 from graphenebase.base58 import base58encode, base58decode
 import struct
@@ -80,10 +81,9 @@ def encode_memo(priv, pub, nonce, message) :
 
     """
     from steembase import transactions
-    from graphenebase.base58 import base58encode
     shared_secret = get_shared_secret(priv, pub)
     aes, check    = init_aes(shared_secret, nonce)
-    raw           = bytes(message, 'utf8')
+    raw           = varint(len(message)) + bytes(message, 'utf8')
     " Padding "
     BS    = 16
     if len(raw) % BS:
@@ -145,6 +145,8 @@ def decode_memo(priv, message) :
     message    = cipher[2:]
     from graphenebase.types import varintdecode
     message    = aes.decrypt(unhexlify(bytes(message, 'ascii')))
+    length     = varintdecode(message.decode('utf8'))
+    message    = message[len(varint(length)):]
     try :
         return _unpad(message.decode('utf8'), 16)
     except :
