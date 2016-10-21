@@ -1,9 +1,9 @@
-from graphenebase.account import PublicKey
+from graphenebase.types import *
 from graphenebase.objects import GrapheneObject, isArgsThisClass
+from graphenebase.account import PublicKey
 from graphenebase.operations import (
     Operation as GrapheneOperation,
 )
-from graphenebase.types import *
 
 #: Operation ids
 operations = {}
@@ -42,19 +42,12 @@ operations["escrow_approve"] = 31
 operations["transfer_to_savings"] = 32
 operations["transfer_from_savings"] = 33
 operations["cancel_transfer_from_savings"] = 34
-# virtual operations below this point"
-# operations["fill_convert_request"] = 0
-# operations["comment_reward"] = 0
-# operations["curate_reward"] = 0
-# operations["liquidity_reward"] = 0
-# operations["interest"] = 0
-# operations["fill_vesting_withdraw"] = 0
-# operations["fill_order"] = 0
-# operations["comment_payout"] = 0
+operations["custom_binary_operation"] = 35
+operations["decline_voting_rights_operation"] = 36
+operations["reset_account_operation"] = 37
+operations["set_reset_account_operation"] = 38
 
 prefix = "STM"
-
-
 # prefix = "TST"
 
 
@@ -105,13 +98,13 @@ class Permission(GrapheneObject):
             )
 
             accountAuths = Map([
-                                   [String(e[0]), Uint16(e[1])]
-                                   for e in kwargs["account_auths"]
-                                   ])
+                [String(e[0]), Uint16(e[1])]
+                for e in kwargs["account_auths"]
+            ])
             keyAuths = Map([
-                               [PublicKey(e[0], prefix=prefix), Uint16(e[1])]
-                               for e in kwargs["key_auths"]
-                               ])
+                [PublicKey(e[0], prefix=prefix), Uint16(e[1])]
+                for e in kwargs["key_auths"]
+            ])
             super().__init__(OrderedDict([
                 ('weight_threshold', Uint32(int(kwargs["weight_threshold"]))),
                 ('account_auths', accountAuths),
@@ -194,9 +187,11 @@ class Amount():
         # padding
         asset = self.asset + "\x00" * (7 - len(self.asset))
         amount = round(float(self.amount) * 10 ** self.precision)
-        return struct.pack("<q", amount) + \
-               struct.pack("<b", self.precision) + \
-               bytes(asset, "ascii")
+        return (
+            struct.pack("<q", amount) +
+            struct.pack("<b", self.precision) +
+            bytes(asset, "ascii")
+        )
 
     def __str__(self):
         return '{:.{}f} {}'.format(
@@ -204,6 +199,24 @@ class Amount():
             self.precision,
             self.asset
         )
+
+
+class Exchange_rate(GrapheneObject):
+    def __init__(self, *args, **kwargs):
+        if isArgsThisClass(self, args):
+            self.data = args[0].data
+        else:
+            if len(args) == 1 and len(kwargs) == 0:
+                kwargs = args[0]
+
+            super().__init__(OrderedDict([
+                ('base', Amount(kwargs["base"])),
+                ('quote', Amount(kwargs["quote"])),
+            ]))
+
+########################################################
+# Actual Operations
+########################################################
 
 
 class Account_create(GrapheneObject):
@@ -361,20 +374,6 @@ class Convert(GrapheneObject):
                 ('owner', String(kwargs["owner"])),
                 ('requestid', Uint32(kwargs["requestid"])),
                 ('amount', Amount(kwargs["amount"])),
-            ]))
-
-
-class Exchange_rate(GrapheneObject):
-    def __init__(self, *args, **kwargs):
-        if isArgsThisClass(self, args):
-            self.data = args[0].data
-        else:
-            if len(args) == 1 and len(kwargs) == 0:
-                kwargs = args[0]
-
-            super().__init__(OrderedDict([
-                ('base', Amount(kwargs["base"])),
-                ('quote', Amount(kwargs["quote"])),
             ]))
 
 
