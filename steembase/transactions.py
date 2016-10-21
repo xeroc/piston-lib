@@ -6,7 +6,7 @@ import json
 import struct
 import time
 
-from graphenebase import PublicKey
+from steembase.account import PublicKey
 from graphenebase.types import *
 from .signedtransactions import Signed_Transaction as GrapheneSigned_Transaction
 from .operations import *

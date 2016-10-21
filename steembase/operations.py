@@ -214,6 +214,22 @@ class Exchange_rate(GrapheneObject):
                 ('quote', Amount(kwargs["quote"])),
             ]))
 
+
+class Witness_props(GrapheneObject):
+    def __init__(self, *args, **kwargs):
+        if isArgsThisClass(self, args):
+            self.data = args[0].data
+        else:
+            if len(args) == 1 and len(kwargs) == 0:
+                kwargs = args[0]
+
+            super().__init__(OrderedDict([
+                ('account_creation_fee', Amount(kwargs["account_creation_fee"])),
+                ('maximum_block_size', Uint32(kwargs["maximum_block_size"])),
+                ('sbd_interest_rate', Uint16(kwargs["sbd_interest_rate"])),
+            ]))
+
+
 ########################################################
 # Actual Operations
 ########################################################
@@ -390,21 +406,6 @@ class Feed_publish(GrapheneObject):
             ]))
 
 
-class Witness_props(GrapheneObject):
-    def __init__(self, *args, **kwargs):
-        if isArgsThisClass(self, args):
-            self.data = args[0].data
-        else:
-            if len(args) == 1 and len(kwargs) == 0:
-                kwargs = args[0]
-
-            super().__init__(OrderedDict([
-                ('account_creation_fee', Amount(kwargs["account_creation_fee"])),
-                ('maximum_block_size', Uint32(kwargs["maximum_block_size"])),
-                ('sbd_interest_rate', Uint16(kwargs["sbd_interest_rate"])),
-            ]))
-
-
 class Witness_update(GrapheneObject):
     def __init__(self, *args, **kwargs):
         if isArgsThisClass(self, args):
@@ -417,7 +418,7 @@ class Witness_update(GrapheneObject):
             super().__init__(OrderedDict([
                 ('owner', String(kwargs["owner"])),
                 ('url', String(kwargs["url"])),
-                ('block_signing_key', PublicKey(kwargs["block_signing_key"])),
+                ('block_signing_key', PublicKey(kwargs["block_signing_key"], prefix=prefix)),
                 ('props', Witness_props(kwargs["props"])),
                 ('fee', Amount(kwargs["fee"])),
             ]))

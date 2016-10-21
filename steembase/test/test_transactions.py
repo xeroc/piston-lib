@@ -1,9 +1,7 @@
 import unittest
 from binascii import hexlify
 from pprint import pprint
-
-from graphenebase.account import PrivateKey
-
+from steembase.account import PrivateKey
 from steembase import transactions
 
 wif = "5KQwrPbwdL6PhXujxW37FSSQZ1JiwsST4cqQzDeyXtP79zkvFD3"
@@ -597,17 +595,71 @@ class Testcases(unittest.TestCase):
                    "8ea4baddb361a3709b664ba7375")
         self.assertEqual(compare[:-130], txWire[:-130])
 
+    def test_feed_publish(self):
+        op = transactions.Feed_publish(
+            **{"publisher": "xeroc",
+               "exchange_rate": {
+                       "base": "1.000 SBD",
+                       "quote": "4.123 STEEM"}
+            }
+        )
+        ops = [transactions.Operation(op)]
+        tx = transactions.Signed_Transaction(
+            ref_block_num=ref_block_num,
+            ref_block_prefix=ref_block_prefix,
+            expiration=expiration,
+            operations=ops
+        )
+        tx = tx.sign([wif])
+        txWire = hexlify(bytes(tx)).decode("ascii")
+        compare = ("f68585abf4dce7c804570107057865726f63e803000000000"
+                   "00003534244000000001b1000000000000003535445454d00"
+                   "000001203847a02aa76964cacfb41565c23286cc64b18f6bb"
+                   "9260832823839b3b90dff18738e1b686ad22f79c42fca73e6"
+                   "1bf633505a2a66cac65555b0ac535ca5ee5a61")
+        self.assertEqual(compare[:-130], txWire[:-130])
+
+    def test_witness_update(self):
+        op = transactions.Witness_update(
+            **{"owner": "xeroc",
+               "url": "foooobar",
+               "block_signing_key": "STM6zLNtyFVToBsBZDsgMhgjpwysYVbsQD6YhP3kRkQhANUB4w7Qp",
+               "props": {"account_creation_fee": "10.000 STEEM",
+                         "maximum_block_size": 1111111,
+                         "sbd_interest_rate": 1000},
+               "fee": "10.000 STEEM",
+               }
+        )
+        ops = [transactions.Operation(op)]
+        tx = transactions.Signed_Transaction(
+            ref_block_num=ref_block_num,
+            ref_block_prefix=ref_block_prefix,
+            expiration=expiration,
+            operations=ops
+        )
+        tx = tx.sign([wif])
+        txWire = hexlify(bytes(tx)).decode("ascii")
+        compare = ("f68585abf4dce7c80457010b057865726f6308666f6f6f6f6261"
+                   "720314aa202c9158990b3ec51a1aa49b2ab5d300c97b391df3be"
+                   "b34bb74f3c62699e102700000000000003535445454d000047f4"
+                   "1000e803102700000000000003535445454d00000001206adca4"
+                   "bebc872e8d792caeb3b729e9a5e8af90c07ab3f744fb4d0f19d5"
+                   "7b3bec32f5a43f5acdfc065f0227e45e599745c46e41c023d69f"
+                   "b9f2405478badadb4c")
+        self.assertEqual(compare[:-130], txWire[:-130])
+
     def compareConstructedTX(self):
         #    def test_online(self):
         #        self.maxDiff = None
-        op = transactions.Transfer_from_savings(
-            **{
-                "from": "testuser",
-                "request_id": 1,
-                "to": "testuser",
-                "amount": "1.000 STEEM",
-                "memo": "test-memo",
-            }
+        op = transactions.Witness_update(
+            **{"owner": "xeroc",
+               "url": "foooobar",
+               "block_signing_key": "STM6zLNtyFVToBsBZDsgMhgjpwysYVbsQD6YhP3kRkQhANUB4w7Qp",
+               "props": {"account_creation_fee": "10.000 STEEM",
+                         "maximum_block_size": 1111111,
+                         "sbd_interest_rate": 1000},
+               "fee": "10.000 STEEM",
+               }
         )
         ops = [transactions.Operation(op)]
         tx = transactions.Signed_Transaction(
@@ -632,6 +684,8 @@ class Testcases(unittest.TestCase):
 
         print(txWire[:-130] == compare[:-130])
         self.assertEqual(compare[:-130], txWire[:-130])
+
+        # Witness_update
 
 
 if __name__ == '__main__':
