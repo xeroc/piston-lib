@@ -262,44 +262,29 @@ class SteemExchange(SteemClient) :
 
             .. note::
 
-                All prices returned by ``returnTicker`` are in the **reveresed**
-                orientation as the market. I.e. in the SBD:STEEM market, prices are
-                STEEM per SBD. That way you can multiply prices with `1.05` to
-                get a +5%.
+                Market is STEEM:SBD and prices are SBD per STEEM!
 
             Sample Output:
 
             .. code-block:: js
 
-                {'SBD:STEEM': {'highest_bid': 3.3222341219615097,
-                               'latest': 1000000.0,
-                               'lowest_ask': 3.0772668228742615,
-                               'percent_change': -0.0,
-                               'sbd_volume': 108329611.0,
-                               'steem_volume': 355094043.0},
-                 'STEEM:SBD': {'highest_bid': 0.30100226633322913,
-                               'latest': 0.0,
-                               'lowest_ask': 0.3249636958897082,
-                               'percent_change': 0.0,
-                               'sbd_volume': 108329611.0,
-                               'steem_volume': 355094043.0}}
+                 {'highest_bid': 0.30100226633322913,
+                  'latest': 0.0,
+                  'lowest_ask': 0.3249636958897082,
+                  'percent_change': 0.0,
+                  'sbd_volume': 108329611.0,
+                  'steem_volume': 355094043.0}
 
 
         """
         ticker = {}
         t = self.ws.get_ticker(api="market_history")
-        ticker["STEEM:SBD"] = {'highest_bid': float(t['highest_bid']),
-                               'latest': float(t["latest"]),
-                               'lowest_ask': float(t["lowest_ask"]),
-                               'percent_change': float(t["percent_change"]),
-                               'sbd_volume': t["sbd_volume"],
-                               'steem_volume': t["steem_volume"]}
-        ticker["SBD:STEEM"] = {'highest_bid': 1.0 / float(t['highest_bid']),
-                               'latest': 1.0 / (float(t["latest"]) or 1e-6),
-                               'lowest_ask': 1.0 / float(t["lowest_ask"]),
-                               'percent_change': -float(t["percent_change"]),
-                               'sbd_volume': t["sbd_volume"],
-                               'steem_volume': t["steem_volume"]}
+        ticker = {'highest_bid': float(t['highest_bid']),
+                  'latest': float(t["latest"]),
+                  'lowest_ask': float(t["lowest_ask"]),
+                  'percent_change': float(t["percent_change"]),
+                  'sbd_volume': t["sbd_volume"],
+                  'steem_volume': t["steem_volume"]}
         return ticker
 
     def return24Volume(self):
@@ -321,7 +306,9 @@ class SteemExchange(SteemClient) :
 
             :param int limit: Limit the amount of orders (default: 25)
 
-            Market is SBD:STEEM and prices are STEEM:MARKET
+            .. note::
+
+                Market is STEEM:SBD and prices are SBD per STEEM!
 
             Sample output:
 
@@ -341,7 +328,7 @@ class SteemExchange(SteemClient) :
                            'steem': 1030568}]},
         """
         orders = self.ws.get_order_book(limit, api="market_history")
-        r = {"asks":[], "bids":[]}
+        r = {"asks": [], "bids": []}
         for side in ["bids", "asks"]:
             for o in orders[side]:
                 r[side].append({
@@ -440,9 +427,6 @@ class SteemExchange(SteemClient) :
 
             Prices/Rates are denoted in 'base', i.e. the STEEM:SBD market
             is priced in SBD per STEEM.
-
-            **Example:** in the SBD:STEEM market, a price of 300 means
-            a SBD is worth 300 STEEM
         """
         if self.safe_mode :
             log.warn("Safe Mode enabled! Not broadcasting anything!")
@@ -501,9 +485,6 @@ class SteemExchange(SteemClient) :
 
             Prices/Rates are denoted in 'base', i.e. the STEEM:SBD market
             is priced in SBD per STEEM.
-
-            **Example:** in the SBD:STEEM market, a price of 300 means
-            a SBD is worth 300 STEEM
         """
         if self.safe_mode :
             log.warn("Safe Mode enabled! Not broadcasting anything!")
@@ -571,38 +552,38 @@ class SteemExchange(SteemClient) :
     def get_lowest_ask(self):
         """ Return the lowest ask.
 
+            .. note::
+
+                Market is STEEM:SBD and prices are SBD per STEEM!
+
             Example:
 
             .. code-block:: js
 
-                {'SBD:STEEM': [{'price': 3.08643564387293, 'sbd': 320863, 'steem': 990323}],
-                 'STEEM:SBD': [{'price': '0.32399833185738391',
-                                'sbd': 320863,
-                                'steem': 990323}]}
+                 {'price': '0.32399833185738391',
+                   'sbd': 320863,
+                   'steem': 990323}
         """
-        r = {}
         orders = self.returnOrderBook(1)
-        for m in orders:
-            r[m] = orders[m]["asks"]
-        return r
+        return orders["asks"][0]
 
     def get_higest_bid(self):
         """ Return the highest bid.
 
+            .. note::
+
+                Market is STEEM:SBD and prices are SBD per STEEM!
+
             Example:
 
             .. code-block:: js
 
-                {'SBD:STEEM': [{'price': 3.08643564387293, 'sbd': 320863, 'steem': 990323}],
-                 'STEEM:SBD': [{'price': '0.32399833185738391',
-                                'sbd': 320863,
-                                'steem': 990323}]}
+                 {'price': '0.32399833185738391',
+                  'sbd': 320863,
+                  'steem': 990323}
         """
-        r = {}
         orders = self.returnOrderBook(1)
-        for m in orders:
-            r[m] = orders[m]["bids"]
-        return r
+        return orders["bids"][0]
 
     def transfer(self, amount, asset, recepient, memo=""):
         """ Transfer SBD or STEEM to another account
