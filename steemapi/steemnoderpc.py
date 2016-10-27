@@ -150,7 +150,9 @@ class SteemNodeRPC(GrapheneWebsocketRPC):
             # Blocks from start until head block
             for blocknum in range(start, head_block + 1):
                 # Get full block
-                yield self.get_block(blocknum)
+                block = self.get_block(blocknum)
+                block.update({"block_num": blocknum})
+                yield block
 
             # Set new start
             start = head_block + 1
