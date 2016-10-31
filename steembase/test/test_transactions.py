@@ -648,17 +648,36 @@ class Testcases(unittest.TestCase):
                    "b9f2405478badadb4c")
         self.assertEqual(compare[:-130], txWire[:-130])
 
+    def test_witness_vote(self):
+        op = transactions.Account_witness_vote(
+            **{"account": "xeroc",
+               "witness": "chainsquad",
+               "approve": True,
+               }
+        )
+        ops = [transactions.Operation(op)]
+        tx = transactions.Signed_Transaction(
+            ref_block_num=ref_block_num,
+            ref_block_prefix=ref_block_prefix,
+            expiration=expiration,
+            operations=ops
+        )
+        tx = tx.sign([wif])
+        txWire = hexlify(bytes(tx)).decode("ascii")
+        compare = ("f68585abf4dce7c80457010c057865726f630a636"
+                   "861696e73717561640100011f16b43411e11f4739"
+                   "4c1624a3c4d3cf4daba700b8690f494e6add7ad9b"
+                   "ac735ce7775d823aa66c160878cb3348e6857c531"
+                   "114d229be0202dc0857f8f03a00369")
+        self.assertEqual(compare[:-130], txWire[:-130])
+
     def compareConstructedTX(self):
         #    def test_online(self):
         #        self.maxDiff = None
-        op = transactions.Witness_update(
-            **{"owner": "xeroc",
-               "url": "foooobar",
-               "block_signing_key": "STM6zLNtyFVToBsBZDsgMhgjpwysYVbsQD6YhP3kRkQhANUB4w7Qp",
-               "props": {"account_creation_fee": "10.000 STEEM",
-                         "maximum_block_size": 1111111,
-                         "sbd_interest_rate": 1000},
-               "fee": "10.000 STEEM",
+        op = transactions.Account_witness_vote(
+            **{"account": "xeroc",
+               "witness": "chainsquad",
+               "approve": True,
                }
         )
         ops = [transactions.Operation(op)]
