@@ -153,7 +153,8 @@ class Comment(GrapheneObject):
                 kwargs = args[0]
             meta = ""
             if "json_metadata" in kwargs and kwargs["json_metadata"]:
-                if isinstance(kwargs["json_metadata"], dict):
+                if (isinstance(kwargs["json_metadata"], dict) or
+                        isinstance(kwargs["json_metadata"], list)):
                     meta = json.dumps(kwargs["json_metadata"])
                 else:
                     meta = kwargs["json_metadata"]
@@ -484,4 +485,31 @@ class Account_witness_vote(GrapheneObject):
                 ('account', String(kwargs["account"])),
                 ('witness', String(kwargs["witness"])),
                 ('approve', Bool(bool(kwargs["approve"]))),
+            ]))
+
+
+class Custom_json(GrapheneObject):
+    def __init__(self, *args, **kwargs):
+        if isArgsThisClass(self, args):
+            self.data = args[0].data
+        else:
+            if len(args) == 1 and len(kwargs) == 0:
+                kwargs = args[0]
+            if "json" in kwargs and kwargs["json"]:
+                if (isinstance(kwargs["json"], dict) or
+                        isinstance(kwargs["json"], list)):
+                    js = json.dumps(kwargs["json"])
+                else:
+                    js = kwargs["json"]
+
+            if len(kwargs["id"]) > 32:
+                raise Exception("'id' too long")
+
+            super().__init__(OrderedDict([
+                ('required_auths',
+                    Array([String(o) for o in kwargs["required_auths"]])),
+                ('required_posting_auths',
+                    Array([String(o) for o in kwargs["required_posting_auths"]])),
+                ('id', String(kwargs["id"])),
+                ('json', String(js)),
             ]))

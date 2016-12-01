@@ -3,6 +3,7 @@ from binascii import hexlify
 from pprint import pprint
 from steembase.account import PrivateKey
 from steembase import transactions
+from collections import OrderedDict
 
 wif = "5KQwrPbwdL6PhXujxW37FSSQZ1JiwsST4cqQzDeyXtP79zkvFD3"
 ref_block_num = 34294
@@ -598,11 +599,8 @@ class Testcases(unittest.TestCase):
     def test_feed_publish(self):
         op = transactions.Feed_publish(
             **{"publisher": "xeroc",
-               "exchange_rate": {
-                       "base": "1.000 SBD",
-                       "quote": "4.123 STEEM"}
-            }
-        )
+               "exchange_rate": {"base": "1.000 SBD",
+                                 "quote": "4.123 STEEM"}})
         ops = [transactions.Operation(op)]
         tx = transactions.Signed_Transaction(
             ref_block_num=ref_block_num,
@@ -671,14 +669,56 @@ class Testcases(unittest.TestCase):
                    "114d229be0202dc0857f8f03a00369")
         self.assertEqual(compare[:-130], txWire[:-130])
 
+    def test_custom_json(self):
+        op = transactions.Custom_json(
+            **{
+                "json": ["reblog",
+                         OrderedDict([  # need an ordered dict to keep order for the test
+                             ("account", "xeroc"),
+                             ("author", "chainsquad"),
+                             ("permlink", "streemian-com-to-open-its-doors-and-offer-a-20-discount")
+                         ])],
+                "required_auths": [],
+                "required_posting_auths": ["xeroc"],
+                "id": "follow"
+            }
+        )
+        ops = [transactions.Operation(op)]
+        tx = transactions.Signed_Transaction(
+            ref_block_num=ref_block_num,
+            ref_block_prefix=ref_block_prefix,
+            expiration=expiration,
+            operations=ops
+        )
+        tx = tx.sign([wif])
+        txWire = hexlify(bytes(tx)).decode("ascii")
+        compare = (
+            "f68585abf4dce7c8045701120001057865726f6306666f6c6c"
+            "6f777f5b227265626c6f67222c207b226163636f756e74223a"
+            "20227865726f63222c2022617574686f72223a202263686169"
+            "6e7371756164222c20227065726d6c696e6b223a2022737472"
+            "65656d69616e2d636f6d2d746f2d6f70656e2d6974732d646f"
+            "6f72732d616e642d6f666665722d612d32302d646973636f75"
+            "6e74227d5d00011f0cffad16cfd8ea4b84c06d412e93a9fc10"
+            "0bf2fac5f9a40d37d5773deef048217db79cabbf15ef29452d"
+            "e4ed1c5face51d998348188d66eb9fc1ccef79a0c0d4"
+        )
+        self.assertEqual(compare[:-130], txWire[:-130])
+
     def compareConstructedTX(self):
         #    def test_online(self):
         #        self.maxDiff = None
-        op = transactions.Account_witness_vote(
-            **{"account": "xeroc",
-               "witness": "chainsquad",
-               "approve": True,
-               }
+        op = transactions.Custom_json(
+            **{
+                "json": ["reblog",
+                         {"account": "xeroc",
+                          "author": "chainsquad",
+                          "permlink": "streemian-com-to-open-its-doors-and-offer-a-20-discount"
+                          }],
+                "required_auths": [],
+                "required_posting_auths": ["xeroc"],
+                "id": "follow"
+            }
         )
         ops = [transactions.Operation(op)]
         tx = transactions.Signed_Transaction(
@@ -703,8 +743,6 @@ class Testcases(unittest.TestCase):
 
         print(txWire[:-130] == compare[:-130])
         self.assertEqual(compare[:-130], txWire[:-130])
-
-        # Witness_update
 
 
 if __name__ == '__main__':
