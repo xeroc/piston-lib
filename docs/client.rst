@@ -2,6 +2,8 @@
 Steem Client
 ***************
 
+.. warning:: This class is going to be deprecated soon!
+
 Configuration
 #############
 
