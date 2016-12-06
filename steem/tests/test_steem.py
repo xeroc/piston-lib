@@ -1,5 +1,4 @@
 import unittest
-import piston
 from steem.steem import (
     Steem,
     MissingKeyError,
