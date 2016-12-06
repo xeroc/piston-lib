@@ -66,17 +66,11 @@ class Wallet():
                 keyStorage
             """
             from .storage import (keyStorage,
-                                  newKeyStorage,
                                   MasterPassword,
                                   configStorage)
             self.configStorage = configStorage
             self.MasterPassword = MasterPassword
             self.keyStorage = keyStorage
-            if newKeyStorage:
-                # migrate to new SQL based storage
-                if self.exists():
-                    log.critical("Migrating old wallet format to new format!")
-                    self.migrateFromJSON()
             if not self.created():
                 self.newWallet()
 
