@@ -671,16 +671,15 @@ class Testcases(unittest.TestCase):
 
     def test_custom_json(self):
         op = transactions.Custom_json(
-            **{
-                "json": ["reblog",
-                         OrderedDict([  # need an ordered dict to keep order for the test
-                             ("account", "xeroc"),
-                             ("author", "chainsquad"),
-                             ("permlink", "streemian-com-to-open-its-doors-and-offer-a-20-discount")
-                         ])],
-                "required_auths": [],
-                "required_posting_auths": ["xeroc"],
-                "id": "follow"
+            **{"json": ["reblog",
+                        OrderedDict([  # need an ordered dict to keep order for the test
+                            ("account", "xeroc"),
+                            ("author", "chainsquad"),
+                            ("permlink", "streemian-com-to-open-its-doors-and-offer-a-20-discount")
+                        ])],
+               "required_auths": [],
+               "required_posting_auths": ["xeroc"],
+               "id": "follow"
             }
         )
         ops = [transactions.Operation(op)]
@@ -709,17 +708,14 @@ class Testcases(unittest.TestCase):
         #    def test_online(self):
         #        self.maxDiff = None
         op = transactions.Custom_json(
-            **{
-                "json": ["reblog",
-                         {"account": "xeroc",
-                          "author": "chainsquad",
-                          "permlink": "streemian-com-to-open-its-doors-and-offer-a-20-discount"
-                          }],
-                "required_auths": [],
-                "required_posting_auths": ["xeroc"],
-                "id": "follow"
-            }
-        )
+            **{"json": ["reblog",
+                        {"account": "xeroc",
+                         "author": "chainsquad",
+                         "permlink": "streemian-com-to-open-its-doors-and-offer-a-20-discount"
+                         }],
+               "required_auths": [],
+               "required_posting_auths": ["xeroc"],
+               "id": "follow"})
         ops = [transactions.Operation(op)]
         tx = transactions.Signed_Transaction(
             ref_block_num=ref_block_num,
