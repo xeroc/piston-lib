@@ -2,6 +2,9 @@
 Manual Constructing and Signing of Transactions
 ***********************************************
 
+.. warning:: This is a low level class. Do not use this class unless you
+             know what you are doing!
+
 .. note:: This class is under development and meant for people that are
           looking into the low level construction and signing of various
           transactions.
