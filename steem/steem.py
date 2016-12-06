@@ -59,11 +59,11 @@ class Steem(object):
 
         .. code-block:: python
 
-            from piston.steem import Steem
+            from steem import Steem
             steem = Steem()
-            steem.post("Testing piston-libs", "I am testing piston-libs", category="spam")
+            steem.post("Testing steem library", "I am testing steem", category="spam")
 
-        All that is requires is for the user to have added a posting key with
+        All that is requires is for the user to have added a posting key with piston
 
         .. code-block:: bash
 
@@ -99,7 +99,7 @@ class Steem(object):
 
             Three wallet operation modes are possible:
 
-            * **Wallet Database**: Here, piston loads the keys from the
+            * **Wallet Database**: Here, the steemlibs load the keys from the
               locally stored wallet SQLite database (see ``storage.py``).
               To use this mode, simply call ``Steem()`` without the
               ``keys`` parameter
@@ -562,8 +562,8 @@ class Steem(object):
                       (if password is present) into the wallet by
                       default. However, it **does not import the owner
                       key** for security reasons. Do NOT expect to be
-                      able to recover it from piston if you lose your
-                      password!
+                      able to recover it from the wallet if you lose
+                      your password!
 
             :param str account_name: (**required**) new account name
             :param str json_meta: Optional meta data for the account
@@ -591,7 +591,7 @@ class Steem(object):
         if not creator:
             raise ValueError(
                 "Not creator account given. Define it with " +
-                "creator=x, or set the default_author in piston")
+                "creator=x, or set the default_author using piston")
         if password and (owner_key or posting_key or active_key or memo_key):
             raise ValueError(
                 "You cannot use 'password' AND provide keys!"

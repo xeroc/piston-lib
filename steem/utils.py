@@ -59,7 +59,7 @@ def yaml_parse_file(args, initial_content):
         #   prefix = initial_content.metadata["permlink"]
         with tempfile.NamedTemporaryFile(
             suffix=b".md",
-            prefix=b"piston-",
+            prefix=b"steem-",
             delete=False
         ) as fp:
             # Write initial content
@@ -88,7 +88,7 @@ def yaml_parse_file(args, initial_content):
         if key not in meta:
             meta[key] = initial_content.metadata[key]
 
-    # Extract anything that is not piston meta and return it separately
+    # Extract anything that is not steem-libs meta and return it separately
     # for json_meta field
     json_meta = {key: meta[key] for key in meta if key not in [
         "title",

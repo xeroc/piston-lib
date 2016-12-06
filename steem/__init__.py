@@ -7,3 +7,5 @@ __ALL__ = [
     "storage",
     "wallet"
 ]
+
+from .steem import Steem

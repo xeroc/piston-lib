@@ -38,7 +38,7 @@ class Wallet():
 
             Three wallet operation modes are possible:
 
-            * **Wallet Database**: Here, piston loads the keys from the
+            * **Wallet Database**: Here, steemlibs loads the keys from the
               locally stored wallet SQLite database (see ``storage.py``).
               To use this mode, simply call ``Steem()`` without the
               ``keys`` parameter
@@ -199,7 +199,7 @@ class Wallet():
                 if not pw:
                     print(
                         "You cannot chosen an empty password! " +
-                        "If you want to automate the use of piston, " +
+                        "If you want to automate the use of the libs, " +
                         "please use the `UNLOCK` environmental variable!"
                     )
                     continue
