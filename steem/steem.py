@@ -456,17 +456,17 @@ class Steem(object):
 
         if reply_identifier and not category:
             parent_author, parent_permlink = resolveIdentifier(reply_identifier)
-            if not permlink :
+            if not permlink:
                 permlink = derivePermlink(title, parent_permlink)
         elif category and not reply_identifier:
             parent_permlink = derivePermlink(category)
             parent_author = ""
-            if not permlink :
+            if not permlink:
                 permlink = derivePermlink(title)
         elif not category and not reply_identifier:
             parent_author = ""
             parent_permlink = ""
-            if not permlink :
+            if not permlink:
                 permlink = derivePermlink(title)
         else:
             raise ValueError(
@@ -609,17 +609,17 @@ class Steem(object):
         from steembase.account import PasswordKey, PublicKey
         if password:
             posting_key = PasswordKey(account_name, password, role="posting")
-            active_key  = PasswordKey(account_name, password, role="active")
-            owner_key   = PasswordKey(account_name, password, role="owner")
-            memo_key    = PasswordKey(account_name, password, role="memo")
+            active_key = PasswordKey(account_name, password, role="active")
+            owner_key = PasswordKey(account_name, password, role="owner")
+            memo_key = PasswordKey(account_name, password, role="memo")
             posting_pubkey = posting_key.get_public_key()
-            active_pubkey  = active_key.get_public_key()
-            owner_pubkey   = owner_key.get_public_key()
-            memo_pubkey    = memo_key.get_public_key()
+            active_pubkey = active_key.get_public_key()
+            owner_pubkey = owner_key.get_public_key()
+            memo_pubkey = memo_key.get_public_key()
             posting_privkey = posting_key.get_private_key()
-            active_privkey  = active_key.get_private_key()
+            active_privkey = active_key.get_private_key()
             # owner_privkey   = owner_key.get_private_key()
-            memo_privkey    = memo_key.get_private_key()
+            memo_privkey = memo_key.get_private_key()
             # store private keys
             if storekeys:
                 # self.wallet.addPrivateKey(owner_privkey)
@@ -628,18 +628,18 @@ class Steem(object):
                 self.wallet.addPrivateKey(memo_privkey)
         elif (owner_key and posting_key and active_key and memo_key):
             posting_pubkey = PublicKey(posting_key, prefix=prefix)
-            active_pubkey  = PublicKey(active_key, prefix=prefix)
-            owner_pubkey   = PublicKey(owner_key, prefix=prefix)
-            memo_pubkey    = PublicKey(memo_key, prefix=prefix)
+            active_pubkey = PublicKey(active_key, prefix=prefix)
+            owner_pubkey = PublicKey(owner_key, prefix=prefix)
+            memo_pubkey = PublicKey(memo_key, prefix=prefix)
         else:
             raise ValueError(
                 "Call incomplete! Provide either a password or public keys!"
             )
 
-        owner   = format(owner_pubkey, prefix)
-        active  = format(active_pubkey, prefix)
+        owner = format(owner_pubkey, prefix)
+        active = format(active_pubkey, prefix)
         posting = format(posting_pubkey, prefix)
-        memo    = format(memo_pubkey, prefix)
+        memo = format(memo_pubkey, prefix)
 
         owner_key_authority = [[owner, 1]]
         active_key_authority = [[active, 1]]
@@ -843,7 +843,7 @@ class Steem(object):
         """
         state = self.rpc.get_state("/@%s/recent-replies" % author)
         replies = state["accounts"][author].get("recent_replies", [])
-        discussions  = []
+        discussions = []
         for reply in replies:
             post = state["content"][reply]
             if skipown and post["author"] == author:
@@ -952,12 +952,12 @@ class Steem(object):
         vesting_shares_steem = "%f STEEM" % (Amount(a["vesting_shares"]).amount / 1e6 * steem_per_mvest)
         return {
             "balance": Amount(a["balance"]),
-            "vesting_shares" : Amount(a["vesting_shares"]),
+            "vesting_shares": Amount(a["vesting_shares"]),
             "sbd_balance": Amount(a["sbd_balance"]),
             "savings_balance": Amount(a["savings_balance"]),
             "savings_sbd_balance": Amount(a["savings_sbd_balance"]),
             # computed amounts
-            "vesting_shares_steem" : Amount(vesting_shares_steem),
+            "vesting_shares_steem": Amount(vesting_shares_steem),
         }
 
     def get_account_history(self, *args, **kwargs):
@@ -1002,9 +1002,9 @@ class Steem(object):
 
         return {
             "interest": interest_amount,
-            "last_payment" : last_payment,
-            "next_payment" : next_payment,
-            "next_payment_duration" : next_payment - datetime.now(),
+            "last_payment": last_payment,
+            "next_payment": next_payment,
+            "next_payment_duration": next_payment - datetime.now(),
             "interest_rate": interest_rate,
         }
 

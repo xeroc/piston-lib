@@ -15,7 +15,7 @@ wif = "5KkUHuJEFhN1RCS3GLV7UMeQ5P1k5Vu31jRgivJei8dBtAcXYMV"
 steem = Steem(nobroadcast=True, wif=wif)
 
 
-class Testcases(unittest.TestCase) :
+class Testcases(unittest.TestCase):
 
     def __init__(self, *args, **kwargs):
         super(Testcases, self).__init__(*args, **kwargs)
@@ -121,6 +121,7 @@ class Testcases(unittest.TestCase) :
                          "/piston/@xeroc/piston")
         self.assertEqual(Post(steem, {"author": "@xeroc", "permlink": "piston"}).url,
                          "/piston/@xeroc/piston")
+
 
 if __name__ == '__main__':
     unittest.main()

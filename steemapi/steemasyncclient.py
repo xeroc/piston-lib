@@ -24,6 +24,7 @@ class RPCServerError(Exception):
 class RPCClientError(Exception):
     pass
 
+
 """ Config class """
 
 
@@ -60,7 +61,7 @@ class Config():
     """
     def __init__(self, **kwargs):
         witness_url_specified = False
-        wallet_url_specified  = False
+        wallet_url_specified = False
         if "config_file" in kwargs:
             # Load paramaters from YAML configuration file
             with open(kwargs["config_file"]) as f:
@@ -93,8 +94,8 @@ class Config():
             witness_url_specified = True
             self.witness = {"url": kwargs["witness_url"], "user": "", "password": "", "apis": {}}
         if (not wallet_url_specified) and ("wallet_url" in kwargs):
-            wallet_url_specified  = True
-            self.wallet  = {"url": kwargs["wallet_url"], "user": "", "password": ""}
+            wallet_url_specified = True
+            self.wallet = {"url": kwargs["wallet_url"], "user": "", "password": ""}
         if not (witness_url_specified or wallet_url_specified):
             raise ConfigError("At least either witness or wallet parameters must be specified")
 
@@ -129,6 +130,7 @@ class Config():
             if "wallet_password" in kwargs:
                 self.wallet["password"] = kwargs["wallet_password"]
 
+
 """ API class """
 
 
@@ -161,13 +163,13 @@ class SteemAsyncClient(object):
     def __init__(self, config):
         self._config = config
         self._api_map = {"login": "login"}
-        self._api_id  = {"login": 1}
+        self._api_id = {"login": 1}
         self._witness_call_id = 0
-        self._wallet_call_id  = 0
+        self._wallet_call_id = 0
         self._witness_pending_rpc = {}
-        self._wallet_pending_rpc  = {}
+        self._wallet_pending_rpc = {}
         self._witness_ws = None
-        self._wallet_ws  = None
+        self._wallet_ws = None
         if hasattr(config, "wallet"):
             self.wallet = SteemAsyncClient.WalletRPCDispatch(self)
 
@@ -256,13 +258,13 @@ class SteemAsyncClient(object):
     @asyncio.coroutine
     def _handle(self, coroutines):
         if hasattr(self._config, "wallet"):
-            self._wallet_ws  = yield from websockets.connect(self._config.wallet["url"])
+            self._wallet_ws = yield from websockets.connect(self._config.wallet["url"])
             wallet_ws_recv_task = asyncio.async(self._wallet_ws.recv())
         if hasattr(self._config, "witness"):
             self._witness_ws = yield from websockets.connect(self._config.witness["url"])
             witness_ws_recv_task = asyncio.async(self._witness_ws.recv())
         try:
-            main_task   = asyncio.async(self._initialize(coroutines))
+            main_task = asyncio.async(self._initialize(coroutines))
             while True:
                 tasks = [main_task]
                 if hasattr(self._config, "wallet"):
@@ -297,7 +299,7 @@ class SteemAsyncClient(object):
                         future.set_result(r["result"])
                     else:
                         raise RPCClientError("Not expecting a response via websocket from wallet server with call id {}".format(call_id))
-                    wallet_ws_recv_task  = asyncio.async(self._wallet_ws.recv())
+                    wallet_ws_recv_task = asyncio.async(self._wallet_ws.recv())
 
                 if hasattr(self._config, "witness") and witness_ws_recv_task in done:
                     try:

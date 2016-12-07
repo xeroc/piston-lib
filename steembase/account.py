@@ -17,7 +17,7 @@ class PasswordKey(GraphenePasswordKey):
         super(PasswordKey, self).__init__(account, password, role)
 
 
-class BrainKey(GrapheneBrainKey) :
+class BrainKey(GrapheneBrainKey):
     """Brainkey implementation similar to the graphene-ui web-wallet.
 
         :param str brainkey: Brain Key

@@ -12,7 +12,7 @@ assert sys.version_info[0] == 3, "graphenelib requires python3"
 prefix = "STM"
 
 
-def get_shared_secret(priv, pub) :
+def get_shared_secret(priv, pub):
     """ Derive the share secret between ``priv`` and ``pub``
 
         :param `Base58` priv: Private Key
@@ -25,16 +25,16 @@ def get_shared_secret(priv, pub) :
             Pub(Alice) * Priv(Bob) = Pub(Bob) * Priv(Alice)
 
     """
-    pub_point  = pub.point()
+    pub_point = pub.point()
     priv_point = int(repr(priv), 16)
-    res        = pub_point * priv_point
-    res_hex    = '%032x' % res.x()
+    res = pub_point * priv_point
+    res_hex = '%032x' % res.x()
     # Zero padding
     res_hex = '0' * (64 - len(res_hex)) + res_hex
     return hashlib.sha512(unhexlify(res_hex)).hexdigest()
 
 
-def init_aes(shared_secret, nonce) :
+def init_aes(shared_secret, nonce):
     """ Initialize AES instance
 
         :param hex shared_secret: Shared Secret to use as encryption key
@@ -52,7 +52,7 @@ def init_aes(shared_secret, nonce) :
     check = struct.unpack_from("<I", check[:4])[0]
     " AES "
     key = unhexlify(encryption_key[0:64])
-    iv  = unhexlify(encryption_key[64:96])
+    iv = unhexlify(encryption_key[64:96])
     return AES.new(key, AES.MODE_CBC, iv), check
 
 
@@ -68,7 +68,7 @@ def _unpad(s, BS):
     return s
 
 
-def encode_memo(priv, pub, nonce, message) :
+def encode_memo(priv, pub, nonce, message):
     """ Encode a message with a shared secret between Alice and Bob
 
         :param PrivateKey priv: Private Key (of Alice)
@@ -81,10 +81,10 @@ def encode_memo(priv, pub, nonce, message) :
     """
     from steembase import transactions
     shared_secret = get_shared_secret(priv, pub)
-    aes, check    = init_aes(shared_secret, nonce)
-    raw           = bytes(message, 'utf8')
+    aes, check = init_aes(shared_secret, nonce)
+    raw = bytes(message, 'utf8')
     " Padding "
-    BS    = 16
+    BS = 16
     if len(raw) % BS:
         raw = _pad(raw, BS)
     " Encryption "
@@ -103,7 +103,7 @@ def encode_memo(priv, pub, nonce, message) :
     return "#" + base58encode(hexlify(bytes(tx)).decode("ascii"))
 
 
-def decode_memo(priv, message) :
+def decode_memo(priv, message):
     """ Decode a message with a shared secret between Alice and Bob
 
         :param PrivateKey priv: Private Key (of Bob)
@@ -141,12 +141,12 @@ def decode_memo(priv, message) :
 
     " Encryption "
     # remove the varint prefix (FIXME, long messages!)
-    message    = cipher[2:]
+    message = cipher[2:]
     from graphenebase.types import varintdecode
-    message    = aes.decrypt(unhexlify(bytes(message, 'ascii')))
-    try :
+    message = aes.decrypt(unhexlify(bytes(message, 'ascii')))
+    try:
         return _unpad(message.decode('utf8'), 16)
-    except :
+    except:
         raise ValueError(message)
 
 

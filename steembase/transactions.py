@@ -38,12 +38,13 @@ class Signed_Transaction(GrapheneSigned_Transaction):
     def verify(self, pubkey, chain=chain):
         return super(Signed_Transaction, self).verify(pubkey, chain)
 
+
 """
     Auxiliary Calls
 """
 
 
-def getBlockParams(ws) :
+def getBlockParams(ws):
     """ Auxiliary method to obtain ``ref_block_num`` and
         ``ref_block_prefix``. Requires a websocket connection to a
         witness node!
@@ -54,7 +55,7 @@ def getBlockParams(ws) :
     return ref_block_num, ref_block_prefix
 
 
-def formatTimeFromNow(secs=0) :
+def formatTimeFromNow(secs=0):
     """ Properly Format Time that is `x` seconds in the future
 
      :param int secs: Seconds to go in the future (`x>0`) or the past (`x<0`)

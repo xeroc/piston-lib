@@ -242,7 +242,7 @@ class Configuration(DataDir):
         "post_category": "steem",
         "rpcpassword": "",
         "rpcuser": "",
-        "web:port" : 5054,
+        "web:port": 5054,
         "web:debug": False,
         "web:host": "127.0.0.1",
         "web:nobroadcast": False

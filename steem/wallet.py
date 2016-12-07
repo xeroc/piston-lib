@@ -189,7 +189,7 @@ class Wallet():
             return os.environ.get("UNLOCK")
         if confirm:
             # Loop until both match
-            while True :
+            while True:
                 pw = self.getPassword(confirm=False)
                 if not pw:
                     print(
@@ -203,9 +203,9 @@ class Wallet():
                         confirm=False,
                         text="Confirm Passphrase: "
                     )
-                    if (pw == pwck) :
+                    if (pw == pwck):
                         return(pw)
-                    else :
+                    else:
                         print("Given Passphrases do not match!")
         else:
             # return just one password

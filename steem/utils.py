@@ -76,7 +76,7 @@ def yaml_parse_file(args, initial_content):
             fp.seek(0)
             message = fp.read().decode('utf-8')
 
-    try :
+    try:
         meta, body = frontmatter.parse(message)
     except:
         meta = initial_content.metadata
@@ -99,13 +99,13 @@ def yaml_parse_file(args, initial_content):
     return meta, json_meta, body
 
 
-def formatTime(t) :
+def formatTime(t):
     """ Properly Format Time for permlinks
     """
     return datetime.utcfromtimestamp(t).strftime("%Y%m%dt%H%M%S%Z")
 
 
-def formatTimeString(t) :
+def formatTimeString(t):
     """ Properly Format Time for permlinks
     """
     return datetime.strptime(t, '%Y-%m-%dT%H:%M:%S')
