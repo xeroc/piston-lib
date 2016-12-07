@@ -7,9 +7,17 @@ import struct
 import time
 
 from steembase.account import PublicKey
-from graphenebase.types import *
 from .signedtransactions import Signed_Transaction as GrapheneSigned_Transaction
-from .operations import *
+
+# Import all operations so they can be loaded from this module
+from .operations import (
+    Operation, Permission, Memo, Vote, Comment, Amount,
+    Exchange_rate, Witness_props, Account_create, Account_update,
+    Transfer, Transfer_to_vesting, Withdraw_vesting, Limit_order_create,
+    Limit_order_cancel, Set_withdraw_vesting_route, Convert, Feed_publish,
+    Witness_update, Transfer_to_savings, Transfer_from_savings,
+    Cancel_transfer_from_savings, Account_witness_vote, Custom_json,
+)
 from .chains import known_chains
 
 timeformat = '%Y-%m-%dT%H:%M:%S%Z'
@@ -30,12 +38,13 @@ class Signed_Transaction(GrapheneSigned_Transaction):
     def verify(self, pubkey, chain=chain):
         return super(Signed_Transaction, self).verify(pubkey, chain)
 
+
 """
     Auxiliary Calls
 """
 
 
-def getBlockParams(ws) :
+def getBlockParams(ws):
     """ Auxiliary method to obtain ``ref_block_num`` and
         ``ref_block_prefix``. Requires a websocket connection to a
         witness node!
@@ -46,7 +55,7 @@ def getBlockParams(ws) :
     return ref_block_num, ref_block_prefix
 
 
-def formatTimeFromNow(secs=0) :
+def formatTimeFromNow(secs=0):
     """ Properly Format Time that is `x` seconds in the future
 
      :param int secs: Seconds to go in the future (`x>0`) or the past (`x<0`)

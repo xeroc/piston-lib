@@ -1,4 +1,13 @@
-from graphenebase.types import *
+import struct
+import json
+from collections import OrderedDict
+from graphenebase.types import (
+    Uint8, Int16, Uint16, Uint32, Uint64,
+    Varint32, Int64, String, Bytes, Void,
+    Array, PointInTime, Signature, Bool,
+    Set, Fixed_array, Optional, Static_variant,
+    Map, Id, VoteId, ObjectId,
+)
 from graphenebase.objects import GrapheneObject, isArgsThisClass
 from graphenebase.account import PublicKey
 from graphenebase.operations import (
@@ -73,7 +82,10 @@ class Operation(GrapheneOperation):
         return class_
 
     def __str__(self):
-        return json.dumps([self.getOperationNameForId(self.opId), JsonObj(self.op)])
+        return json.dumps([
+            self.getOperationNameForId(self.opId),
+            self.op.json()
+        ])
 
 
 class Permission(GrapheneObject):
@@ -153,7 +165,8 @@ class Comment(GrapheneObject):
                 kwargs = args[0]
             meta = ""
             if "json_metadata" in kwargs and kwargs["json_metadata"]:
-                if isinstance(kwargs["json_metadata"], dict):
+                if (isinstance(kwargs["json_metadata"], dict) or
+                        isinstance(kwargs["json_metadata"], list)):
                     meta = json.dumps(kwargs["json_metadata"])
                 else:
                     meta = kwargs["json_metadata"]
@@ -470,4 +483,45 @@ class Cancel_transfer_from_savings(GrapheneObject):
             super().__init__(OrderedDict([
                 ('from', String(kwargs["from"])),
                 ('request_id', Uint32(int(kwargs["request_id"]))),
+            ]))
+
+
+class Account_witness_vote(GrapheneObject):
+    def __init__(self, *args, **kwargs):
+        if isArgsThisClass(self, args):
+            self.data = args[0].data
+        else:
+            if len(args) == 1 and len(kwargs) == 0:
+                kwargs = args[0]
+            super().__init__(OrderedDict([
+                ('account', String(kwargs["account"])),
+                ('witness', String(kwargs["witness"])),
+                ('approve', Bool(bool(kwargs["approve"]))),
+            ]))
+
+
+class Custom_json(GrapheneObject):
+    def __init__(self, *args, **kwargs):
+        if isArgsThisClass(self, args):
+            self.data = args[0].data
+        else:
+            if len(args) == 1 and len(kwargs) == 0:
+                kwargs = args[0]
+            if "json" in kwargs and kwargs["json"]:
+                if (isinstance(kwargs["json"], dict) or
+                        isinstance(kwargs["json"], list)):
+                    js = json.dumps(kwargs["json"])
+                else:
+                    js = kwargs["json"]
+
+            if len(kwargs["id"]) > 32:
+                raise Exception("'id' too long")
+
+            super().__init__(OrderedDict([
+                ('required_auths',
+                    Array([String(o) for o in kwargs["required_auths"]])),
+                ('required_posting_auths',
+                    Array([String(o) for o in kwargs["required_posting_auths"]])),
+                ('id', String(kwargs["id"])),
+                ('json', String(js)),
             ]))

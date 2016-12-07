@@ -73,7 +73,7 @@ def start(steem):
                         futures["time"] = asyncio.async(asyncio.sleep(3))
                         if futures["db"]:
                             futures["db"].cancel()
-                        futures["db"]   = yield from steem.db.get_dynamic_global_properties(future=True)
+                        futures["db"] = yield from steem.db.get_dynamic_global_properties(future=True)
                     elif k == "exchange_price":
                         steem_price = f.result()
                         if abs(1 - last_witness_price / steem_price) > 0.03 and (cur_time - last_witness_update_time) > 60 * 60:
@@ -109,6 +109,7 @@ def start(steem):
                                 needs_updating = True
                                 print("Price feed needs to be updated because it is too old.")
             old_futures = {}
+
 
 if __name__ == "__main__":
     steem = SteemAsyncClient(Config(config_file="async_monitor_config.yml"))
