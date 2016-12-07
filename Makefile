@@ -45,4 +45,4 @@ dist:
 release: clean check dist steem-changelog git
 
 steem-changelog:
-	git show -s --pretty=format: $(TAG) | tail -n +4 | piston post --file "-" --author xeroc --permlink "python-steem-changelog-$(TAGSTEEM)" --category steem --title "[Changelog] python-steem $(TAG)" --tags python-steem changelog
+	git show -s --pretty=format: $(TAG) | tail -n +4 | piston post --file "-" --author chainsquad --permlink "python-steem-changelog-$(TAGSTEEM)" --category steem --title "[Changelog] python-steem $(TAG)" --tags python-steem changelog
