@@ -20,7 +20,6 @@ from .wallet import Wallet
 from .storage import configStorage as config
 from .amount import Amount
 from datetime import datetime, timedelta
-from steemexchange.exchange import SteemExchange as SteemExchange
 import logging
 log = logging.getLogger(__name__)
 
@@ -96,6 +95,7 @@ class Steem(object):
             :param bool debug: Enable Debugging *(optional)*
             :param array,dict,string keys: Predefine the wif keys to shortcut the wallet database
             :param bool offline: Boolean to prevent connecting to network (defaults to ``False``)
+            :param bool skipcreatewallet: Skip creation of a wallet
 
             Three wallet operation modes are possible:
 
@@ -1259,7 +1259,7 @@ class Steem(object):
             :param str account: (optional) the account to allow access
                 to (defaults to ``default_author``)
         """
-        return self.approve_witness(self, witness=witness, account=account, approve=False)
+        return self.approve_witness(witness=witness, account=account, approve=False)
 
     def custom_json(self, id, json, required_auths=[], required_posting_auths=[]):
         """ Create a custom json operation
@@ -1368,60 +1368,6 @@ class Steem(object):
         )
         return self.finalizeOp(op, account["name"], "active")
 
-    #######################################################
-    # Exchange stuff
-    #######################################################
-
-    def dex(self, account=None, loadactivekey=False):
-        ex_config = ExchangeConfig
-        if not account:
-            if "default_account" in config:
-                ex_config.account = config["default_account"]
-        else:
-            ex_config.account = account
-        if loadactivekey and not self.unsigned:
-            if not ex_config.account:
-                raise ValueError("You need to provide an account")
-            ex_config.wif = self.wallet.getActiveKeyForAccount(
-                ex_config.account
-            )
-        return SteemExchange(
-            ex_config,
-            safe_mode=self.nobroadcast or self.unsigned,
-        )
-
-    def returnOrderBook(self, *args):
-        return self.dex().returnOrderBook(*args)
-
-    def returnTicker(self):
-        return self.dex().returnTicker()
-
-    def return24Volume(self):
-        return self.dex().return24Volume()
-
-    def returnTradeHistory(self, *args):
-        return self.dex().returnTradeHistory(*args)
-
-    def returnMarketHistoryBuckets(self):
-        return self.dex().returnMarketHistoryBuckets()
-
-    def returnMarketHistory(self, *args):
-        return self.dex().returnMarketHistory(*args)
-
-    def buy(self, *args, account=None):
-        tx = self.dex(account=account, loadactivekey=True).buy(*args)
-        if self.unsigned:
-            return self._addUnsignedTxParameters(tx, account, "active")
-        else:
-            return tx
-
-    def sell(self, *args, account=None):
-        tx = self.dex(account=account, loadactivekey=True).sell(*args)
-        if self.unsigned:
-            return self._addUnsignedTxParameters(tx, account, "active")
-        else:
-            return tx
-
 
 class SteemConnector(object):
 
@@ -1457,11 +1403,3 @@ class SteemConnector(object):
             )
             print("=" * 80)
             exit(1)
-
-
-class ExchangeConfig():
-    witness_url           = config["node"]
-    witness_user          = config["rpcuser"]
-    witness_password      = config["rpcpassword"]
-    account               = config["default_account"]
-    wif                   = None

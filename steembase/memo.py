@@ -80,7 +80,6 @@ def encode_memo(priv, pub, nonce, message) :
 
     """
     from steembase import transactions
-    from graphenebase.base58 import base58encode
     shared_secret = get_shared_secret(priv, pub)
     aes, check    = init_aes(shared_secret, nonce)
     raw           = bytes(message, 'utf8')

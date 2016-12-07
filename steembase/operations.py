@@ -1,4 +1,13 @@
-from graphenebase.types import *
+import struct
+import json
+from collections import OrderedDict
+from graphenebase.types import (
+    Uint8, Int16, Uint16, Uint32, Uint64,
+    Varint32, Int64, String, Bytes, Void,
+    Array, PointInTime, Signature, Bool,
+    Set, Fixed_array, Optional, Static_variant,
+    Map, Id, VoteId, ObjectId,
+)
 from graphenebase.objects import GrapheneObject, isArgsThisClass
 from graphenebase.account import PublicKey
 from graphenebase.operations import (
@@ -73,7 +82,10 @@ class Operation(GrapheneOperation):
         return class_
 
     def __str__(self):
-        return json.dumps([self.getOperationNameForId(self.opId), JsonObj(self.op)])
+        return json.dumps([
+            self.getOperationNameForId(self.opId),
+            self.op.json()
+        ])
 
 
 class Permission(GrapheneObject):

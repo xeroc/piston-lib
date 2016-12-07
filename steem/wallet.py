@@ -35,6 +35,7 @@ class Wallet():
 
             :param SteemNodeRPC rpc: RPC connection to a Steem node
             :param array,dict,string keys: Predefine the wif keys to shortcut the wallet database
+            :param bool skipcreatewallet: Skip creation of a wallet
 
             Three wallet operation modes are possible:
 
@@ -71,7 +72,7 @@ class Wallet():
             self.configStorage = configStorage
             self.MasterPassword = MasterPassword
             self.keyStorage = keyStorage
-            if not self.created():
+            if not self.created() and not kwargs.get("skipcreatewallet", False):
                 self.newWallet()
 
     def setKeys(self, loadkeys):

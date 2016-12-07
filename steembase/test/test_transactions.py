@@ -680,7 +680,7 @@ class Testcases(unittest.TestCase):
                "required_auths": [],
                "required_posting_auths": ["xeroc"],
                "id": "follow"
-            }
+               }
         )
         ops = [transactions.Operation(op)]
         tx = transactions.Signed_Transaction(

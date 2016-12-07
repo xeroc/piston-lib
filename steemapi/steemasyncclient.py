@@ -94,7 +94,7 @@ class Config():
             self.witness = {"url": kwargs["witness_url"], "user": "", "password": "", "apis": {}}
         if (not wallet_url_specified) and ("wallet_url" in kwargs):
             wallet_url_specified  = True
-            self.wallet  = {"url": kwargs["wallet_url"],  "user": "", "password": ""}
+            self.wallet  = {"url": kwargs["wallet_url"], "user": "", "password": ""}
         if not (witness_url_specified or wallet_url_specified):
             raise ConfigError("At least either witness or wallet parameters must be specified")
 
