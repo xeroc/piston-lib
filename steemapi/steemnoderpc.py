@@ -189,14 +189,16 @@ class SteemNodeRPC(GrapheneWebsocketRPC):
             for tx in block["transactions"]:
                 for op in tx["operations"]:
                     if op[0] in opNames:
-                        yield op[1]
+                        yield op[1].update(
+                            {"timestamp": block.get("timestamp")}
+                        )
 
     def list_accounts(self, start=None, step=1000, limit=None):
         """ Yield list of user accounts in alphabetical order
 
-        :param str start: Name of account, which should be yield first
-        :param int step: Describes how many accounts should be fetched in each rpc request
-        :param int limit: Limit number of returned user accounts
+            :param str start: Name of account, which should be yield first
+            :param int step: Describes how many accounts should be fetched in each rpc request
+            :param int limit: Limit number of returned user accounts
         """
         if limit and limit < step:
             step = limit
