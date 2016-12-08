@@ -1,11 +1,8 @@
 #!/usr/bin/env python
 
-from setuptools import setup
-from pip.req import parse_requirements
-
-# Work around mbcs bug in distutils.
-# http://bugs.python.org/issue10945
 import codecs
+
+from setuptools import setup
 try:
     codecs.lookup('mbcs')
 except LookupError:
@@ -40,7 +37,7 @@ setup(name='steem',
                         "diff-match-patch==20121119",
                         "appdirs==1.4.0",
                         "python-frontmatter==0.2.1",
-                        "pycrypto==2.6.1",
+                        "pycrypto==2.6.1", 'funcy', 'werkzeug',
                         # "secp256k1==0.13.2"
                         ],
       setup_requires=['pytest-runner'],
