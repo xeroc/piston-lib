@@ -199,7 +199,7 @@ class Steem(object):
         # Try to resolve required signatures for offline signing
         tx["missing_signatures"] = [
             x[0] for x in authority["key_auths"]
-            ]
+        ]
         # Add one recursion of keys from account_auths:
         for account_auth in authority["account_auths"]:
             account_auth_account = self.rpc.get_account(account_auth[0])
@@ -729,34 +729,6 @@ class Steem(object):
         )
         return self.finalizeOp(op, account, "active")
 
-    def convert(self, amount, account=None, request_id=None):
-        """ Convert SteemDollars to Steem (takes one week to settle)
-
-            :param float amount: number of VESTS to withdraw over a period of 104 weeks
-            :param str account: (optional) the source account for the transfer if not ``default_account``
-            :param str request_id: (optional) identifier for tracking the conversion`
-        """
-        if not account and "default_account" in config:
-            account = config["default_account"]
-        if not account:
-            raise ValueError("You need to provide an account")
-
-        if request_id:
-            request_id = int(request_id)
-        else:
-            request_id = random.getrandbits(32)
-        op = transactions.Convert(
-            **{"owner": account,
-               "requestid": request_id,
-               "amount": '{:.{prec}f} {asset}'.format(
-                   float(amount),
-                   prec=3,
-                   asset="SBD"
-               )}
-        )
-
-        return self.finalizeOp(op, account, "active")
-
     def withdraw_vesting(self, amount, account=None):
         """ Withdraw VESTS from the vesting account.
 
@@ -805,6 +777,34 @@ class Steem(object):
                    prec=3,
                    asset="STEEM")
                }
+        )
+
+        return self.finalizeOp(op, account, "active")
+
+    def convert(self, amount, account=None, requestid=None):
+        """ Convert SteemDollars to Steem (takes one week to settle)
+
+            :param float amount: number of VESTS to withdraw over a period of 104 weeks
+            :param str account: (optional) the source account for the transfer if not ``default_account``
+            :param str requestid: (optional) identifier for tracking the conversion`
+        """
+        if not account and "default_account" in config:
+            account = config["default_account"]
+        if not account:
+            raise ValueError("You need to provide an account")
+
+        if requestid:
+            requestid = int(requestid)
+        else:
+            requestid = random.getrandbits(32)
+        op = transactions.Convert(
+            **{"owner": account,
+               "requestid": requestid,
+               "amount": '{:.{prec}f} {asset}'.format(
+                   float(amount),
+                   prec=3,
+                   asset="SBD"
+               )}
         )
 
         return self.finalizeOp(op, account, "active")
@@ -926,24 +926,43 @@ class Steem(object):
         )
         return self.finalizeOp(op, account, "active")
 
-    # TODO implement props struct
-    # def witness_update(self, signing_key, url, props, account=None):
-    #     if not account:
-    #         if "default_account" in config:
-    #             account = config["default_account"]
-    #     if not account:
-    #         raise ValueError("You need to provide an account")
-    #
-    #     op = transactions.Witness_update(
-    #         **{
-    #             "owner": account,
-    #             "url": url,
-    #             "block_signing_key": signing_key,
-    #             "props": props,
-    #             "fee": "0.000 STEEM",
-    #         }
-    #     )
-    #     return self.finalizeOp(op, account, "active")
+    def witness_update(self, signing_key, url, props, account=None):
+        """ Update witness
+
+            :param pubkey signing_key: Signing key
+            :param str url: URL
+            :param dict props: Properties:::
+
+                {
+                "account_creation_fee": x,
+                "maximum_block_size": x,
+                "sbd_interest_rate": x,
+                }
+
+            :param str account: (optional) witness account name
+
+        """
+        if not account:
+            if "default_account" in config:
+                account = config["default_account"]
+        if not account:
+            raise ValueError("You need to provide an account")
+
+        try:
+            PublicKey(signing_key)
+        except Exception as e:
+            raise e
+
+        op = transactions.Witness_update(
+            **{
+                "owner": account,
+                "url": url,
+                "block_signing_key": signing_key,
+                "props": props,
+                "fee": "0.000 STEEM",
+            }
+        )
+        return self.finalizeOp(op, account, "active")
 
     @staticmethod
     def _valid_currency(currency):
