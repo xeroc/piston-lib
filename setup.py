@@ -37,7 +37,7 @@ setup(name='steem',
                         "diff-match-patch==20121119",
                         "appdirs==1.4.0",
                         "python-frontmatter==0.2.1",
-                        "pycrypto==2.6.1", 'funcy', 'werkzeug', 'numpy',
+                        "pycrypto==2.6.1", 'funcy', 'werkzeug', 'numpy', 'grequests',
                         # "secp256k1==0.13.2"
                         ],
       setup_requires=['pytest-runner'],
