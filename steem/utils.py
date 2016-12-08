@@ -1,15 +1,17 @@
+import logging
 import os
+import re
 import sys
-import frontmatter
 import time
 from datetime import datetime
-import re
-import logging
+
+import frontmatter
+
 log = logging.getLogger(__name__)
 
 
-def constructIdentifier(a, p):
-    return "@%s/%s" % (a, p)
+def constructIdentifier(author, slug):
+    return "@%s/%s" % (author, slug)
 
 
 def sanitizePermlink(permlink):
@@ -58,9 +60,9 @@ def yaml_parse_file(args, initial_content):
         # if "permlink" in initial_content.metadata:
         #   prefix = initial_content.metadata["permlink"]
         with tempfile.NamedTemporaryFile(
-            suffix=b".md",
-            prefix=b"steem-",
-            delete=False
+                suffix=b".md",
+                prefix=b"steem-",
+                delete=False
         ) as fp:
             # Write initial content
             fp.write(bytes(frontmatter.dumps(initial_content), 'utf-8'))
