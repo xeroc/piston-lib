@@ -1,20 +1,25 @@
-from .amount import Amount
 import math
+
+import steem as stm
+from .amount import Amount
 
 
 class Converter(object):
-    def __init__(self, steem):
+    def __init__(self, steem_instance=None):
         """ Converter simplifies the handling of different metrics of
             the blockchain
         """
-        self.steem = steem
+        if not steem_instance:
+            steem_instance = stm.Steem()
+        self.steem = steem_instance
+
         self.CONTENT_CONSTANT = 2000000000000
 
     def sbd_median_price(self):
         """ Obtain the sbd price as derived from the median over all
             witness feeds. Return value will be SBD
         """
-        return(
+        return (
             Amount(self.steem.rpc.get_feed_history()['current_median_history']['base']).amount /
             Amount(self.steem.rpc.get_feed_history()['current_median_history']['quote']).amount
         )

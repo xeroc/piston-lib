@@ -10,7 +10,7 @@ import numpy as np
 from dateutil import parser
 from funcy import walk_keys
 
-from steem import Steem
+import steem as stm
 from steem.amount import Converter, Amount
 from steem.utils import time_diff
 
@@ -18,7 +18,7 @@ from steem.utils import time_diff
 class Account(object):
     def __init__(self, account_name, steem_instance=None):
         if not steem_instance:
-            steem_instance = Steem()
+            steem_instance = stm.Steem()
         self.steem = steem_instance
 
         self.name = account_name

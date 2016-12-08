@@ -5,7 +5,7 @@ from pprint import pprint
 import grequests
 import numpy as np
 
-from steem import Steem
+import steem as stm
 from steem.amount import Amount
 
 
@@ -109,7 +109,7 @@ class Tickers(object):
 class Markets(Tickers):
     def __init__(self, cache_timeout=60, steem_instance=None):
         if not steem_instance:
-            steem_instance = Steem()
+            steem_instance = stm.Steem()
         self.steem = steem_instance
 
         self._cache_timeout = cache_timeout

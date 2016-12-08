@@ -2,7 +2,7 @@ import math
 
 from werkzeug.contrib.cache import SimpleCache
 
-from steem import Steem
+import steem as stm
 from steem.utils import simple_cache
 
 converter_cache = SimpleCache()
@@ -28,7 +28,7 @@ class Amount(object):
 class Converter(object):
     def __init__(self, steem_instance=None):
         if not steem_instance:
-            steem_instance = Steem()
+            steem_instance = stm.Steem()
         self.steem = steem_instance
 
         self.CONTENT_CONSTANT = 2000000000000
