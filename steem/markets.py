@@ -1,6 +1,7 @@
 import time
 from decimal import Decimal
 from pprint import pprint
+from statistics import mean
 
 import grequests
 import numpy as np
@@ -150,4 +151,4 @@ class Markets(Tickers):
 
     def avg_witness_price(self, take=10):
         price_history = self.steem.rpc.get_feed_history()['price_history']
-        return np.mean([Amount(x['base']).amount for x in price_history[-take:]])
+        return mean([Amount(x['base']).amount * Amount(x['quote']).amount for x in price_history[-take:]])
