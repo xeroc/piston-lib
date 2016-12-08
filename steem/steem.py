@@ -1,26 +1,26 @@
-import re
 import json
-import string
+import logging
 import random
-from steemapi.steemnoderpc import SteemNodeRPC, NoAccessApi
-from steembase.account import PrivateKey, PublicKey, Address
-from steembase import memo
+import re
+from datetime import datetime, timedelta
+
 import steembase.transactions as transactions
+from steemapi.steemnoderpc import SteemNodeRPC, NoAccessApi
+from steembase import memo
+from steembase.account import PrivateKey, PublicKey
+from .amount import Amount
+from .post import (
+    Post
+)
+from .storage import configStorage as config
 from .utils import (
     resolveIdentifier,
     constructIdentifier,
     derivePermlink,
     formatTimeString
 )
-from .post import (
-    Post,
-    VotingInvalidOnArchivedPost
-)
 from .wallet import Wallet
-from .storage import configStorage as config
-from .amount import Amount
-from datetime import datetime, timedelta
-import logging
+
 log = logging.getLogger(__name__)
 
 prefix = "STM"
@@ -1347,7 +1347,7 @@ class Steem(object):
     def update_account_profile(self, profile, account=None):
         """ Update an account's meta data (json_meta)
 
-            :param dict json: The meta data to use (i.e. use Profile() from profile.py)
+            :param dict json: The meta data to use (i.e. use Profile() from account.py)
             :param str account: (optional) the account to allow access
                 to (defaults to ``default_account``)
         """
