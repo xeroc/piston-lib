@@ -111,10 +111,11 @@ class SteemNodeRPC(GrapheneWebsocketRPC):
             if _limit > first:
                 _limit = first
 
-    def block_stream(self, start=None, end=None, mode="irreversible"):
+    def block_stream(self, start=None, stop=None, mode="irreversible"):
         """ Yields blocks starting from ``start``.
 
             :param int start: Starting block
+            :param int stop: Stop at this block
             :param str mode: We here have the choice between
                  * "head": the last block
                  * "irreversible": the block that is confirmed by 2/3 of all block producers and is thus irreversible!
@@ -126,9 +127,9 @@ class SteemNodeRPC(GrapheneWebsocketRPC):
         if not start:
             props = self.get_dynamic_global_properties()
             # Get block number
-            if mode == "head":
+            if mode == "head" or mode == "head_block_number":
                 start = props['head_block_number']
-            elif mode == "irreversible":
+            elif mode == "irreversible" or mode == "last_irreversible_block_num":
                 start = props['last_irreversible_block_num']
             else:
                 raise ValueError(
@@ -162,7 +163,7 @@ class SteemNodeRPC(GrapheneWebsocketRPC):
             # Set new start
             start = head_block + 1
 
-            if end and start > end:
+            if stop and start > stop:
                 break
 
             # Sleep for one block
@@ -179,7 +180,11 @@ class SteemNodeRPC(GrapheneWebsocketRPC):
                 pow, custom, report_over_production, fill_convert_request,
                 comment_reward, curate_reward, liquidity_reward, interest,
                 fill_vesting_withdraw, fill_order,
-            :param int start: Begin at this block
+            :param int start: Start at this block
+            :param int stop: Stop at this block
+            :param str mode: We here have the choice between
+                 * "head": the last block
+                 * "irreversible": the block that is confirmed by 2/3 of all block producers and is thus irreversible!
         """
         if isinstance(opNames, str):
             opNames = [opNames]
