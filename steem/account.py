@@ -348,7 +348,9 @@ class Account(object):
 
         return filtered_items
 
-    def mongo_export(self):
+    def export(self):
+        """ This method returns a dictionary that is type-safe to store as JSON or in a database.
+        """
         followers = self.get_followers()
         following = self.get_following()
 
