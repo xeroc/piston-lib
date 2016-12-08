@@ -111,7 +111,7 @@ class SteemNodeRPC(GrapheneWebsocketRPC):
             if _limit > first:
                 _limit = first
 
-    def block_stream(self, start=None, mode="irreversible"):
+    def block_stream(self, start=None, end=None, mode="irreversible"):
         """ Yields blocks starting from ``start``.
 
             :param int start: Starting block
@@ -161,6 +161,9 @@ class SteemNodeRPC(GrapheneWebsocketRPC):
 
             # Set new start
             start = head_block + 1
+
+            if end and start > end:
+                break
 
             # Sleep for one block
             time.sleep(block_interval)
