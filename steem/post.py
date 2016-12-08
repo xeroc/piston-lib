@@ -1,13 +1,16 @@
+import json
+import re
+import time
+from contextlib import suppress
+from datetime import datetime
+
+from dateutil import parser
+
+from .amount import Amount
 from .utils import (
     resolveIdentifier,
     constructIdentifier,
-    derivePermlink,
-    formatTimeString
-)
-import re
-import json
-from .amount import Amount
-from datetime import datetime, timedelta
+    remove_from_dict)
 
 
 class VotingInvalidOnArchivedPost(Exception):
@@ -115,6 +118,11 @@ class Post(object):
                 author, permlink
             ), category
 
+    def _time_elapsed(self):
+        created_at = parser.parse(self['created'] + "UTC").timestamp()
+        now_adjusted = time.time()
+        return now_adjusted - created_at
+
     def __getitem__(self, key):
         return getattr(self, key)
 
@@ -144,6 +152,19 @@ class Post(object):
 
     def __repr__(self):
         return "<Steem.Post-%s>" % constructIdentifier(self["author"], self["permlink"])
+
+    @property
+    def payout(self):
+        return Amount(self['total_payout_reward']).amount
+
+    @property
+    def meta(self):
+        with suppress(Exception):
+            meta_str = self.get("json_metadata", "")
+            return json.loads(meta_str)
+
+    def is_main_post(self):
+        return len(self['title']) > 0 and not self['depth'] and not self['parent_author']
 
     def get_comments(self, sort="total_payout_reward"):
         """ Return **first-level** comments of the post.
@@ -202,3 +223,16 @@ class Post(object):
         if getattr(self, "mode") == "archived":
             raise VotingInvalidOnArchivedPost
         return self.steem.vote(self.identifier, weight, voter=voter)
+
+    def curation_reward_pct(self):
+        """ If post is less than 30 minutes old, it will incur a curation reward penalty.
+        """
+        reward = (self._time_elapsed() / 1800) * 100
+        if reward > 100:
+            reward = 100
+        return reward
+
+    def export(self):
+        """ This method returns a dictionary that is type-safe to store as JSON or in a database.
+        """
+        return remove_from_dict(self, ['steem'])
