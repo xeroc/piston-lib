@@ -4,9 +4,9 @@ import math
 import time
 from collections import namedtuple
 from contextlib import suppress
+from statistics import mean
 
 import dateutil
-import numpy as np
 from dateutil import parser
 from funcy import walk_keys
 
@@ -126,7 +126,7 @@ class Account(object):
 
         if len(time_to_whale) == 0:
             return None
-        return np.mean(time_to_whale[:mean_of_recent])
+        return mean(time_to_whale[:mean_of_recent])
 
     def get_followers(self):
         return [x['follower'] for x in self._get_followers(direction="follower")]
