@@ -211,9 +211,23 @@ def parse_time(block_time):
     return dateutil.parser.parse(block_time + "UTC").astimezone(timezone.utc)
 
 
-def keep_in_dict(dictionary, allowed_keys=list()):
-    return {k: v for k, v in dictionary.__dict__.items() if k in allowed_keys}
+def keep_in_dict(obj, allowed_keys=list()):
+    """ Prune a class or dictionary of all but allowed keys.
+    """
+    if type(obj) == dict:
+        items = obj.items()
+    else:
+        items = obj.__dict__.items()
+
+    return {k: v for k, v in items if k in allowed_keys}
 
 
-def remove_from_dict(dictionary, remove_keys=list()):
-    return {k: v for k, v in dictionary.__dict__.items() if k not in remove_keys}
+def remove_from_dict(obj, remove_keys=list()):
+    """ Prune a class or dictionary of specified keys.
+    """
+    if type(obj) == dict:
+        items = obj.items()
+    else:
+        items = obj.__dict__.items()
+
+    return {k: v for k, v in items if k not in remove_keys}
