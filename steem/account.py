@@ -229,25 +229,26 @@ class Account(object):
                 timestamp = item[1]['timestamp']
                 trx_id = item[1]['trx_id']
 
-                def construct_op():
+                def construct_op(account_name):
                     return {
+                        **op,
                         "index": index,
+                        "account": account_name,
                         "trx_id": trx_id,
                         "timestamp": timestamp,
-                        "op_type": op_type,
-                        "op": op,
+                        "type": op_type,
                     }
 
                 if filter_by is None:
-                    yield construct_op()
+                    yield construct_op(self.name)
                 else:
                     if type(filter_by) is list:
                         if op_type in filter_by:
-                            yield construct_op()
+                            yield construct_op(self.name)
 
                     if type(filter_by) is str:
                         if op_type == filter_by:
-                            yield construct_op()
+                            yield construct_op(self.name)
             i += batch_size
 
     def history2(self, filter_by=None, take=1000):
