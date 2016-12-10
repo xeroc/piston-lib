@@ -2,8 +2,6 @@
 import os
 import time
 
-from steemtools.experimental import Transactions
-
 import steem as stm
 from steem.markets import Markets
 from steem.steem import BroadcastingError
@@ -51,7 +49,7 @@ if __name__ == '__main__':
         print("Spread Between Prices: %.3f%%" % spread)
         if spread > settings['minimum_spread_pct']:
             try:
-                tx = Transactions().witness_feed_publish(current_price, witness, wif, quote=quote, sim_mode=False)
+                tx = steem.witness_feed_publish(current_price, quote=quote, account=witness)
                 # print(tx)
                 print("Updated the witness price feed.")
             except BroadcastingError:
