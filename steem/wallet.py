@@ -66,13 +66,13 @@ class Wallet():
             """ If no keys are provided manually we load the SQLite
                 keyStorage
             """
-            from .storage import (keyStorage,
-                                  MasterPassword,
-                                  configStorage)
-            self.configStorage = configStorage
-            self.MasterPassword = MasterPassword
-            self.keyStorage = keyStorage
             if not self.created() and not kwargs.get("skipcreatewallet", False):
+                from .storage import (keyStorage,
+                                      MasterPassword,
+                                      configStorage)
+                self.configStorage = configStorage
+                self.MasterPassword = MasterPassword
+                self.keyStorage = keyStorage
                 self.newWallet()
 
     def setKeys(self, loadkeys):
