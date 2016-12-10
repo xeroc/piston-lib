@@ -49,7 +49,7 @@ class Blockchain(object):
         """
         return self.steem.rpc.stream(**kwargs)
 
-    def replay(self, start_block=1, end_block=None, filter_by=[], **kwargs):
+    def replay(self, start_block=1, end_block=None, filter_by=list(), **kwargs):
         """ Same as ``stream`` with different prototyp
         """
         return self.steem.rpc.stream(
