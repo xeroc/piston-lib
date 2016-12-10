@@ -245,6 +245,8 @@ class Wallet():
         """
         if self.keyStorage:
             self.keyStorage.delete(pub)
+        else:
+            del self.keys[pub]
 
     def removeAccount(self, account):
         """ Remove all keys associated with a given account
@@ -253,6 +255,7 @@ class Wallet():
         for a in accounts:
             if a["name"] == account:
                 self.removePrivateKeyFromPublicKey(a["pubkey"])
+                break
 
     def getOwnerKeyForAccount(self, name):
         """ Obtain owner Private Key for an account from the wallet database
