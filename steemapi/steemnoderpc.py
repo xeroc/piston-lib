@@ -192,7 +192,7 @@ class SteemNodeRPC(GrapheneWebsocketRPC):
                 continue
             for tx in block["transactions"]:
                 for op in tx["operations"]:
-                    if op[0] in opNames:
+                    if not opNames or op[0] in opNames:
                         yield {
                             **op[1],
                             "type": op[0],
