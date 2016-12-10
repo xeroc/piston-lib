@@ -11,7 +11,8 @@ from dateutil import parser
 from funcy import walk_keys
 
 import steem as stm
-from steem.amount import Converter, Amount
+from steem.amount import Amount
+from steem.converter import Converter
 from steem.utils import time_diff
 
 
