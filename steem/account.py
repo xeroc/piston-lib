@@ -145,8 +145,7 @@ class Account(object):
         return followers
 
     def check_if_already_voted(self, post):
-        for v in self.history2(filter_by="vote"):
-            vote = v['op']
+        for vote in self.history2(filter_by="vote"):
             if vote['permlink'] == post['permlink']:
                 return True
 
@@ -159,13 +158,13 @@ class Account(object):
         reward_24h = 0.0
         reward_7d = 0.0
 
-        for event in self.history2(filter_by="curation_reward", take=10000):
+        for reward in self.history2(filter_by="curation_reward", take=10000):
 
-            if parser.parse(event['timestamp'] + "UTC").timestamp() > trailing_7d_t:
-                reward_7d += Amount(event['op']['reward']).amount
+            if parser.parse(reward['timestamp'] + "UTC").timestamp() > trailing_7d_t:
+                reward_7d += Amount(reward['reward']).amount
 
-            if parser.parse(event['timestamp'] + "UTC").timestamp() > trailing_24hr_t:
-                reward_24h += Amount(event['op']['reward']).amount
+            if parser.parse(reward['timestamp'] + "UTC").timestamp() > trailing_24hr_t:
+                reward_24h += Amount(reward['reward']).amount
 
         reward_7d = self.converter.vests_to_sp(reward_7d)
         reward_24h = self.converter.vests_to_sp(reward_24h)
