@@ -255,7 +255,6 @@ class Wallet():
         for a in accounts:
             if a["name"] == account:
                 self.removePrivateKeyFromPublicKey(a["pubkey"])
-                break
 
     def getOwnerKeyForAccount(self, name):
         """ Obtain owner Private Key for an account from the wallet database
