@@ -129,7 +129,8 @@ class Steem(object):
             kwargs["apis"] = [
                 "database",
                 "network_broadcast",
-                "account_by_key_api"
+                "account_by_key",
+                "follow",
             ]
 
         if not kwargs.pop("offline", False):
