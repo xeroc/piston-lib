@@ -5,6 +5,7 @@ from contextlib import suppress
 from datetime import datetime
 
 from dateutil import parser
+from funcy import walk_values
 
 import steem as stm
 from .amount import Amount
@@ -65,6 +66,12 @@ class Post(object):
             self._patched = True
             self._patch = post["body"]
 
+        # Total reward
+        post["total_payout_reward"] = "%.3f SBD" % (
+            Amount(post.get("total_payout_value", "0 SBD")).amount +
+            Amount(post.get("total_pending_payout_value", "0 SBD")).amount
+        )
+
         # Parse Times
         parse_times = ["active",
                        "cashout_time",
@@ -76,6 +83,18 @@ class Post(object):
             post["%s_parsed" % p] = datetime.strptime(
                 post.get(p, "1970-01-01T00:00:00"), '%Y-%m-%dT%H:%M:%S'
             )
+
+        # Parse Amounts
+        sbd_amounts = [
+            "total_payout_reward",
+            "max_accepted_payout",
+            "pending_payout_value",
+            "curator_payout_value",
+            "total_pending_payout_value",
+            "promoted",
+        ]
+        for p in sbd_amounts:
+            post["%s_parsed" % p] = Amount(post.get(p, "0.000 SBD"))
 
         # Try to properly format json meta data
         meta_str = post.get("json_metadata", "")
@@ -91,12 +110,6 @@ class Post(object):
 
         # Retrieve the root comment
         self.openingPostIdentifier, self.category = self._getOpeningPost(post)
-
-        # Total reward
-        post["total_payout_reward"] = "%.3f SBD" % (
-            Amount(post.get("total_payout_value", "0 SBD")).amount +
-            Amount(post.get("total_pending_payout_value", "0 SBD")).amount
-        )
 
         # Store everything as attribute
         for key in post:
@@ -234,4 +247,12 @@ class Post(object):
     def export(self):
         """ This method returns a dictionary that is type-safe to store as JSON or in a database.
         """
-        return remove_from_dict(self, ['steem'])
+        # Remove Steem instance object
+        safe_dict = remove_from_dict(self, ['steem'])
+
+        # Convert Amount class objects into pure dictionaries
+        def decompose_amounts(item):
+            if type(item) == Amount:
+                return item.__dict__
+            return item
+        return walk_values(decompose_amounts, safe_dict)
