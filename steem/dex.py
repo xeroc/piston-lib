@@ -229,7 +229,8 @@ class Dex(object):
             rate,
             expiration=7 * 24 * 60 * 60,
             killfill=False,
-            account=None):
+            account=None,
+            orderid=None):
         """ Places a buy order in a given market (buy ``quote``, sell
             ``base`` in market ``quote_base``). If successful, the
             method will return the order creating (signed) transaction.
@@ -240,6 +241,7 @@ class Dex(object):
             :param number expiration: (optional) expiration time of the order in seconds (defaults to 7 days)
             :param bool killfill: flag that indicates if the order shall be killed if it is not filled (defaults to False)
             :param str account: (optional) the source account for the transfer if not ``default_account``
+            :param int orderid: (optional) a 32bit orderid for tracking of the created order (random by default)
 
             Prices/Rates are denoted in 'base', i.e. the STEEM:SBD market
             is priced in SBD per STEEM.
@@ -254,7 +256,7 @@ class Dex(object):
         quote, base = self._get_assets(quote=quote_symbol)
         op = transactions.Limit_order_create(**{
             "owner": account,
-            "orderid": random.getrandbits(32),
+            "orderid": orderid or random.getrandbits(32),
             "amount_to_sell": '{:.{prec}f} {asset}'.format(
                 amount * rate,
                 prec=base["precision"],
@@ -274,7 +276,8 @@ class Dex(object):
              rate,
              expiration=7 * 24 * 60 * 60,
              killfill=False,
-             account=None):
+             account=None,
+             orderid=None):
         """ Places a sell order in a given market (sell ``quote``, buy
             ``base`` in market ``quote_base``). If successful, the
             method will return the order creating (signed) transaction.
@@ -285,6 +288,7 @@ class Dex(object):
             :param number expiration: (optional) expiration time of the order in seconds (defaults to 7 days)
             :param bool killfill: flag that indicates if the order shall be killed if it is not filled (defaults to False)
             :param str account: (optional) the source account for the transfer if not ``default_account``
+            :param int orderid: (optional) a 32bit orderid for tracking of the created order (random by default)
 
             Prices/Rates are denoted in 'base', i.e. the STEEM:SBD market
             is priced in SBD per STEEM.
@@ -298,7 +302,7 @@ class Dex(object):
         quote, base = self._get_assets(quote=quote_symbol)
         op = transactions.Limit_order_create(**{
             "owner": account,
-            "orderid": random.getrandbits(32),
+            "orderid": orderid or random.getrandbits(32),
             "amount_to_sell": '{:.{prec}f} {asset}'.format(
                 amount,
                 prec=quote["precision"],
