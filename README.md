@@ -5,7 +5,7 @@ Python 3 library for Steem!
 
 **Stable**
 
-[![docs master](https://readthedocs.io/projects/python-steem/badge/?version=latest)](http://python-steem.readthedocs.io/en/latest/)
+[![docs master](https://readthedocs.org/projects/python-steem/badge/?version=latest)](http://python-steem.readthedocs.io/en/latest/)
 [![Travis master](https://travis-ci.org/xeroc/python-steem.png?branch=master)](https://travis-ci.org/xeroc/python-steem)
 [![codecov](https://codecov.io/gh/xeroc/python-steem/branch/master/graph/badge.svg)](https://codecov.io/gh/xeroc/python-steem)
 
@@ -16,17 +16,17 @@ Python 3 library for Steem!
 
 **Develop**
 
-[![docs develop](https://readthedocs.io/projects/python-steem/badge/?version=develop)](http://python-steem.readthedocs.io/en/develop/)
+[![docs develop](https://readthedocs.org/projects/python-steem/badge/?version=develop)](http://python-steem.readthedocs.io/en/develop/)
 [![Travis develop](https://travis-ci.org/xeroc/python-steem.png?branch=develop)](https://travis-ci.org/xeroc/python-steem)
 [![codecov develop](https://codecov.io/gh/xeroc/python-steem/branch/develop/graph/badge.svg)](https://codecov.io/gh/xeroc/python-steem)
 
 Installation
 ------------
 
-Install with `pip`:
+Install with `python-steem`:
 
     $ sudo apt-get install libffi-dev libssl-dev python-dev
-    $ pip3 install steem
+    $ python-steem3 install steem
 
 Manual installation:
 
@@ -37,7 +37,7 @@ Manual installation:
 Upgrade
 -------
 
-    $ pip install --user --upgrade
+    $ python-steem install --user --upgrade
 
 Additional dependencies
 -----------------------
