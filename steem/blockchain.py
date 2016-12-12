@@ -88,16 +88,16 @@ class Blockchain(object):
 
         """
         known_block = self.get_current_block(mode)
-        known_block_timestamp = self.get_block_time(known_block)
+        known_block_timestamp = self.block_timestamp(known_block)
         timestring_timestamp = dateutil.parser.parse(timestring + "UTC").timestamp()
         delta = known_block_timestamp - timestring_timestamp
         block_delta = delta / 3
         guess_block = known_block - block_delta
-        guess_block_timestamp = self.get_block_time(guess_block)
+        guess_block_timestamp = self.block_timestamp(guess_block)
         error = timestring_timestamp - guess_block_timestamp
         while abs(error) > error_margin:
             guess_block += error / 3
-            guess_block_timestamp = self.get_block_time(guess_block)
+            guess_block_timestamp = self.block_timestamp(guess_block)
             error = timestring_timestamp - guess_block_timestamp
         return int(guess_block)
 
