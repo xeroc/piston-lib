@@ -176,8 +176,8 @@ def simple_cache(func, cache_obj, timeout=3600):
 
 
 def is_comment(item):
-    """Quick and unreliable check on whether a permlink is reply to the main post."""
-    if item['permlink'][:3] == "re-":
+    """Quick check whether an item is a comment (reply) to another post."""
+    if item['permlink'][:3] == "re-" and item['parent_author']:
         return True
 
     return False
