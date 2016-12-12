@@ -166,8 +166,8 @@ class Post(object):
         return "<Steem.Post-%s>" % constructIdentifier(self["author"], self["permlink"])
 
     @property
-    def payout(self):
-        return Amount(self['total_payout_reward']).amount
+    def reward(self):
+        return self['total_payout_reward_parsed'].amount
 
     @property
     def meta(self):
