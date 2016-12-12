@@ -1,17 +1,19 @@
-import time
 import dateutil
 from dateutil import parser
-import warnings
+
+import steem as stm
 
 
 class Blockchain(object):
-    def __init__(self, steem):
+    def __init__(self, steem_instance=None):
         """ This class allows to access the blockchain and read data
             from it
 
             :param Steem steem: Steem() instance to use when accesing a RPC
         """
-        self.steem = steem
+        if not steem_instance:
+            steem_instance = stm.Steem()
+        self.steem = steem_instance
 
     def info(self):
         """ This call returns the *dynamic global properties*
@@ -47,7 +49,7 @@ class Blockchain(object):
         """
         return self.steem.rpc.stream(**kwargs)
 
-    def replay(self, start_block=1, end_block=None, filter_by=[], **kwargs):
+    def replay(self, start_block=1, end_block=None, filter_by=list(), **kwargs):
         """ Same as ``stream`` with different prototyp
         """
         return self.steem.rpc.stream(

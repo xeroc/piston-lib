@@ -1,24 +1,36 @@
-from .amount import Amount
 import math
+
+from werkzeug.contrib.cache import SimpleCache
+
+import steem as stm
+from steem.utils import simple_cache
+from .amount import Amount
+
+converter_cache = SimpleCache()
 
 
 class Converter(object):
-    def __init__(self, steem):
+    def __init__(self, steem_instance=None):
         """ Converter simplifies the handling of different metrics of
             the blockchain
         """
-        self.steem = steem
+        if not steem_instance:
+            steem_instance = stm.Steem()
+        self.steem = steem_instance
+
         self.CONTENT_CONSTANT = 2000000000000
 
+    @simple_cache(converter_cache, timeout=5 * 60)
     def sbd_median_price(self):
         """ Obtain the sbd price as derived from the median over all
             witness feeds. Return value will be SBD
         """
-        return(
+        return (
             Amount(self.steem.rpc.get_feed_history()['current_median_history']['base']).amount /
             Amount(self.steem.rpc.get_feed_history()['current_median_history']['quote']).amount
         )
 
+    @simple_cache(converter_cache, timeout=5 * 60)
     def steem_per_mvests(self):
         """ Obtain STEEM/MVESTS ratio
         """
@@ -74,7 +86,7 @@ class Converter(object):
         """
         return amount_sbd / self.sbd_median_price()
 
-    def sbd_to_shares(self, sbd_payout):
+    def sbd_to_rshares(self, sbd_payout):
         """ Obtain r-shares from SBD
 
             :param number sbd_payout: Amount of SBD

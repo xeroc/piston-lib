@@ -1,4 +1,4 @@
-from steem.chain import Blockchain
+from steem.blockchain import Blockchain
 
 # parse the whole chain
 for event in Blockchain().replay():
@@ -13,8 +13,7 @@ history = b.replay(
     end_block=b.get_current_block(),
     filter_by=['transfer']
 )
-for event in history:
-    payment = event['op']
+for payment in history:
     print("@%s sent %s to @%s" % (payment['from'], payment['amount'], payment['to']))
 
 # Output:

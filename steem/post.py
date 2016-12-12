@@ -6,6 +6,7 @@ from datetime import datetime
 
 from dateutil import parser
 
+import steem as stm
 from .amount import Amount
 from .utils import (
     resolveIdentifier,
@@ -26,12 +27,10 @@ class Post(object):
     """
     steem = None
 
-    def __init__(self, steem, post):
-        if steem.__class__.__name__ != "Steem":
-            raise ValueError(
-                "First argument must be instance of Steem()"
-            )
-        self.steem = steem
+    def __init__(self, post, steem_instance=None):
+        if not steem_instance:
+            steem_instance = stm.Steem()
+        self.steem = steem_instance
         self._patch = False
 
         # Get full Post
@@ -173,7 +172,7 @@ class Post(object):
         posts = self.steem.rpc.get_content_replies(post_author, post_permlink)
         r = []
         for post in posts:
-            r.append(Post(self.steem, post))
+            r.append(Post(post, steem_instance=self.steem))
         if sort == "total_payout_value":
             r = sorted(r, key=lambda x: float(
                 Amount(x["total_payout_value"]).amount

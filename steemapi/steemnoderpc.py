@@ -1,9 +1,8 @@
-from grapheneapi.graphenewsrpc import GrapheneWebsocketRPC
-import threading
-from websocket import create_connection
-import json
-import time
 import logging
+import time
+
+from grapheneapi.graphenewsrpc import GrapheneWebsocketRPC
+
 log = logging.getLogger("grapheneapi.steemnoderpc")
 
 
@@ -193,10 +192,13 @@ class SteemNodeRPC(GrapheneWebsocketRPC):
                 continue
             for tx in block["transactions"]:
                 for op in tx["operations"]:
-                    if op[0] in opNames:
-                        yield op[1].update(
-                            {"timestamp": block.get("timestamp")}
-                        )
+                    if not opNames or op[0] in opNames:
+                        yield {
+                            **op[1],
+                            "type": op[0],
+                            "timestamp": block.get("timestamp"),
+                            "block_num": block.get("block_num"),
+                        }
 
     def list_accounts(self, start=None, step=1000, limit=None):
         """ Yield list of user accounts in alphabetical order

@@ -1,11 +1,12 @@
 import time
 from decimal import Decimal
+from operator import mul
 from pprint import pprint
+from statistics import mean
 
 import grequests
-import numpy as np
 
-from steem import Steem
+import steem as stm
 from steem.amount import Amount
 
 
@@ -47,7 +48,7 @@ class Tickers(object):
             raise RuntimeError("Obtaining BTC/USD prices has failed from all sources.")
 
         # vwap
-        return np.average([x['price'] for x in prices.values()], weights=[x['volume'] for x in prices.values()])
+        return Tickers._wva([x['price'] for x in prices.values()], [x['volume'] for x in prices.values()])
 
     @staticmethod
     def steem_btc_ticker():
@@ -71,7 +72,7 @@ class Tickers(object):
         if len(prices) == 0:
             raise RuntimeError("Obtaining STEEM/BTC prices has failed from all sources.")
 
-        return np.mean([x['price'] for x in prices.values()])
+        return mean([x['price'] for x in prices.values()])
 
     @staticmethod
     def sbd_btc_ticker(verbose=False):
@@ -99,17 +100,24 @@ class Tickers(object):
         if len(prices) == 0:
             raise RuntimeError("Obtaining SBD/BTC prices has failed from all sources.")
 
-        return np.mean([x['price'] for x in prices.values()])
+        return mean([x['price'] for x in prices.values()])
 
     @staticmethod
     def calc_spread(bid, ask):
         return (1 - (Decimal(bid) / Decimal(ask))) * 100
 
+    @staticmethod
+    def _wva(values, weights):
+        """ Calculates a weighted average
+        """
+        assert len(values) == len(weights) and len(weights) > 0
+        return sum([mul(*x) for x in zip(values, weights)]) / sum(weights)
+
 
 class Markets(Tickers):
     def __init__(self, cache_timeout=60, steem_instance=None):
         if not steem_instance:
-            steem_instance = Steem()
+            steem_instance = stm.Steem()
         self.steem = steem_instance
 
         self._cache_timeout = cache_timeout
@@ -150,4 +158,4 @@ class Markets(Tickers):
 
     def avg_witness_price(self, take=10):
         price_history = self.steem.rpc.get_feed_history()['price_history']
-        return np.mean([Amount(x['base']).amount for x in price_history[-take:]])
+        return mean([Amount(x['base']).amount * Amount(x['quote']).amount for x in price_history[-take:]])

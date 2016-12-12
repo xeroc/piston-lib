@@ -4,20 +4,24 @@ import math
 import time
 from collections import namedtuple
 from contextlib import suppress
+from statistics import mean
 
 import dateutil
-import numpy as np
 from dateutil import parser
 from funcy import walk_keys
 
-from .amount import Amount
-from .converter import Converter
-from .utils import time_diff
+import steem as stm
+from steem.amount import Amount
+from steem.converter import Converter
+from steem.utils import time_diff
 
 
 class Account(object):
-    def __init__(self, account_name, steem):
-        self.steem = steem
+    def __init__(self, account_name, steem_instance=None):
+        if not steem_instance:
+            steem_instance = stm.Steem()
+        self.steem = steem_instance
+
         self.name = account_name
         self.converter = Converter(self.steem)
 
@@ -122,7 +126,7 @@ class Account(object):
 
         if len(time_to_whale) == 0:
             return None
-        return np.mean(time_to_whale[:mean_of_recent])
+        return mean(time_to_whale[:mean_of_recent])
 
     def get_followers(self):
         return [x['follower'] for x in self._get_followers(direction="follower")]
@@ -140,8 +144,7 @@ class Account(object):
         return followers
 
     def check_if_already_voted(self, post):
-        for v in self.history2(filter_by="vote"):
-            vote = v['op']
+        for vote in self.history2(filter_by="vote"):
             if vote['permlink'] == post['permlink']:
                 return True
 
@@ -154,13 +157,13 @@ class Account(object):
         reward_24h = 0.0
         reward_7d = 0.0
 
-        for event in self.history2(filter_by="curation_reward", take=10000):
+        for reward in self.history2(filter_by="curation_reward", take=10000):
 
-            if parser.parse(event['timestamp'] + "UTC").timestamp() > trailing_7d_t:
-                reward_7d += Amount(event['op']['reward']).amount
+            if parser.parse(reward['timestamp'] + "UTC").timestamp() > trailing_7d_t:
+                reward_7d += Amount(reward['reward']).amount
 
-            if parser.parse(event['timestamp'] + "UTC").timestamp() > trailing_24hr_t:
-                reward_24h += Amount(event['op']['reward']).amount
+            if parser.parse(reward['timestamp'] + "UTC").timestamp() > trailing_24hr_t:
+                reward_24h += Amount(reward['reward']).amount
 
         reward_7d = self.converter.vests_to_sp(reward_7d)
         reward_24h = self.converter.vests_to_sp(reward_24h)
@@ -225,25 +228,26 @@ class Account(object):
                 timestamp = item[1]['timestamp']
                 trx_id = item[1]['trx_id']
 
-                def construct_op():
+                def construct_op(account_name):
                     return {
+                        **op,
                         "index": index,
+                        "account": account_name,
                         "trx_id": trx_id,
                         "timestamp": timestamp,
-                        "op_type": op_type,
-                        "op": op,
+                        "type": op_type,
                     }
 
                 if filter_by is None:
-                    yield construct_op()
+                    yield construct_op(self.name)
                 else:
                     if type(filter_by) is list:
                         if op_type in filter_by:
-                            yield construct_op()
+                            yield construct_op(self.name)
 
                     if type(filter_by) is str:
                         if op_type == filter_by:
-                            yield construct_op()
+                            yield construct_op(self.name)
             i += batch_size
 
     def history2(self, filter_by=None, take=1000):

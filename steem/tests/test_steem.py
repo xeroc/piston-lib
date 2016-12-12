@@ -1,12 +1,13 @@
 import unittest
+
+from steem.post import (
+    Post,
+    VotingInvalidOnArchivedPost
+)
 from steem.steem import (
     Steem,
     MissingKeyError,
     InsufficientAuthorityError
-)
-from steem.post import (
-    Post,
-    VotingInvalidOnArchivedPost
 )
 
 identifier = "@xeroc/piston"
@@ -19,7 +20,7 @@ class Testcases(unittest.TestCase):
 
     def __init__(self, *args, **kwargs):
         super(Testcases, self).__init__(*args, **kwargs)
-        self.post = Post(steem, identifier)
+        self.post = Post(identifier, steem_instance=steem)
 
     def test_getOpeningPost(self):
         self.post._getOpeningPost()
@@ -117,9 +118,9 @@ class Testcases(unittest.TestCase):
         steem.get_balances(testaccount)
 
     def test_getPost(self):
-        self.assertEqual(Post(steem, "@xeroc/piston").url,
+        self.assertEqual(Post("@xeroc/piston", steem_instance=steem).url,
                          "/piston/@xeroc/piston")
-        self.assertEqual(Post(steem, {"author": "@xeroc", "permlink": "piston"}).url,
+        self.assertEqual(Post({"author": "@xeroc", "permlink": "piston"}, steem_instance=steem).url,
                          "/piston/@xeroc/piston")
 
 

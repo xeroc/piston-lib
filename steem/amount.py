@@ -1,6 +1,3 @@
-import math
-
-
 class Amount(object):
     def __init__(self, amountString):
         self.amount, self.asset = amountString.split(" ")
