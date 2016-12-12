@@ -316,12 +316,10 @@ class Dex(object):
         })
         return self.steem.finalizeOp(op, account, "active")
 
-    def cancel(self, orderNumber, account=None):
-        """ Cancels an order you have placed in a given market. Requires
-            only the "orderNumber". An order number takes the form
-            ``1.7.xxx``.
+    def cancel(self, orderid, account=None):
+        """ Cancels an order you have placed in a given market.
 
-            :param str orderNumber: The Order Object ide of the form ``1.7.xxxx``
+            :param int orderid: the 32bit orderid
             :param str account: (optional) the source account for the transfer if not ``default_account``
         """
         if not account:
@@ -332,7 +330,7 @@ class Dex(object):
 
         op = transactions.Limit_order_cancel(**{
             "owner": account,
-            "orderid": orderNumber,
+            "orderid": orderid,
         })
         return self.steem.finalizeOp(op, account, "active")
 
