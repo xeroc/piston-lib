@@ -50,7 +50,7 @@ operations["set_reset_account_operation"] = 38
 prefix = "STM"
 # prefix = "TST"
 
-assets = {
+asset_precision = {
     "STEEM": 3,
     "VESTS": 6,
     "SBD": 3,
@@ -184,8 +184,8 @@ class Amount():
         self.amount, self.asset = d.strip().split(" ")
         self.amount = float(self.amount)
 
-        if self.asset in assets:
-            self.precision = assets[self.asset]
+        if self.asset in asset_precision:
+            self.precision = asset_precision[self.asset]
         else:
             raise Exception("Asset unknown")
 
