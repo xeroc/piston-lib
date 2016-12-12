@@ -1,18 +1,11 @@
-import logging
 import os
 import re
 import sys
 import time
-from datetime import datetime
-from datetime import timezone
-
+from datetime import datetime, timezone
 import dateutil
 import frontmatter
 from dateutil import parser
-from funcy import contextmanager, decorator
-from werkzeug.contrib.cache import SimpleCache
-
-log = logging.getLogger(__name__)
 
 
 def constructIdentifier(author, slug):
@@ -165,46 +158,12 @@ def formatTimeFromNow(secs=0):
     return datetime.utcfromtimestamp(time.time() + int(secs)).strftime('%Y-%m-%dT%H:%M:%S')
 
 
-@contextmanager
-def timeit():
-    t1 = time.time()
-    yield
-    print("Time Elapsed: %.2f" % (time.time() - t1))
-
-
-@decorator
-def simple_cache(func, cache_obj, timeout=3600):
-    if type(cache_obj) is not SimpleCache:
-        return func()
-    name = "%s_%s_%s" % (func._func.__name__, func._args, func._kwargs)
-    cache_value = cache_obj.get(name)
-    if cache_value:
-        return cache_value
-    else:
-        out = func()
-        cache_obj.set(name, out, timeout=timeout)
-        return out
-
-
 def is_comment(item):
     """Quick and unreliable check on whether a permlink is reply to the main post."""
     if item['permlink'][:3] == "re-":
         return True
 
     return False
-
-
-def time_elapsed(posting_time):
-    """Takes a string time from a post or blockchain event, and returns seconds elapsed."""
-    created_at = parser.parse(posting_time + "UTC").timestamp()
-    now_adjusted = time.time()
-    return now_adjusted - created_at
-
-
-def time_diff(time1, time2):
-    time1 = parser.parse(time1 + "UTC").timestamp()
-    time2 = parser.parse(time2 + "UTC").timestamp()
-    return time2 - time1
 
 
 def parse_time(block_time):

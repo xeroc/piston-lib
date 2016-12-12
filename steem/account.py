@@ -10,20 +10,16 @@ import numpy as np
 from dateutil import parser
 from funcy import walk_keys
 
-from steem import Steem
-from steem.amount import Converter, Amount
-from steem.utils import time_diff
+from .amount import Amount
+from .converter import Converter
+from .utils import time_diff
 
 
 class Account(object):
-    def __init__(self, account_name, steem_instance=None):
-        if not steem_instance:
-            steem_instance = Steem()
-        self.steem = steem_instance
-
+    def __init__(self, account_name, steem):
+        self.steem = steem
         self.name = account_name
-
-        self.converter = Converter(steem_instance=self.steem)
+        self.converter = Converter(self.steem)
 
         # caches
         self._blog = None
