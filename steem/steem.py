@@ -975,7 +975,7 @@ class Steem(object):
             :param str identifier: Identifier for the post to upvote Takes
                                    the form ``@author/permlink``
         """
-        return Post(self, identifier)
+        return Post(identifier, steem_instance=self)
 
     def get_recommended(self, user):
         """ (obsolete) Get recommended posts for user
@@ -993,7 +993,7 @@ class Steem(object):
         r = []
         for p in posts:
             post = state["content"][p]
-            r.append(Post(self, post))
+            r.append(Post(post, steem_instance=self))
         return r
 
     def get_replies(self, author, skipown=True):
@@ -1009,7 +1009,7 @@ class Steem(object):
             post = state["content"][reply]
             if skipown and post["author"] == author:
                 continue
-            discussions.append(Post(self, post))
+            discussions.append(Post(post, steem_instance=self))
         return discussions
 
     def get_promoted(self):
@@ -1021,7 +1021,7 @@ class Steem(object):
         r = []
         for p in promoted:
             post = state["content"].get(p)
-            r.append(Post(self, post))
+            r.append(Post(post, steem_instance=self))
         return r
 
     def get_posts(self, limit=10,
@@ -1048,12 +1048,11 @@ class Steem(object):
         if sort not in ["trending", "created", "active", "cashout",
                         "payout", "votes", "children", "hot"]:
             raise Exception("Invalid choice of '--sort'!")
-            return
 
         func = getattr(self.rpc, "get_discussions_by_%s" % sort)
         r = []
         for p in func(discussion_query):
-            r.append(Post(self, p))
+            r.append(Post(p, steem_instance=self))
         return r
 
     def get_comments(self, identifier):
@@ -1066,8 +1065,8 @@ class Steem(object):
         posts = self.rpc.get_content_replies(post_author, post_permlink)
         r = []
         for post in posts:
-            r.append(Post(self, post))
-        return (r)
+            r.append(Post(post, steem_instance=self))
+        return r
 
     def get_categories(self, sort="trending", begin=None, limit=10):
         """ List categories
@@ -1144,7 +1143,7 @@ class Steem(object):
             To be used in a for loop that returns an instance of `Post()`.
         """
         for c in self.rpc.stream("comment", *args, **kwargs):
-            yield Post(self, c)
+            yield Post(c, steem_instance=self)
 
     def interest(self, account):
         """ Caluclate interest for an account
