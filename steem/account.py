@@ -2,9 +2,7 @@ import datetime
 import json
 import math
 import time
-from collections import namedtuple
 from contextlib import suppress
-from statistics import mean
 
 import dateutil
 from dateutil import parser
@@ -13,7 +11,6 @@ from funcy import walk_keys
 import steem as stm
 from steem.amount import Amount
 from steem.converter import Converter
-from steem.utils import time_diff
 
 
 class Account(object):
@@ -47,15 +44,12 @@ class Account(object):
 
     @property
     def sp(self):
-        return self.get_sp()
+        vests = Amount(self.get_props()['vesting_shares']).amount
+        return self.converter.vests_to_sp(vests)
 
     @property
     def rep(self):
         return self.reputation()
-
-    def get_sp(self):
-        vests = Amount(self.get_props()['vesting_shares']).amount
-        return self.converter.vests_to_sp(vests)
 
     def get_balances(self):
         my_account_balances = self.steem.get_balances(self.name)
@@ -77,56 +71,6 @@ class Account(object):
 
     def voting_power(self):
         return self.get_props()['voting_power'] / 100
-
-    def number_of_winning_posts(self, skip=1, payout_requirement=300, max_posts=10):
-        winning_posts = 0
-        blog = self.get_blog()[skip:max_posts + skip]
-        for post in blog:
-            total_payout = Amount(post['total_payout_reward']).amount
-            if total_payout >= payout_requirement:
-                winning_posts += 1
-
-        nt = namedtuple('WinningPosts', ['winners', 'blog_posts'])
-        return nt(winning_posts, len(blog))
-
-    def avg_payout_per_post(self, skip=1, max_posts=10):
-        total_payout = 0
-        blog = self.get_blog()[skip:max_posts + skip]
-        for post in blog:
-            total_payout += Amount(post['total_payout_reward']).amount
-
-        if len(blog) == 0:
-            return 0
-
-        return total_payout / len(blog)
-
-    def time_to_whale(self, verbose=False, whale_sp=1e5, skip=1, max_posts=10, mean_of_recent=3):
-        blog = self.get_blog()[skip:max_posts + skip]
-
-        max_rshares = self.converter.sp_to_rshares(whale_sp)
-        time_to_whale = []
-
-        for post in blog:
-            votes = []
-            rshares_sum = 0
-
-            for vote in post['active_votes']:
-                vote['time_elapsed'] = int(time_diff(post['created'], vote['time']))
-                votes.append(vote)
-
-            # note: this function will already filter out posts without votes
-            for vote in sorted(votes, key=lambda k: k['time_elapsed']):
-                rshares_sum += int(vote['rshares'])
-                if rshares_sum >= max_rshares:
-                    ttw = time_diff(post['created'], vote['time'])
-                    if verbose:
-                        print('%s on %s' % (ttw, post['permlink']))
-                    time_to_whale.append(ttw)
-                    break
-
-        if len(time_to_whale) == 0:
-            return None
-        return mean(time_to_whale[:mean_of_recent])
 
     def get_followers(self):
         return [x['follower'] for x in self._get_followers(direction="follower")]
@@ -171,26 +115,6 @@ class Account(object):
             "24hr": reward_24h,
             "7d": reward_7d,
             "avg": reward_7d / 7,
-        }
-
-    def get_features(self, max_posts=10, payout_requirement=300):
-        num_winning_posts, post_count = self.number_of_winning_posts(payout_requirement=payout_requirement,
-                                                                     max_posts=max_posts)
-        return {
-            "name": self.name,
-            "settings": {
-                "max_posts": max_posts,
-                "payout_requirement": payout_requirement,
-            },
-            "author": {
-                "post_count": post_count,
-                "winners": num_winning_posts,
-                "sp": int(self.get_sp()),
-                "rep": self.reputation(),
-                "followers": len(self.get_followers()),
-                "ttw": self.time_to_whale(max_posts=max_posts),
-                "ppp": self.avg_payout_per_post(max_posts=max_posts),
-            },
         }
 
     def virtual_op_count(self):
