@@ -9,7 +9,9 @@ from .amount import Amount
 from .utils import (
     resolveIdentifier,
     constructIdentifier,
-    remove_from_dict, time_elapsed)
+    remove_from_dict,
+    parse_time,
+)
 
 
 class VotingInvalidOnArchivedPost(Exception):
@@ -77,7 +79,7 @@ class Post(object):
                        "last_update",
                        "max_cashout_time"]
         for p in parse_times:
-            post["%s" % p] = time_elapsed(post.get(p, "1970-01-01T00:00:00"))
+            post["%s" % p] = parse_time(post.get(p, "1970-01-01T00:00:00"))
 
         # Parse Amounts
         sbd_amounts = [
@@ -160,11 +162,11 @@ class Post(object):
             r.append(Post(post, steem_instance=self.steem))
         if sort == "total_payout_value":
             r = sorted(r, key=lambda x: float(
-                Amount(x["total_payout_value"]).amount
+                x["total_payout_value"].amount
             ), reverse=True)
         elif sort == "total_payout_reward":
             r = sorted(r, key=lambda x: float(
-                Amount(x["total_payout_reward"]).amount
+                x["total_payout_reward"].amount
             ), reverse=True)
         else:
             r = sorted(r, key=lambda x: x[sort])
