@@ -176,25 +176,29 @@ def simple_cache(func, cache_obj, timeout=3600):
 
 
 def is_comment(item):
-    """Quick check whether an item is a comment (reply) to another post."""
+    """Quick check whether an item is a comment (reply) to another post.
+    """
     return item['permlink'][:3] == "re-" and item['parent_author']
 
 
 def time_elapsed(posting_time):
-    """Takes a string time from a post or blockchain event, and returns seconds elapsed."""
-    created_at = parser.parse(posting_time + "UTC").timestamp()
-    now_adjusted = time.time()
-    return now_adjusted - created_at
-
-
-def time_diff(time1, time2):
-    time1 = parser.parse(time1 + "UTC").timestamp()
-    time2 = parser.parse(time2 + "UTC").timestamp()
-    return time2 - time1
+    """Takes a string time from a post or blockchain event, and returns a time delta from now.
+    """
+    return datetime.utcnow() - parse_time(posting_time)
 
 
 def parse_time(block_time):
+    """Take a string representation of time from the blockchain, and parse it into datetime object.
+    """
+    return datetime.strptime(block_time, '%Y-%m-%dT%H:%M:%S')
+
+
+def parse_time_utc(block_time):
     return dateutil.parser.parse(block_time + "UTC").astimezone(timezone.utc)
+
+
+def time_diff(time1, time2):
+    return parse_time(time1) - parse_time(time2)
 
 
 def keep_in_dict(obj, allowed_keys=list()):

@@ -9,7 +9,7 @@ from .amount import Amount
 from .utils import (
     resolveIdentifier,
     constructIdentifier,
-    remove_from_dict)
+    remove_from_dict, time_elapsed)
 
 
 class VotingInvalidOnArchivedPost(Exception):
@@ -77,9 +77,7 @@ class Post(object):
                        "last_update",
                        "max_cashout_time"]
         for p in parse_times:
-            post["%s" % p] = datetime.strptime(
-                post.get(p, "1970-01-01T00:00:00"), '%Y-%m-%dT%H:%M:%S'
-            )
+            post["%s" % p] = time_elapsed(post.get(p, "1970-01-01T00:00:00"))
 
         # Parse Amounts
         sbd_amounts = [
