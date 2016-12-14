@@ -1,13 +1,10 @@
 import json
 import re
-import time
-from contextlib import suppress
 from datetime import datetime
 
-from dateutil import parser
+import steem as stm
 from funcy import walk_values
 
-import steem as stm
 from .amount import Amount
 from .utils import (
     resolveIdentifier,
@@ -80,7 +77,7 @@ class Post(object):
                        "last_update",
                        "max_cashout_time"]
         for p in parse_times:
-            post["%s_parsed" % p] = datetime.strptime(
+            post["%s" % p] = datetime.strptime(
                 post.get(p, "1970-01-01T00:00:00"), '%Y-%m-%dT%H:%M:%S'
             )
 
@@ -94,19 +91,14 @@ class Post(object):
             "promoted",
         ]
         for p in sbd_amounts:
-            post["%s_parsed" % p] = Amount(post.get(p, "0.000 SBD"))
+            post["%s" % p] = Amount(post.get(p, "0.000 SBD"))
 
         # Try to properly format json meta data
-        meta_str = post.get("json_metadata", "")
-        post["_json_metadata"] = meta_str
-        meta = {}
         try:
-            meta = json.loads(meta_str)
+            meta_str = post.get("json_metadata", "")
+            post['json_metadata'] = json.loads(meta_str)
         except:
-            pass
-        if not isinstance(meta, dict):
-            meta = {}
-        post["_tags"] = meta.get("tags", [])
+            post['json_metadata'] = dict()
 
         # Retrieve the root comment
         self.openingPostIdentifier, self.category = self._getOpeningPost(post)
@@ -129,11 +121,6 @@ class Post(object):
             return constructIdentifier(
                 author, permlink
             ), category
-
-    def _time_elapsed(self):
-        created_at = parser.parse(self['created'] + "UTC").timestamp()
-        now_adjusted = time.time()
-        return now_adjusted - created_at
 
     def __getitem__(self, key):
         return getattr(self, key)
@@ -164,19 +151,6 @@ class Post(object):
 
     def __repr__(self):
         return "<Steem.Post-%s>" % constructIdentifier(self["author"], self["permlink"])
-
-    @property
-    def reward(self):
-        return self['total_payout_reward_parsed'].amount
-
-    @property
-    def meta(self):
-        with suppress(Exception):
-            meta_str = self.get("json_metadata", "")
-            return json.loads(meta_str)
-
-    def is_main_post(self):
-        return len(self['title']) > 0 and not self['depth'] and not self['parent_author']
 
     def get_comments(self, sort="total_payout_reward"):
         """ Return **first-level** comments of the post.
@@ -236,10 +210,26 @@ class Post(object):
             raise VotingInvalidOnArchivedPost
         return self.steem.vote(self.identifier, weight, voter=voter)
 
+    @property
+    def reward(self):
+        """Return a float value of estimated total SBD reward.
+        """
+        return self['total_payout_reward'].amount
+
+    def time_elapsed(self):
+        """Return a timedelta on how old the post is.
+        """
+        return datetime.utcnow() - self['created']
+
+    def is_main_post(self):
+        """Retuns True if main post, and False if this is a comment (reply).
+        """
+        return len(self['title']) > 0 and not self['depth'] and not self['parent_author']
+
     def curation_reward_pct(self):
         """ If post is less than 30 minutes old, it will incur a curation reward penalty.
         """
-        reward = (self._time_elapsed() / 1800) * 100
+        reward = (self.time_elapsed().seconds / 1800) * 100
         if reward > 100:
             reward = 100
         return reward
