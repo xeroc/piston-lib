@@ -216,6 +216,10 @@ class Post(object):
         """
         return self['total_payout_reward'].amount
 
+    @property
+    def meta(self):
+        return self.get('json_metadata', dict())
+
     def time_elapsed(self):
         """Return a timedelta on how old the post is.
         """
