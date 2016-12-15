@@ -816,6 +816,14 @@ class Steem(object):
         """
         return Post(self, identifier)
 
+    def get_post(self, identifier):
+        """ Get the full content of a post.
+
+            :param str identifier: Identifier for the post to upvote Takes
+                                   the form ``@author/permlink``
+        """
+        return Post(self, identifier)
+
     def get_recommended(self, user):
         """ (obsolete) Get recommended posts for user
         """
