@@ -5,7 +5,7 @@ import logging
 log = logging.getLogger(__name__)
 
 
-class Signed_Transaction(GrapheneSigned_Transaction) :
+class Signed_Transaction(GrapheneSigned_Transaction):
     """ Create a signed transaction and offer method to create the
         signature
 
@@ -14,10 +14,10 @@ class Signed_Transaction(GrapheneSigned_Transaction) :
         :param str expiration: expiration date
         :param Array operations:  array of operations
     """
-    def __init__(self, *args, **kwargs) :
+    def __init__(self, *args, **kwargs):
         super(Signed_Transaction, self).__init__(*args, **kwargs)
 
-    def sign(self, wifkeys, chain="STEEM") :
+    def sign(self, wifkeys, chain="STEEM"):
         return super(Signed_Transaction, self).sign(wifkeys, chain)
 
     def verify(self, pubkeys=[], chain="STEEM"):

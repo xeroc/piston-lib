@@ -5,7 +5,7 @@ import random
 import unittest
 
 
-class Testcases(unittest.TestCase) :
+class Testcases(unittest.TestCase):
 
     def __init__(self, *args, **kwargs):
         super(Testcases, self).__init__(*args, **kwargs)

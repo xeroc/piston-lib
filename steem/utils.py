@@ -76,7 +76,7 @@ def yaml_parse_file(args, initial_content):
             fp.seek(0)
             message = fp.read().decode('utf-8')
 
-    try :
+    try:
         meta, body = frontmatter.parse(message)
     except:
         meta = initial_content.metadata
@@ -99,13 +99,13 @@ def yaml_parse_file(args, initial_content):
     return meta, json_meta, body
 
 
-def formatTime(t) :
+def formatTime(t):
     """ Properly Format Time for permlinks
     """
     return datetime.utcfromtimestamp(t).strftime("%Y%m%dt%H%M%S%Z")
 
 
-def formatTimeString(t) :
+def formatTimeString(t):
     """ Properly Format Time for permlinks
     """
     return datetime.strptime(t, '%Y-%m-%dT%H:%M:%S')
@@ -144,3 +144,15 @@ def strfdelta(tdelta, fmt):
     d["hours"], rem = divmod(tdelta.seconds, 3600)
     d["minutes"], d["seconds"] = divmod(rem, 60)
     return fmt.format(**d)
+
+
+def formatTimeFromNow(secs=0):
+    """ Properly Format Time that is `x` seconds in the future
+
+        :param int secs: Seconds to go in the future (`x>0`) or the
+                         past (`x<0`)
+        :return: Properly formated time for Graphene (`%Y-%m-%dT%H:%M:%S`)
+        :rtype: str
+
+    """
+    return datetime.utcfromtimestamp(time.time() + int(secs)).strftime('%Y-%m-%dT%H:%M:%S')

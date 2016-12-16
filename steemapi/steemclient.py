@@ -4,7 +4,7 @@ from steemapi.steemnoderpc import SteemNodeRPC
 import logging as log
 
 
-class ExampleConfig() :
+class ExampleConfig():
     """ The behavior of your program (e.g. reactions on messages) can be
         defined in a separated class (here called ``Config()``. It contains
         the wallet and witness connection parameters:
@@ -60,18 +60,18 @@ class ExampleConfig() :
     """
 
     #: Wallet connection parameters
-    wallet_host           = "localhost"
-    wallet_port           = 8092
-    wallet_user           = ""
-    wallet_password       = ""
+    wallet_host = "localhost"
+    wallet_port = 8092
+    wallet_user = ""
+    wallet_password = ""
 
     #: Witness connection parameter
-    witness_url           = "ws://localhost:8090/"
-    witness_user          = ""
-    witness_password      = ""
+    witness_url = "ws://localhost:8090/"
+    witness_user = ""
+    witness_password = ""
 
 
-class SteemClient() :
+class SteemClient():
     """ The ``SteemClient`` class is an abstraction layer that makes the use of the
         RPC and the websocket interface easier to use. A part of this
         abstraction layer is to simplyfy the usage of objects and have
@@ -104,8 +104,8 @@ class SteemClient() :
     wallet = None
 
     #: Websocket connection to the witness/full node
-    ws  = None
-    node  = None
+    ws = None
+    node = None
 
     def __init__(self, config, **kwargs):
         """ Initialize configuration

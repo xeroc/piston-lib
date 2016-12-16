@@ -9,7 +9,7 @@ from steem.utils import (
 )
 
 
-class Testcases(unittest.TestCase) :
+class Testcases(unittest.TestCase):
 
     def test_constructIdentifier(self):
         self.assertEqual(constructIdentifier("A", "B"), "@A/B")

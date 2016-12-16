@@ -35,6 +35,7 @@ class Wallet():
 
             :param SteemNodeRPC rpc: RPC connection to a Steem node
             :param array,dict,string keys: Predefine the wif keys to shortcut the wallet database
+            :param bool skipcreatewallet: Skip creation of a wallet
 
             Three wallet operation modes are possible:
 
@@ -66,18 +67,12 @@ class Wallet():
                 keyStorage
             """
             from .storage import (keyStorage,
-                                  newKeyStorage,
                                   MasterPassword,
                                   configStorage)
             self.configStorage = configStorage
             self.MasterPassword = MasterPassword
             self.keyStorage = keyStorage
-            if newKeyStorage:
-                # migrate to new SQL based storage
-                if self.exists():
-                    log.critical("Migrating old wallet format to new format!")
-                    self.migrateFromJSON()
-            if not self.created():
+            if not self.created() and not kwargs.get("skipcreatewallet", False):
                 self.newWallet()
 
     def setKeys(self, loadkeys):
@@ -194,7 +189,7 @@ class Wallet():
             return os.environ.get("UNLOCK")
         if confirm:
             # Loop until both match
-            while True :
+            while True:
                 pw = self.getPassword(confirm=False)
                 if not pw:
                     print(
@@ -208,9 +203,9 @@ class Wallet():
                         confirm=False,
                         text="Confirm Passphrase: "
                     )
-                    if (pw == pwck) :
+                    if (pw == pwck):
                         return(pw)
-                    else :
+                    else:
                         print("Given Passphrases do not match!")
         else:
             # return just one password

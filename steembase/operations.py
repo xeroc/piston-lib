@@ -1,52 +1,19 @@
-from graphenebase.types import *
+import struct
+import json
+from collections import OrderedDict
+from graphenebase.types import (
+    Uint8, Int16, Uint16, Uint32, Uint64,
+    Varint32, Int64, String, Bytes, Void,
+    Array, PointInTime, Signature, Bool,
+    Set, Fixed_array, Optional, Static_variant,
+    Map, Id, VoteId, ObjectId,
+)
 from graphenebase.objects import GrapheneObject, isArgsThisClass
 from graphenebase.account import PublicKey
 from graphenebase.operations import (
-    Operation as GrapheneOperation,
+    Operation as GrapheneOperation
 )
-
-#: Operation ids
-operations = {}
-operations["vote"] = 0
-operations["comment"] = 1
-operations["transfer"] = 2
-operations["transfer_to_vesting"] = 3
-operations["withdraw_vesting"] = 4
-operations["limit_order_create"] = 5
-operations["limit_order_cancel"] = 6
-operations["feed_publish"] = 7
-operations["convert"] = 8
-operations["account_create"] = 9
-operations["account_update"] = 10
-operations["witness_update"] = 11
-operations["account_witness_vote"] = 12
-operations["account_witness_proxy"] = 13
-operations["pow"] = 14
-operations["custom"] = 15
-operations["report_over_production"] = 16
-operations["delete_comment"] = 17
-operations["custom_json"] = 18
-operations["comment_options"] = 19
-operations["set_withdraw_vesting_route"] = 20
-operations["limit_order_create2"] = 21
-operations["challenge_authority"] = 22
-operations["prove_authority"] = 23
-operations["request_account_recovery"] = 24
-operations["recover_account"] = 25
-operations["change_recovery_account"] = 26
-operations["escrow_transfer"] = 27
-operations["escrow_dispute"] = 28
-operations["escrow_release"] = 29
-operations["pow2"] = 30
-operations["escrow_approve"] = 31
-operations["transfer_to_savings"] = 32
-operations["transfer_from_savings"] = 33
-operations["cancel_transfer_from_savings"] = 34
-operations["custom_binary_operation"] = 35
-operations["decline_voting_rights_operation"] = 36
-operations["reset_account_operation"] = 37
-operations["set_reset_account_operation"] = 38
-
+from .operationids import operations
 prefix = "STM"
 # prefix = "TST"
 
@@ -82,7 +49,10 @@ class Operation(GrapheneOperation):
         return class_
 
     def __str__(self):
-        return json.dumps([self.getOperationNameForId(self.opId), JsonObj(self.op)])
+        return json.dumps([
+            self.getOperationNameForId(self.opId),
+            self.op.json()
+        ])
 
 
 class Permission(GrapheneObject):

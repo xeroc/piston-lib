@@ -1,3 +1,5 @@
+from .steem import Steem
+
 __ALL__ = [
     "aes",
     "amount",
@@ -5,7 +7,6 @@ __ALL__ = [
     "profile",
     "steem",
     "storage",
-    "wallet"
+    "wallet",
+    "dex"
 ]
-
-from .steem import Steem
