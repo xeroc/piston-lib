@@ -17,6 +17,15 @@ from .operationids import operations
 prefix = "STM"
 # prefix = "TST"
 
+asset_precision = {
+    "STEEM": 3,
+    "VESTS": 6,
+    "SBD": 3,
+    "GOLOS": 3,
+    "GESTS": 6,
+    "GBG": 3
+}
+
 
 class Operation(GrapheneOperation):
     def __init__(self, op):
@@ -145,12 +154,8 @@ class Amount():
         self.amount, self.asset = d.strip().split(" ")
         self.amount = float(self.amount)
 
-        if self.asset == "STEEM":
-            self.precision = 3
-        elif self.asset == "VESTS":
-            self.precision = 6
-        elif self.asset == "SBD":
-            self.precision = 3
+        if self.asset in asset_precision:
+            self.precision = asset_precision[self.asset]
         else:
             raise Exception("Asset unknown")
 
