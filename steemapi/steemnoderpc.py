@@ -223,6 +223,8 @@ class SteemNodeRPC(GrapheneWebsocketRPC):
                 raise exceptions.AlreadyVotedSimilarily(msg)
             elif msg == "You may only post once every 5 minutes.":
                 raise exceptions.PostOnlyEvery5Min(msg)
+            elif msg == "Duplicate transaction check failed":
+                raise exceptions.DuplicateTransaction(msg)
             elif re.match("^no method with name.*", msg):
                 raise exceptions.NoMethodWithName(msg)
             else:

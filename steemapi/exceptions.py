@@ -45,3 +45,7 @@ class NoMethodWithName(RPCError):
 
 class PostOnlyEvery5Min(RPCError):
     pass
+
+
+class DuplicateTransaction(RPCError):
+    pass
