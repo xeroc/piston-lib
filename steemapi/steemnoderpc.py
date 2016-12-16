@@ -68,15 +68,6 @@ class SteemNodeRPC(GrapheneWebsocketRPC):
         if account:
             return account[0]
 
-    def get_asset(self, name):
-        raise NotImplementedError  # We overwrite this method from grapehenlib
-
-    def getFullAccountHistory(self, account, begin=1, limit=100, sort="block"):
-        raise NotImplementedError  # We overwrite this method from grapehenlib
-
-    def get_object(self, o):
-        raise NotImplementedError  # We overwrite this method from grapehenlib
-
     def account_history(self, account, first=99999999999,
                         limit=-1, only_ops=[], exclude_ops=[]):
         """ Returns a generator for individual account transactions. The
