@@ -1,18 +1,13 @@
+import re
 from grapheneapi.graphenewsrpc import GrapheneWebsocketRPC
 import threading
 from websocket import create_connection
 import json
 import time
+from . import exceptions
+from .exceptions import NoAccessApi, RPCError
 import logging
 log = logging.getLogger("grapheneapi.steemnoderpc")
-
-
-class RPCError(Exception):
-    pass
-
-
-class NoAccessApi(Exception):
-    pass
 
 
 class SteemNodeRPC(GrapheneWebsocketRPC):
@@ -203,3 +198,38 @@ class SteemNodeRPC(GrapheneWebsocketRPC):
                 # concatenate last fetched account name with lowest possible
                 # ascii character to get next lowest possible login as lower_bound
                 start = users[-1] + '\0'
+
+    def rpcexec(self, payload):
+        """ Execute a call by sending the payload.
+            It makes use of the GrapheneRPC library.
+            In here, we mostly deal with Steem specific error handling
+
+            :param json payload: Payload data
+            :raises ValueError: if the server does not respond in proper JSON format
+            :raises RPCError: if the server returns an error
+        """
+        try:
+            # Forward call to GrapheneWebsocketRPC and catch+evaluate errors
+            return super(SteemNodeRPC, self).rpcexec(payload)
+        except RPCError as e:
+            msg = exceptions.decodeBroadcasetErrorMsg(e)
+            if msg == "Account already transacted this block.":
+                raise exceptions.AlreadyTransactedThisBlock(msg)
+            elif msg == "Voting weight is too small, please accumulate more voting power or steem power.":
+                raise exceptions.VoteWeightTooSmall(msg)
+            elif msg == "Can only vote once every 3 seconds.":
+                raise exceptions.OnlyVoteOnceEvery3Seconds(msg)
+            elif msg == "You have already voted in a similar way.":
+                raise exceptions.AlreadyVotedSimilarily(msg)
+            elif re.match("^no method with name.*", msg):
+                raise exceptions.NoMethodWithName(msg)
+            else:
+                raise e
+        except Exception as e:
+            raise e
+
+    def __getattr__(self, name):
+        """ Map all methods to RPC calls and pass through the arguments.
+            It makes use of the GrapheneRPC library.
+        """
+        return super(SteemNodeRPC, self).__getattr__(name)
