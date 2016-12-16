@@ -2,7 +2,7 @@ import re
 from grapheneapi.graphenewsrpc import RPCError
 
 
-def decodeBroadcasetErrorMsg(e):
+def decodeRPCErrorMsg(e):
     """ Helper function to decode the raised Exception and give it a
         python Exception class
     """
@@ -40,4 +40,8 @@ class AlreadyVotedSimilarily(RPCError):
 
 
 class NoMethodWithName(RPCError):
+    pass
+
+
+class PostOnlyEvery5Min(RPCError):
     pass

@@ -212,7 +212,7 @@ class SteemNodeRPC(GrapheneWebsocketRPC):
             # Forward call to GrapheneWebsocketRPC and catch+evaluate errors
             return super(SteemNodeRPC, self).rpcexec(payload)
         except RPCError as e:
-            msg = exceptions.decodeBroadcasetErrorMsg(e)
+            msg = exceptions.decodeRPCErrorMsg(e)
             if msg == "Account already transacted this block.":
                 raise exceptions.AlreadyTransactedThisBlock(msg)
             elif msg == "Voting weight is too small, please accumulate more voting power or steem power.":
@@ -221,6 +221,8 @@ class SteemNodeRPC(GrapheneWebsocketRPC):
                 raise exceptions.OnlyVoteOnceEvery3Seconds(msg)
             elif msg == "You have already voted in a similar way.":
                 raise exceptions.AlreadyVotedSimilarily(msg)
+            elif msg == "You may only post once every 5 minutes.":
+                raise exceptions.PostOnlyEvery5Min(msg)
             elif re.match("^no method with name.*", msg):
                 raise exceptions.NoMethodWithName(msg)
             else:
