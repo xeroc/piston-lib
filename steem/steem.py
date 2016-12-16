@@ -215,11 +215,19 @@ class Steem(object):
             the wallet, finalizes the transaction, signs it and
             broadacasts it
 
-            :param operation op: The operation to broadcast
+            :param operation op: The operation (or list of operaions) to broadcast
             :param operation account: The account that authorizes the
                 operation
             :param string permission: The required permission for
                 signing (active, owner, posting)
+
+            ... note::
+
+                If ``op`` is a list of operation, they all need to be
+                signable by the same key! Thus, you cannot combine ops
+                that require active permission with ops that require
+                posting permission. Neither can you use different
+                accounts for different operations!
         """
         if self.unsigned:
             tx = self.constructTx(op, None)
@@ -239,8 +247,9 @@ class Steem(object):
     def constructTx(self, op, wifs=[]):
         """ Execute an operation by signing it with the ``wif`` key
 
-            :param Object op: The operation to be signed and broadcasts as
-                              provided by the ``transactions`` class.
+            :param Object op: The operation (or list of oeprations) to
+                              be signed and broadcasts as provided by
+                              the ``transactions`` class.
             :param string wifs: One or many wif keys to use for signing
                                 a transaction
         """
@@ -250,7 +259,11 @@ class Steem(object):
         if not any(wifs) and not self.unsigned:
             raise MissingKeyError
 
-        ops = [transactions.Operation(op)]
+        if isinstance(op, list):
+            ops = [transactions.Operation(o) for o in op]
+        else:
+            ops = [transactions.Operation(op)]
+
         expiration = transactions.formatTimeFromNow(self.expiration)
         ref_block_num, ref_block_prefix = transactions.getBlockParams(self.rpc)
         tx = transactions.Signed_Transaction(
