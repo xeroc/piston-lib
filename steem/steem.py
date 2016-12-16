@@ -12,6 +12,12 @@ from .utils import (
     derivePermlink,
     formatTimeString
 )
+from .exceptions import (
+    AccountExistsException,
+    AccountDoesNotExistsException,
+    InsufficientAuthorityError,
+    MissingKeyError,
+)
 from .post import (
     Post,
     VotingInvalidOnArchivedPost
@@ -28,26 +34,6 @@ prefix = "STM"
 
 STEEMIT_100_PERCENT = 10000
 STEEMIT_1_PERCENT = (STEEMIT_100_PERCENT / 100)
-
-
-class AccountExistsException(Exception):
-    pass
-
-
-class AccountDoesNotExistsException(Exception):
-    pass
-
-
-class InsufficientAuthorityError(Exception):
-    pass
-
-
-class MissingKeyError(Exception):
-    pass
-
-
-class BroadcastingError(Exception):
-    pass
 
 
 class Steem(object):
@@ -325,13 +311,13 @@ class Steem(object):
         try:
             if not self.rpc.verify_authority(tx):
                 raise InsufficientAuthorityError
-        except:
-            raise InsufficientAuthorityError
+        except Exception as e:
+            raise e
 
         try:
             self.rpc.broadcast_transaction(tx, api="network_broadcast")
         except Exception as e:
-            raise BroadcastingError(str(e))
+            raise e
 
         return tx
 

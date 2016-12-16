@@ -212,7 +212,7 @@ class SteemNodeRPC(GrapheneWebsocketRPC):
             # Forward call to GrapheneWebsocketRPC and catch+evaluate errors
             return super(SteemNodeRPC, self).rpcexec(payload)
         except RPCError as e:
-            msg = exceptions.decodeRPCErrorMsg(e)
+            msg = exceptions.decodeRPCErrorMsg(e).strip()
             if msg == "Account already transacted this block.":
                 raise exceptions.AlreadyTransactedThisBlock(msg)
             elif msg == "Voting weight is too small, please accumulate more voting power or steem power.":
