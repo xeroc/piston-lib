@@ -330,8 +330,8 @@ class Steem(object):
 
         try:
             self.rpc.broadcast_transaction(tx, api="network_broadcast")
-        except:
-            raise BroadcastingError
+        except Exception as e:
+            raise BroadcastingError(str(e))
 
         return tx
 
