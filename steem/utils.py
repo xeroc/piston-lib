@@ -2,11 +2,9 @@ import os
 import re
 import sys
 import time
-from datetime import datetime, timezone
+from datetime import datetime
 
-import dateutil
 import frontmatter
-from dateutil import parser
 from funcy import decorator
 from werkzeug.contrib.cache import SimpleCache
 
@@ -191,10 +189,6 @@ def parse_time(block_time):
     """Take a string representation of time from the blockchain, and parse it into datetime object.
     """
     return datetime.strptime(block_time, '%Y-%m-%dT%H:%M:%S')
-
-
-def parse_time_utc(block_time):
-    return dateutil.parser.parse(block_time + "UTC").astimezone(timezone.utc)
 
 
 def time_diff(time1, time2):
