@@ -105,7 +105,7 @@ class Account(object):
             if timestamp > trailing_7d_t:
                 reward_7d += Amount(reward['reward']).amount
 
-            if timestamp.timestamp() > trailing_24hr_t:
+            if timestamp > trailing_24hr_t:
                 reward_24h += Amount(reward['reward']).amount
 
         reward_7d = self.converter.vests_to_sp(reward_7d)
