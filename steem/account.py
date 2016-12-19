@@ -4,13 +4,11 @@ import math
 import time
 from contextlib import suppress
 
-import dateutil
-from dateutil import parser
-from funcy import walk_keys
-
 import steem as stm
+from funcy import walk_keys
 from steem.amount import Amount
 from steem.converter import Converter
+from steem.utils import parse_time
 
 
 class Account(object):
@@ -103,10 +101,11 @@ class Account(object):
 
         for reward in self.history2(filter_by="curation_reward", take=10000):
 
-            if parser.parse(reward['timestamp'] + "UTC").timestamp() > trailing_7d_t:
+            timestamp = parse_time(reward['timestamp']).timestamp()
+            if timestamp > trailing_7d_t:
                 reward_7d += Amount(reward['reward']).amount
 
-            if parser.parse(reward['timestamp'] + "UTC").timestamp() > trailing_24hr_t:
+            if timestamp.timestamp() > trailing_24hr_t:
                 reward_24h += Amount(reward['reward']).amount
 
         reward_7d = self.converter.vests_to_sp(reward_7d)
@@ -196,9 +195,9 @@ class Account(object):
 
     @staticmethod
     def filter_by_date(items, start_time, end_time=None):
-        start_time = dateutil.parser.parse(start_time + "UTC").timestamp()
+        start_time = parse_time(start_time).timestamp()
         if end_time:
-            end_time = dateutil.parser.parse(end_time + "UTC").timestamp()
+            end_time = parse_time(end_time).timestamp()
         else:
             end_time = time.time()
 
@@ -208,7 +207,7 @@ class Account(object):
                 item_time = item['time']
             elif 'timestamp' in item:
                 item_time = item['timestamp']
-            timestamp = dateutil.parser.parse(item_time + "UTC").timestamp()
+            timestamp = parse_time(item_time).timestamp()
             if end_time > timestamp > start_time:
                 filtered_items.append(item)
 

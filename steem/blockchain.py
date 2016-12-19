@@ -1,7 +1,5 @@
-import dateutil
-from dateutil import parser
-
 import steem as stm
+from steem.utils import parse_time
 
 
 class Blockchain(object):
@@ -66,7 +64,7 @@ class Blockchain(object):
             :param int block_num: Block number
         """
         block = self.steem.rpc.get_block(block_num)
-        return dateutil.parser.parse(block['timestamp'] + "UTC")
+        return parse_time(block['timestamp']).timestamp()
 
     def block_timestamp(self, block_num):
         """ Returns the timestamp of the block with the given block
@@ -75,7 +73,7 @@ class Blockchain(object):
             :param int block_num: Block number
         """
         block = self.steem.rpc.get_block(block_num)
-        return int(dateutil.parser.parse(block['timestamp'] + "UTC").timestamp())
+        return int(parse_time(block['timestamp']).timestamp())
 
     def get_block_from_time(self, timestring, error_margin=10, mode="last_irreversible_block_num"):
         """ Estimate block number from given time
@@ -89,7 +87,7 @@ class Blockchain(object):
         """
         known_block = self.get_current_block(mode)
         known_block_timestamp = self.block_timestamp(known_block)
-        timestring_timestamp = dateutil.parser.parse(timestring + "UTC").timestamp()
+        timestring_timestamp = parse_time(timestring).timestamp()
         delta = known_block_timestamp - timestring_timestamp
         block_delta = delta / 3
         guess_block = known_block - block_delta
