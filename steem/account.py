@@ -16,12 +16,11 @@ class Account(dict):
         if not steem_instance:
             steem_instance = stm.Steem()
         self.steem = steem_instance
-
         self.name = account_name
-        self.converter = Converter(self.steem)
 
         # caches
         self.cached = False
+        self._converter = None
 
     def _get_account(self):
         account = self.steem.rpc.get_account(self.name)
@@ -33,6 +32,12 @@ class Account(dict):
         if not self.cached:
             self._get_account()
         return self[key]
+
+    @property
+    def converter(self):
+        if not self._converter:
+            self._converter = Converter(self.steem)
+        return self._converter
 
     @property
     def blog(self):
