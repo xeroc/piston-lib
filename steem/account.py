@@ -91,12 +91,9 @@ class Account(object):
             followers += self._get_followers(direction=direction, last_user=followers[-1][direction])[1:]
         return followers
 
-    def check_if_already_voted(self, post):
-        for vote in self.history2(filter_by="vote"):
-            if vote['permlink'] == post['permlink']:
-                return True
-
-        return False
+    def has_voted(self, post):
+        active_votes = {v["voter"]: v for v in getattr(post, "active_votes")}
+        return self.name in active_votes
 
     def curation_stats(self):
         trailing_24hr_t = time.time() - datetime.timedelta(hours=24).total_seconds()
