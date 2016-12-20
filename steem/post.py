@@ -53,20 +53,18 @@ class Post(dict):
     def _load_post(self):
         post_author, post_permlink = resolveIdentifier(self.identifier)
         post = self.steem.rpc.get_content(post_author, post_permlink)
+        if not post["permlink"]:
+            raise Exception("Post does not exist!")
 
         # If this 'post' comes from an operation, it might carry a patch
         if "body" in post and re.match("^@@", post["body"]):
             self._patched = True
             self._patch = post["body"]
 
-        # Store original values as obtained from the rpc
-        for key, value in post.items():
-            super(Post, self).__setitem__(key, value)
-
         # Total reward
         post["total_payout_reward"] = "%.3f SBD" % (
-            Amount(post.get("total_payout_value", "0 SBD")).amount +
-            Amount(post.get("total_pending_payout_value", "0 SBD")).amount
+            Amount(post.get("total_payout_value", "0 SBD")) +
+            Amount(post.get("total_pending_payout_value", "0 SBD"))
         )
 
         # Parse Times
@@ -98,9 +96,18 @@ class Post(dict):
         except:
             post['json_metadata'] = dict()
 
+        if post["depth"] == 0:
+            post["tags"] = (
+                [post["parent_permlink"]] +
+                post["json_metadata"].get("tags", [])
+            )
+
         # Retrieve the root comment
         self.openingPostIdentifier, self.category = self._getOpeningPost(post)
 
+        # Store original values as obtained from the rpc
+        for key, value in post.items():
+            super(Post, self).__setitem__(key, value)
         # Set attributes as well
         for key in post:
             setattr(self, key, post[key])
@@ -147,11 +154,11 @@ class Post(dict):
             r.append(Post(post, steem_instance=self.steem))
         if sort == "total_payout_value":
             r = sorted(r, key=lambda x: float(
-                x["total_payout_value"].amount
+                x["total_payout_value"]
             ), reverse=True)
         elif sort == "total_payout_reward":
             r = sorted(r, key=lambda x: float(
-                x["total_payout_reward"].amount
+                x["total_payout_reward"]
             ), reverse=True)
         else:
             r = sorted(r, key=lambda x: x[sort])
@@ -199,7 +206,7 @@ class Post(dict):
     def reward(self):
         """Return a float value of estimated total SBD reward.
         """
-        return self['total_payout_reward'].amount
+        return self['total_payout_reward']
 
     @property
     def meta(self):
