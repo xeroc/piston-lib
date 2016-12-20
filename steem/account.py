@@ -57,7 +57,7 @@ class Account(object):
             "VESTS": my_account_balances["vesting_shares"].amount,
         }
 
-    def reputation(self):
+    def reputation(self, precision=2):
         rep = int(self.get_props()['reputation'])
         if rep < 0:
             return -1
@@ -65,7 +65,7 @@ class Account(object):
             return 25
 
         score = (math.log10(abs(rep)) - 9) * 9 + 25
-        return float("%.2f" % score)
+        return round(score, precision)
 
     def voting_power(self):
         return self.get_props()['voting_power'] / 100
