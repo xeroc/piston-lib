@@ -1,9 +1,6 @@
 import math
-
-from werkzeug.contrib.cache import SimpleCache
-
+from .utils import SimpleCache, simple_cache
 import steem as stm
-from steem.utils import simple_cache
 from .amount import Amount
 
 converter_cache = SimpleCache()
