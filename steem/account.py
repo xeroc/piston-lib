@@ -11,7 +11,7 @@ from steem.converter import Converter
 from steem.utils import parse_time
 
 
-class Account(object):
+class Account(dict):
     def __init__(self, account_name, steem_instance=None):
         if not steem_instance:
             steem_instance = stm.Steem()
@@ -21,28 +21,35 @@ class Account(object):
         self.converter = Converter(self.steem)
 
         # caches
-        self._blog = None
-        self._props = None
+        self.cached = False
 
-    def get_props(self):
-        if self._props is None:
-            self._props = self.steem.rpc.get_account(self.name)
-        return self._props
+    def _get_account(self):
+        account = self.steem.rpc.get_account(self.name)
+        for key, value in account:
+            self[key] = value
+        self.cached = True
+
+    def __getitem__(self, key):
+        if not self.cached:
+            self._get_account()
+        return self[key]
+
+    @property
+    def blog(self):
+        return self.get_blog()
 
     def get_blog(self):
-        if self._blog is None:
-            self._blog = self.steem.get_blog(self.name)
-        return self._blog
+        return Blog(self.name)
 
     @property
     def profile(self):
         with suppress(Exception):
-            meta_str = self.get_props().get("json_metadata", "")
+            meta_str = self.get("json_metadata", "")
             return json.loads(meta_str).get('profile', dict())
 
     @property
     def sp(self):
-        vests = Amount(self.get_props()['vesting_shares']).amount
+        vests = Amount(self['vesting_shares']).amount
         return self.converter.vests_to_sp(vests)
 
     @property
@@ -64,7 +71,7 @@ class Account(object):
             return balance
 
     def reputation(self, precision=2):
-        rep = int(self.get_props()['reputation'])
+        rep = int(self['reputation'])
         if rep < 0:
             return -1
         if rep == 0:
@@ -74,7 +81,7 @@ class Account(object):
         return round(score, precision)
 
     def voting_power(self):
-        return self.get_props()['voting_power'] / 100
+        return self['voting_power'] / 100
 
     def get_followers(self):
         return [x['follower'] for x in self._get_followers(direction="follower")]
@@ -223,7 +230,7 @@ class Account(object):
         following = self.get_following()
 
         return {
-            **self.get_props(),
+            **self,
             "profile": self.profile,
             "sp": self.sp,
             "rep": self.rep,
