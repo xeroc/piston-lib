@@ -6,9 +6,10 @@ from contextlib import suppress
 
 import steem as stm
 from funcy import walk_keys
-from steem.amount import Amount
-from steem.converter import Converter
-from steem.utils import parse_time
+from .amount import Amount
+from .converter import Converter
+from .utils import parse_time
+from .blog import Blog
 
 
 class Account(dict):
