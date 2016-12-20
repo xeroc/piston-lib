@@ -13,3 +13,5 @@ class Amount(object):
         else:
             prec = 6
         return "{:.{prec}f} {}".format(self.amount, self.asset, prec=prec)
+
+    __repr__ = __str__

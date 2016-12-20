@@ -49,13 +49,19 @@ class Account(object):
     def rep(self):
         return self.reputation()
 
-    def get_balances(self):
+    def get_balances(self, asfloat=False):
         my_account_balances = self.steem.get_balances(self.name)
-        return {
-            "STEEM": my_account_balances["balance"].amount,
-            "SBD": my_account_balances["sbd_balance"].amount,
-            "VESTS": my_account_balances["vesting_shares"].amount,
+        balance = {
+            "STEEM": my_account_balances["balance"],
+            "SBD": my_account_balances["sbd_balance"],
+            "VESTS": my_account_balances["vesting_shares"],
+            "SAVINGS_STEEM": my_account_balances["savings_balance"],
+            "SAVINGS_SBD": my_account_balances["savings_sbd_balance"]
         }
+        if asfloat:
+            return {k: v.amount for k, v in balance.items()}
+        else:
+            return balance
 
     def reputation(self, precision=2):
         rep = int(self.get_props()['reputation'])
