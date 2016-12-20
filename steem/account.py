@@ -87,7 +87,7 @@ class Account(object):
             followers = self.steem.rpc.get_followers(self.name, last_user, "blog", 100, api="follow")
         elif direction == "following":
             followers = self.steem.rpc.get_following(self.name, last_user, "blog", 100, api="follow")
-        if len(followers) == 100:
+        while len(followers) >= 100:
             followers += self._get_followers(direction=direction, last_user=followers[-1][direction])[1:]
         return followers
 
