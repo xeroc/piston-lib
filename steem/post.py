@@ -218,9 +218,19 @@ class Post(dict):
         return datetime.utcnow() - self['created']
 
     def is_main_post(self):
-        """Retuns True if main post, and False if this is a comment (reply).
+        """ Retuns True if main post, and False if this is a comment (reply).
         """
-        return len(self['title']) > 0 and not self['depth'] and not self['parent_author']
+        return len(self['depth']) == 0
+
+    def is_opening_post(self):
+        """ Retuns True if main post, and False if this is a comment (reply).
+        """
+        return len(self['depth']) == 0
+
+    def is_comment(self):
+        """ Retuns True if post is a comment
+        """
+        return len(self['depth']) > 0
 
     def curation_reward_pct(self):
         """ If post is less than 30 minutes old, it will incur a curation reward penalty.
@@ -233,6 +243,8 @@ class Post(dict):
     def export(self):
         """ This method returns a dictionary that is type-safe to store as JSON or in a database.
         """
+        self._load_post()
+
         # Remove Steem instance object
         safe_dict = remove_from_dict(self, ['steem'])
 
