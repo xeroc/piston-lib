@@ -18,7 +18,7 @@ class VotingInvalidOnArchivedPost(Exception):
     pass
 
 
-class Post(object):
+class Post(dict):
     """ This object gets instanciated by Steem.streams and is used as an
         abstraction layer for Comments in Steem
 
@@ -31,14 +31,9 @@ class Post(object):
         if not steem_instance:
             steem_instance = stm.Steem()
         self.steem = steem_instance
-        self._patch = False
 
-        # Get full Post
         if isinstance(post, str):  # From identifier
             self.identifier = post
-            post_author, post_permlink = resolveIdentifier(post)
-            post = self.steem.rpc.get_content(post_author, post_permlink)
-
         elif (isinstance(post, dict) and  # From dictionary
                 "author" in post and
                 "permlink" in post):
@@ -49,21 +44,24 @@ class Post(object):
                 post["author"],
                 post["permlink"]
             )
-            # if there only is an author and a permlink but no body
-            # get the full post via RPC
-            if "created" not in post or "cashout_time" not in post:
-                post = self.steem.rpc.get_content(
-                    post["author"],
-                    post["permlink"]
-                )
         else:
             raise ValueError("Post expects an identifier or a dict "
                              "with author and permlink!")
+
+        self.loaded = False
+
+    def _load_post(self):
+        post_author, post_permlink = resolveIdentifier(self.identifier)
+        post = self.steem.rpc.get_content(post_author, post_permlink)
 
         # If this 'post' comes from an operation, it might carry a patch
         if "body" in post and re.match("^@@", post["body"]):
             self._patched = True
             self._patch = post["body"]
+
+        # Store original values as obtained from the rpc
+        for key, value in post.items():
+            super(Post, self).__setitem__(key, value)
 
         # Total reward
         post["total_payout_reward"] = "%.3f SBD" % (
@@ -79,7 +77,7 @@ class Post(object):
                        "last_update",
                        "max_cashout_time"]
         for p in parse_times:
-            post["%s" % p] = parse_time(post.get(p, "1970-01-01T00:00:00"))
+            post[p] = parse_time(post.get(p, "1970-01-01T00:00:00"))
 
         # Parse Amounts
         sbd_amounts = [
@@ -91,7 +89,7 @@ class Post(object):
             "promoted",
         ]
         for p in sbd_amounts:
-            post["%s" % p] = Amount(post.get(p, "0.000 SBD"))
+            post[p] = Amount(post.get(p, "0.000 SBD"))
 
         # Try to properly format json meta data
         try:
@@ -103,9 +101,26 @@ class Post(object):
         # Retrieve the root comment
         self.openingPostIdentifier, self.category = self._getOpeningPost(post)
 
-        # Store everything as attribute
+        # Set attributes as well
         for key in post:
             setattr(self, key, post[key])
+
+        self.loaded = True
+
+    def __getattr__(self, key):
+        if not self.loaded:
+            self._load_post()
+        return object.__getattribute__(self, key)
+
+    def __getitem__(self, key):
+        if not self.loaded:
+            self._load_post()
+        return super(Post, self).__getitem__(key)
+
+    def __repr__(self):
+        return "<Post-%s>" % self.identifier
+
+    __str__ = __repr__
 
     def _getOpeningPost(self, post=None):
         if not post:
@@ -121,36 +136,6 @@ class Post(object):
             return constructIdentifier(
                 author, permlink
             ), category
-
-    def __getitem__(self, key):
-        return getattr(self, key)
-
-    def remove(self, key):
-        delattr(self, key)
-
-    def get(self, key, default=None):
-        if hasattr(self, key):
-            return getattr(self, key)
-        else:
-            return default
-
-    def __delitem__(self, key):
-        delattr(self, key)
-
-    def __contains__(self, key):
-        return hasattr(self, key)
-
-    def __iter__(self):
-        r = {}
-        for key in vars(self):
-            r[key] = getattr(self, key)
-        return iter(r)
-
-    def __len__(self):
-        return len(vars(self))
-
-    def __repr__(self):
-        return "<Steem.Post-%s>" % constructIdentifier(self["author"], self["permlink"])
 
     def get_comments(self, sort="total_payout_reward"):
         """ Return **first-level** comments of the post.
