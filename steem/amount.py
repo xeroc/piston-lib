@@ -21,46 +21,60 @@ class Amount(object):
          return int(self.amount)
 
     def __add__(self, other):
-        assert self.asset == other.asset
+        assert isinstance(other, Amount)
         a = Amount(str(self))
         a.amount += other.amount
         return a
 
     def __sub__(self, other):
-        assert self.asset == other.asset
+        assert isinstance(other, Amount)
         a = Amount(str(self))
         a.amount -= other.amount
         return a
 
     def __mul__(self, other):
-        assert self.asset == other.asset
-        a = Amount(str(self))
-        a.amount *= other.amount
-        return a
+        self.amount *= other
+        return self
 
     def __floordiv__(self, other):
-        assert self.asset == other.asset
-        a = Amount(str(self))
-        a.amount //= other.amount
-        return a
+        self.amount //= other
+        return self
 
     def __div__(self, other):
-        assert self.asset == other.asset
-        a = Amount(str(self))
-        a.amount /= other.amount
-        return a
+        self.amount /= other
+        return self
 
     def __mod__(self, other):
-        assert self.asset == other.asset
-        a = Amount(str(self))
-        a.amount %= other.amount
-        return a
+        self.amount %= other
+        return self
 
     def __pow__(self, other):
-        assert self.asset == other.asset
-        a = Amount(str(self))
-        a.amount **= other.amount
-        return a
+        self.amount **= other
+        return self
+
+    def __lt__(self, other):
+        assert isinstance(other, Amount)
+        return self.amount < other.amount
+
+    def __le__(self, other):
+        assert isinstance(other, Amount)
+        return self.amount <= other.amount
+
+    def __eq__(self, other):
+        assert isinstance(other, Amount)
+        return self.amount == other.amount
+
+    def __ne__(self, other):
+        assert isinstance(other, Amount)
+        return self.amount != other.amount
+
+    def __ge__(self, other):
+        assert isinstance(other, Amount)
+        return self.amount >= other.amount
+
+    def __gt__(self, other):
+        assert isinstance(other, Amount)
+        return self.amount > other.amount
 
     __repr__ = __str__
     __iadd__ = __add__
@@ -77,5 +91,6 @@ if __name__ == "__main__":
     b = Amount("9 SBD")
     print(a + b)
     print(b)
-    b **= a
+    b **= 2
     print(b)
+    print(b>a)
