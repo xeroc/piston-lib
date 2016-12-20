@@ -1,11 +1,8 @@
 import re
-from grapheneapi.graphenewsrpc import GrapheneWebsocketRPC
-import threading
-from websocket import create_connection
-import json
 import time
 from . import exceptions
 from .exceptions import NoAccessApi, RPCError
+from grapheneapi.graphenewsrpc import GrapheneWebsocketRPC
 import logging
 log = logging.getLogger("grapheneapi.steemnoderpc")
 
@@ -97,10 +94,11 @@ class SteemNodeRPC(GrapheneWebsocketRPC):
             if _limit > first:
                 _limit = first
 
-    def block_stream(self, start=None, mode="irreversible"):
+    def block_stream(self, start=None, stop=None, mode="irreversible"):
         """ Yields blocks starting from ``start``.
 
             :param int start: Starting block
+            :param int stop: Stop at this block
             :param str mode: We here have the choice between
                  * "head": the last block
                  * "irreversible": the block that is confirmed by 2/3 of all block producers and is thus irreversible!
@@ -112,9 +110,9 @@ class SteemNodeRPC(GrapheneWebsocketRPC):
         if not start:
             props = self.get_dynamic_global_properties()
             # Get block number
-            if mode == "head":
+            if mode == "head" or mode == "head_block_number":
                 start = props['head_block_number']
-            elif mode == "irreversible":
+            elif mode == "irreversible" or mode == "last_irreversible_block_num":
                 start = props['last_irreversible_block_num']
             else:
                 raise ValueError(
@@ -148,6 +146,9 @@ class SteemNodeRPC(GrapheneWebsocketRPC):
             # Set new start
             start = head_block + 1
 
+            if stop and start > stop:
+                break
+
             # Sleep for one block
             time.sleep(block_interval)
 
@@ -162,7 +163,11 @@ class SteemNodeRPC(GrapheneWebsocketRPC):
                 pow, custom, report_over_production, fill_convert_request,
                 comment_reward, curate_reward, liquidity_reward, interest,
                 fill_vesting_withdraw, fill_order,
-            :param int start: Begin at this block
+            :param int start: Start at this block
+            :param int stop: Stop at this block
+            :param str mode: We here have the choice between
+                 * "head": the last block
+                 * "irreversible": the block that is confirmed by 2/3 of all block producers and is thus irreversible!
         """
         if isinstance(opNames, str):
             opNames = [opNames]
@@ -171,15 +176,20 @@ class SteemNodeRPC(GrapheneWebsocketRPC):
                 continue
             for tx in block["transactions"]:
                 for op in tx["operations"]:
-                    if op[0] in opNames:
-                        yield op[1]
+                    if not opNames or op[0] in opNames:
+                        yield {
+                            **op[1],
+                            "type": op[0],
+                            "timestamp": block.get("timestamp"),
+                            "block_num": block.get("block_num"),
+                        }
 
     def list_accounts(self, start=None, step=1000, limit=None):
         """ Yield list of user accounts in alphabetical order
 
-        :param str start: Name of account, which should be yield first
-        :param int step: Describes how many accounts should be fetched in each rpc request
-        :param int limit: Limit number of returned user accounts
+            :param str start: Name of account, which should be yield first
+            :param int step: Describes how many accounts should be fetched in each rpc request
+            :param int limit: Limit number of returned user accounts
         """
         if limit and limit < step:
             step = limit

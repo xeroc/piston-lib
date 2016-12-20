@@ -1,11 +1,18 @@
-import re
 import json
-import string
+import logging
 import random
-from steemapi.steemnoderpc import SteemNodeRPC, NoAccessApi
-from steembase.account import PrivateKey, PublicKey, Address
-from steembase import memo
+import re
+from datetime import datetime, timedelta
+
 import steembase.transactions as transactions
+from steemapi.steemnoderpc import SteemNodeRPC, NoAccessApi
+from steembase import memo
+from steembase.account import PrivateKey, PublicKey
+from .amount import Amount
+from .post import (
+    Post
+)
+from .storage import configStorage as config
 from .utils import (
     resolveIdentifier,
     constructIdentifier,
@@ -23,10 +30,7 @@ from .post import (
     VotingInvalidOnArchivedPost
 )
 from .wallet import Wallet
-from .storage import configStorage as config
-from .amount import Amount
-from datetime import datetime, timedelta
-import logging
+
 log = logging.getLogger(__name__)
 
 prefix = "STM"
@@ -115,7 +119,8 @@ class Steem(object):
             kwargs["apis"] = [
                 "database",
                 "network_broadcast",
-                "account_by_key_api"
+                "account_by_key",
+                "follow",
             ]
 
         if not kwargs.pop("offline", False):
@@ -785,6 +790,7 @@ class Steem(object):
 
             :param float amount: number of VESTS to withdraw over a period of 104 weeks
             :param str account: (optional) the source account for the transfer if not ``default_account``
+            :param str requestid: (optional) identifier for tracking the conversion`
         """
         if not account and "default_account" in config:
             account = config["default_account"]
@@ -807,13 +813,173 @@ class Steem(object):
 
         return self.finalizeOp(op, account, "active")
 
+    def transfer_to_savings(self, amount, currency, memo, to=None, account=None):
+        """ Transfer SBD or STEEM into a 'savings' account.
+
+            :param float amount: STEEM or SBD amount
+            :param float currency: 'STEEM' or 'SBD'
+            :param str memo: (optional) Memo
+            :param str to: (optional) the source account for the transfer if not ``default_account``
+            :param str account: (optional) the source account for the transfer if not ``default_account``
+        """
+        self._valid_currency(currency)
+
+        if not account:
+            if "default_account" in config:
+                account = config["default_account"]
+        if not account:
+            raise ValueError("You need to provide an account")
+
+        if not to:
+            to = account  # move to savings on same account
+
+        op = transactions.Transfer_to_savings(
+            **{
+                "from": account,
+                "to": to,
+                "amount": '{:.{prec}f} {asset}'.format(
+                    float(amount),
+                    prec=3,
+                    asset=currency),
+                "memo": memo,
+            }
+        )
+        return self.finalizeOp(op, account, "active")
+
+    def transfer_from_savings(self, amount, currency, memo, request_id=None, to=None, account=None):
+        """ Withdraw SBD or STEEM from 'savings' account.
+
+            :param float amount: STEEM or SBD amount
+            :param float currency: 'STEEM' or 'SBD'
+            :param str memo: (optional) Memo
+            :param str request_id: (optional) identifier for tracking or cancelling the withdrawal
+            :param str to: (optional) the source account for the transfer if not ``default_account``
+            :param str account: (optional) the source account for the transfer if not ``default_account``
+        """
+        self._valid_currency(currency)
+
+        if not account:
+            if "default_account" in config:
+                account = config["default_account"]
+        if not account:
+            raise ValueError("You need to provide an account")
+
+        if not to:
+            to = account  # move to savings on same account
+
+        if request_id:
+            request_id = int(request_id)
+        else:
+            request_id = random.getrandbits(32)
+
+        op = transactions.Transfer_from_savings(
+            **{
+                "from": account,
+                "request_id": request_id,
+                "to": to,
+                "amount": '{:.{prec}f} {asset}'.format(
+                    float(amount),
+                    prec=3,
+                    asset=currency),
+                "memo": memo,
+            }
+        )
+        return self.finalizeOp(op, account, "active")
+
+    def transfer_from_savings_cancel(self, request_id, account=None):
+        """ Cancel a withdrawal from 'savings' account.
+
+            :param str request_id: Identifier for tracking or cancelling the withdrawal
+            :param str account: (optional) the source account for the transfer if not ``default_account``
+        """
+        if not account:
+            if "default_account" in config:
+                account = config["default_account"]
+        if not account:
+            raise ValueError("You need to provide an account")
+
+        op = transactions.Cancel_transfer_from_savings(
+            **{
+                "from": account,
+                "request_id": request_id,
+            }
+        )
+        return self.finalizeOp(op, account, "active")
+
+    def witness_feed_publish(self, steem_usd_price, quote="1.000", account=None):
+        """ Publish a feed price as a witness.
+
+            :param float steem_usd_price: Price of STEEM in USD (implied price)
+            :param float quote: (optional) Quote Price. Should be 1.000, unless we are adjusting the feed to support the peg.
+            :param str account: (optional) the source account for the transfer if not ``default_account``
+        """
+        if not account:
+            if "default_account" in config:
+                account = config["default_account"]
+        if not account:
+            raise ValueError("You need to provide an account")
+
+        op = transactions.Feed_publish(
+            **{
+                "publisher": account,
+                "exchange_rate": {
+                    "base": "%s SBD" % steem_usd_price,
+                    "quote": "%s STEEM" % quote,
+                }
+            }
+        )
+        return self.finalizeOp(op, account, "active")
+
+    def witness_update(self, signing_key, url, props, account=None):
+        """ Update witness
+
+            :param pubkey signing_key: Signing key
+            :param str url: URL
+            :param dict props: Properties:::
+
+                {
+                "account_creation_fee": x,
+                "maximum_block_size": x,
+                "sbd_interest_rate": x,
+                }
+
+            :param str account: (optional) witness account name
+
+        """
+        if not account:
+            if "default_account" in config:
+                account = config["default_account"]
+        if not account:
+            raise ValueError("You need to provide an account")
+
+        try:
+            PublicKey(signing_key)
+        except Exception as e:
+            raise e
+
+        op = transactions.Witness_update(
+            **{
+                "owner": account,
+                "url": url,
+                "block_signing_key": signing_key,
+                "props": props,
+                "fee": "0.000 STEEM",
+            }
+        )
+        return self.finalizeOp(op, account, "active")
+
+    @staticmethod
+    def _valid_currency(currency):
+        if currency not in ['STEEM', 'SBD']:
+            raise TypeError("Unsupported currency %s" % currency)
+
     def get_content(self, identifier):
         """ Get the full content of a post.
 
             :param str identifier: Identifier for the post to upvote Takes
                                    the form ``@author/permlink``
         """
-        return Post(self, identifier)
+        return Post(identifier, steem_instance=self)
 
     def get_post(self, identifier):
         """ Get the full content of a post.
@@ -839,7 +1005,7 @@ class Steem(object):
         r = []
         for p in posts:
             post = state["content"][p]
-            r.append(Post(self, post))
+            r.append(Post(post, steem_instance=self))
         return r
 
     def get_replies(self, author, skipown=True):
@@ -855,7 +1021,7 @@ class Steem(object):
             post = state["content"][reply]
             if skipown and post["author"] == author:
                 continue
-            discussions.append(Post(self, post))
+            discussions.append(Post(post, steem_instance=self))
         return discussions
 
     def get_promoted(self):
@@ -867,7 +1033,7 @@ class Steem(object):
         r = []
         for p in promoted:
             post = state["content"].get(p)
-            r.append(Post(self, post))
+            r.append(Post(post, steem_instance=self))
         return r
 
     def get_posts(self, limit=10,
@@ -894,12 +1060,11 @@ class Steem(object):
         if sort not in ["trending", "created", "active", "cashout",
                         "payout", "votes", "children", "hot"]:
             raise Exception("Invalid choice of '--sort'!")
-            return
 
         func = getattr(self.rpc, "get_discussions_by_%s" % sort)
         r = []
         for p in func(discussion_query):
-            r.append(Post(self, p))
+            r.append(Post(p, steem_instance=self))
         return r
 
     def get_comments(self, identifier):
@@ -912,8 +1077,8 @@ class Steem(object):
         posts = self.rpc.get_content_replies(post_author, post_permlink)
         r = []
         for post in posts:
-            r.append(Post(self, post))
-        return(r)
+            r.append(Post(post, steem_instance=self))
+        return r
 
     def get_categories(self, sort="trending", begin=None, limit=10):
         """ List categories
@@ -990,7 +1155,7 @@ class Steem(object):
             To be used in a for loop that returns an instance of `Post()`.
         """
         for c in self.rpc.stream("comment", *args, **kwargs):
-            yield Post(self, c)
+            yield Post(c, steem_instance=self)
 
     def interest(self, account):
         """ Caluclate interest for an account
@@ -1112,9 +1277,9 @@ class Steem(object):
 
         op = transactions.Account_update(
             **{"account": account["name"],
-                permission: authority,
-                "memo_key": account["memo_key"],
-                "json_metadata": account["json_metadata"]}
+               permission: authority,
+               "memo_key": account["memo_key"],
+               "json_metadata": account["json_metadata"]}
         )
         if permission == "owner":
             return self.finalizeOp(op, account["name"], "owner")
@@ -1193,9 +1358,9 @@ class Steem(object):
 
         op = transactions.Account_update(
             **{"account": account["name"],
-                permission: authority,
-                "memo_key": account["memo_key"],
-                "json_metadata": account["json_metadata"]}
+               permission: authority,
+               "memo_key": account["memo_key"],
+               "json_metadata": account["json_metadata"]}
         )
         if permission == "owner":
             return self.finalizeOp(op, account["name"], "owner")
@@ -1226,8 +1391,8 @@ class Steem(object):
 
         op = transactions.Account_update(
             **{"account": account["name"],
-                "memo_key": key,
-                "json_metadata": account["json_metadata"]}
+               "memo_key": key,
+               "json_metadata": account["json_metadata"]}
         )
         return self.finalizeOp(op, account["name"], "active")
 
@@ -1354,7 +1519,7 @@ class Steem(object):
     def update_account_profile(self, profile, account=None):
         """ Update an account's meta data (json_meta)
 
-            :param dict json: The meta data to use (i.e. use Profile() from profile.py)
+            :param dict json: The meta data to use (i.e. use Profile() from account.py)
             :param str account: (optional) the account to allow access
                 to (defaults to ``default_account``)
         """
@@ -1370,14 +1535,13 @@ class Steem(object):
 
         op = transactions.Account_update(
             **{"account": account["name"],
-                "memo_key": account["memo_key"],
-                "json_metadata": profile}
+               "memo_key": account["memo_key"],
+               "json_metadata": profile}
         )
         return self.finalizeOp(op, account["name"], "active")
 
 
 class SteemConnector(object):
-
     #: The static steem connection
     steem = None
 
