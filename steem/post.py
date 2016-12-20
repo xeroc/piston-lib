@@ -31,9 +31,11 @@ class Post(dict):
         if not steem_instance:
             steem_instance = stm.Steem()
         self.steem = steem_instance
+        self.loaded = False
 
         if isinstance(post, str):  # From identifier
             self.identifier = post
+
         elif (isinstance(post, dict) and  # From dictionary
                 "author" in post and
                 "permlink" in post):
@@ -44,11 +46,13 @@ class Post(dict):
                 post["author"],
                 post["permlink"]
             )
+
+            if "created" in post:
+                self._store_post(post)
+
         else:
             raise ValueError("Post expects an identifier or a dict "
                              "with author and permlink!")
-
-        self.loaded = False
 
     def _load_post(self):
         post_author, post_permlink = resolveIdentifier(self.identifier)
@@ -105,6 +109,9 @@ class Post(dict):
         # Retrieve the root comment
         self.openingPostIdentifier, self.category = self._getOpeningPost(post)
 
+        self._store_post(post)
+
+    def _store_post(self, post):
         # Store original values as obtained from the rpc
         for key, value in post.items():
             super(Post, self).__setitem__(key, value)
