@@ -15,76 +15,126 @@ class Amount(object):
         return "{:.{prec}f} {}".format(self.amount, self.asset, prec=prec)
 
     def __float__(self):
-         return self.amount
+        return self.amount
 
     def __int__(self):
-         return int(self.amount)
+        return int(self.amount)
 
     def __add__(self, other):
-        assert isinstance(other, Amount)
         a = Amount(str(self))
-        a.amount += other.amount
+        if isinstance(other, Amount):
+            a.amount += other.amount
+        else:
+            a.amount += float(other)
         return a
 
     def __sub__(self, other):
-        assert isinstance(other, Amount)
         a = Amount(str(self))
-        a.amount -= other.amount
+        if isinstance(other, Amount):
+            a.amount -= other.amount
+        else:
+            a.amount -= float(other)
         return a
 
     def __mul__(self, other):
+        a = Amount(str(self))
+        a.amount *= other
+        return a
+
+    def __floordiv__(self, other):
+        a = Amount(str(self))
+        a.amount //= other
+        return a
+
+    def __div__(self, other):
+        a = Amount(str(self))
+        a.amount /= other
+        return a
+
+    def __mod__(self, other):
+        a = Amount(str(self))
+        a.amount %= other
+        return a
+
+    def __pow__(self, other):
+        a = Amount(str(self))
+        a.amount **= other
+        return a
+
+    def __iadd__(self, other):
+        if isinstance(other, Amount):
+            self.amount += other.amount
+        else:
+            self.amount += other
+        return self
+
+    def __isub__(self, other):
+        if isinstance(other, Amount):
+            self.amount -= other.amount
+        else:
+            self.amount -= other
+        return self
+
+    def __imul__(self, other):
         self.amount *= other
         return self
 
-    def __floordiv__(self, other):
+    def __idiv__(self, other):
+        if isinstance(other, Amount):
+            return self.amount / other.amount
+        else:
+            self.amount /= other
+            return self
+
+    def __ifloordiv__(self, other):
         self.amount //= other
         return self
 
-    def __div__(self, other):
-        self.amount /= other
-        return self
-
-    def __mod__(self, other):
+    def __imod__(self, other):
         self.amount %= other
         return self
 
-    def __pow__(self, other):
+    def __ipow__(self, other):
         self.amount **= other
         return self
 
     def __lt__(self, other):
-        assert isinstance(other, Amount)
-        return self.amount < other.amount
+        if isinstance(other, Amount):
+            return self.amount < other.amount
+        else:
+            return self.amount < float(other)
 
     def __le__(self, other):
-        assert isinstance(other, Amount)
-        return self.amount <= other.amount
+        if isinstance(other, Amount):
+            return self.amount <= other.amount
+        else:
+            return self.amount <= float(other)
 
     def __eq__(self, other):
-        assert isinstance(other, Amount)
-        return self.amount == other.amount
+        if isinstance(other, Amount):
+            return self.amount == other.amount
+        else:
+            return self.amount == float(other)
 
     def __ne__(self, other):
-        assert isinstance(other, Amount)
-        return self.amount != other.amount
+        if isinstance(other, Amount):
+            return self.amount != other.amount
+        else:
+            return self.amount != float(other)
 
     def __ge__(self, other):
-        assert isinstance(other, Amount)
-        return self.amount >= other.amount
+        if isinstance(other, Amount):
+            return self.amount >= other.amount
+        else:
+            return self.amount >= float(other)
 
     def __gt__(self, other):
-        assert isinstance(other, Amount)
-        return self.amount > other.amount
+        if isinstance(other, Amount):
+            return self.amount > other.amount
+        else:
+            return self.amount > float(other)
 
     __repr__ = __str__
-    __iadd__ = __add__
-    __isub__ = __sub__
-    __imul__ = __mul__
-    __idiv__ = __div__
-    __ifloordiv__ = __floordiv__
-    __imod__ = __mod__
-    __ipow__ = __pow__
-
 
 if __name__ == "__main__":
     a = Amount("2 SBD")
@@ -92,5 +142,9 @@ if __name__ == "__main__":
     print(a + b)
     print(b)
     b **= 2
+    b += .5
     print(b)
-    print(b>a)
+    print(b > a)
+
+    c = Amount("100 STEEM")
+    print(c * .10)
