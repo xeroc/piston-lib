@@ -100,6 +100,7 @@ class Post(dict):
         except:
             post['json_metadata'] = dict()
 
+        post["tags"] = []
         if post["depth"] == 0:
             post["tags"] = (
                 [post["parent_permlink"]] +
