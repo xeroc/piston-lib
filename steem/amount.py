@@ -136,6 +136,7 @@ class Amount(object):
 
     __repr__ = __str__
 
+
 if __name__ == "__main__":
     a = Amount("2 SBD")
     b = Amount("9 SBD")

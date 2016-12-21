@@ -23,7 +23,6 @@ if __name__ == '__main__':
     steem = stm.Steem()
     markets = Markets()
 
-
     def get_last_published_price():
         my_info = steem.rpc.get_witness_by_account(witness)
         price = 0
@@ -31,7 +30,6 @@ if __name__ == '__main__':
             price = float(my_info["sbd_exchange_rate"]["base"].split()[0]) / float(
                 my_info["sbd_exchange_rate"]["quote"].split()[0])
         return price
-
 
     while True:
         print("\n" + time.ctime())
