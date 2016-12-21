@@ -66,6 +66,10 @@ class Steem(object):
 
     wallet = None
     rpc = None
+    debug = None
+    nobroadcast = None
+    unsigned = None
+    expiration = None
 
     def __init__(self,
                  node="",
@@ -120,25 +124,29 @@ class Steem(object):
                 "follow",
             ]
 
-        if not kwargs.pop("offline", False):
+        if Steem.rpc is None and not kwargs.pop("offline", False):
             self._connect(node=node,
                           rpcuser=rpcuser,
                           rpcpassword=rpcpassword,
                           **kwargs)
 
-        self.debug = debug
-        self.nobroadcast = kwargs.get("nobroadcast", False)
-        self.unsigned = kwargs.pop("unsigned", False)
-        self.expiration = int(kwargs.pop("expires", 30))
+        if Steem.debug is None:
+            Steem.debug = debug
+        if Steem.nobroadcast is None:
+            Steem.nobroadcast = kwargs.get("nobroadcast", False)
+        if Steem.unsigned is None:
+            Steem.unsigned = kwargs.pop("unsigned", False)
+        if Steem.expiration is None:
+            Steem.expiration = int(kwargs.pop("expires", 30))
 
         # Compatibility after name change from wif->keys
         if "wif" in kwargs and "keys" not in kwargs:
             kwargs["keys"] = kwargs["wif"]
 
         if "keys" in kwargs:
-            self.wallet = Wallet(self.rpc, keys=kwargs["keys"])
+            Steem.wallet = Wallet(Steem.rpc, keys=kwargs["keys"])
         else:
-            self.wallet = Wallet(self.rpc)
+            Steem.wallet = Wallet(Steem.rpc)
 
     def _connect(self,
                  node="",
@@ -159,7 +167,7 @@ class Steem(object):
         if not rpcpassword and "rpcpassword" in config:
             rpcpassword = config["rpcpassword"]
 
-        self.rpc = SteemNodeRPC(node, rpcuser, rpcpassword, **kwargs)
+        Steem.rpc = SteemNodeRPC(node, rpcuser, rpcpassword, **kwargs)
 
     def _addUnsignedTxParameters(self, tx, account, permission):
         """ This is a private method that adds side information to a
