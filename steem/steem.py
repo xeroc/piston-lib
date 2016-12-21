@@ -9,9 +9,6 @@ from steemapi.steemnoderpc import SteemNodeRPC, NoAccessApi
 from steembase import memo
 from steembase.account import PrivateKey, PublicKey
 from .amount import Amount
-from .post import (
-    Post
-)
 from .storage import configStorage as config
 from .utils import (
     resolveIdentifier,

@@ -23,16 +23,21 @@ class Account(dict):
         self.cached = False
         self._converter = None
 
-    def _get_account(self):
+    def refresh(self):
         account = self.steem.rpc.get_account(self.name)
-        for key, value in account:
+        for key, value in account.items():
             self[key] = value
         self.cached = True
 
     def __getitem__(self, key):
         if not self.cached:
-            self._get_account()
-        return self[key]
+            self.refresh()
+        return super(Account, self).__getitem__(key)
+
+    def items(self):
+        if not self.cached:
+            self.refresh()
+        return super(Account, self).items()
 
     @property
     def converter(self):
@@ -100,7 +105,7 @@ class Account(dict):
             followers = self.steem.rpc.get_followers(self.name, last_user, "blog", 100, api="follow")
         elif direction == "following":
             followers = self.steem.rpc.get_following(self.name, last_user, "blog", 100, api="follow")
-        while len(followers) >= 100:
+        if len(followers) >= 100:
             followers += self._get_followers(direction=direction, last_user=followers[-1][direction])[1:]
         return followers
 
@@ -232,6 +237,7 @@ class Account(dict):
     def export(self):
         """ This method returns a dictionary that is type-safe to store as JSON or in a database.
         """
+        self.refresh()
         followers = self.get_followers()
         following = self.get_following()
 
