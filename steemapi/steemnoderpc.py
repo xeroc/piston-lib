@@ -225,6 +225,8 @@ class SteemNodeRPC(GrapheneWebsocketRPC):
             msg = exceptions.decodeRPCErrorMsg(e).strip()
             if msg == "Account already transacted this block.":
                 raise exceptions.AlreadyTransactedThisBlock(msg)
+            elif msg == "missing required posting authority":
+                raise exceptions.MissingRequiredPostingAuthority
             elif msg == "Voting weight is too small, please accumulate more voting power or steem power.":
                 raise exceptions.VoteWeightTooSmall(msg)
             elif msg == "Can only vote once every 3 seconds.":

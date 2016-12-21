@@ -49,3 +49,7 @@ class PostOnlyEvery5Min(RPCError):
 
 class DuplicateTransaction(RPCError):
     pass
+
+
+class MissingRequiredPostingAuthority(RPCError):
+    pass
