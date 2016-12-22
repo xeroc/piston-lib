@@ -23,8 +23,8 @@ class Converter(object):
             witness feeds. Return value will be SBD
         """
         return (
-            Amount(self.steem.rpc.get_feed_history()['current_median_history']['base']).amount /
-            Amount(self.steem.rpc.get_feed_history()['current_median_history']['quote']).amount
+            Amount(self.steem.rpc.get_feed_history()['current_median_history']['base']) /
+            Amount(self.steem.rpc.get_feed_history()['current_median_history']['quote'])
         )
 
     @simple_cache(converter_cache, timeout=5 * 60)
@@ -33,8 +33,8 @@ class Converter(object):
         """
         info = self.steem.rpc.get_dynamic_global_properties()
         return (
-            Amount(info["total_vesting_fund_steem"]).amount /
-            (Amount(info["total_vesting_shares"]).amount / 1e6)
+            Amount(info["total_vesting_fund_steem"]) /
+            (Amount(info["total_vesting_shares"]) / 1e6)
         )
 
     def vests_to_sp(self, vests):
@@ -91,7 +91,7 @@ class Converter(object):
         steem_payout = self.sbd_to_steem(sbd_payout)
 
         props = self.steem.rpc.get_dynamic_global_properties()
-        total_reward_fund_steem = Amount(props['total_reward_fund_steem']).amount
+        total_reward_fund_steem = Amount(props['total_reward_fund_steem'])
         total_reward_shares2 = int(props['total_reward_shares2'])
 
         post_rshares2 = (steem_payout / total_reward_fund_steem) * total_reward_shares2
