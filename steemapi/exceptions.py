@@ -8,13 +8,14 @@ def decodeRPCErrorMsg(e):
     """
     found = re.search(
         (
-            "10 assert_exception: Assert Exception\n"
+            "(10 assert_exception: Assert Exception\n|"
+            "3030000 tx_missing_posting_auth)"
             ".*: (.*)\n"
         ),
         str(e),
         flags=re.M)
-    if found:
-        return found.group(1).strip()
+    if found.group(2):
+        return found.group(2).strip()
     else:
         return str(e)
 
