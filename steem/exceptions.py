@@ -16,3 +16,7 @@ class MissingKeyError(Exception):
 
 class BlockDoesNotExistsException(Exception):
     pass
+
+
+class WitnessDoesNotExistsException(Exception):
+    pass
