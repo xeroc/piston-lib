@@ -8,9 +8,13 @@ import grequests
 
 import steem as stm
 from steem.amount import Amount
+import warnings
 
 
 class Tickers(object):
+    def __init__(self, *args, **kwargs):
+        warnings.warn("This will go away in the future, do not depend on it")
+
     @staticmethod
     def btc_usd_ticker(verbose=False):
         prices = {}
@@ -125,6 +129,8 @@ class Markets(Tickers):
         self._btc_usd = None
         self._steem_btc = None
         self._sbd_btc = None
+
+        warnings.warn("This will go away in the future, do not depend on it")
 
     def _has_cache_expired(self):
         if self._cache_timer + self._cache_timeout < time.time():
