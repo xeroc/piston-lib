@@ -54,7 +54,7 @@ class Post(dict):
             raise ValueError("Post expects an identifier or a dict "
                              "with author and permlink!")
 
-    def _load_post(self):
+    def refresh(self):
         post_author, post_permlink = resolveIdentifier(self.identifier)
         post = self.steem.rpc.get_content(post_author, post_permlink)
         if not post["permlink"]:
@@ -124,12 +124,12 @@ class Post(dict):
 
     def __getattr__(self, key):
         if not self.loaded:
-            self._load_post()
+            self.refresh()
         return object.__getattribute__(self, key)
 
     def __getitem__(self, key):
         if not self.loaded:
-            self._load_post()
+            self.refresh()
         return super(Post, self).__getitem__(key)
 
     def __repr__(self):
@@ -251,7 +251,7 @@ class Post(dict):
     def export(self):
         """ This method returns a dictionary that is type-safe to store as JSON or in a database.
         """
-        self._load_post()
+        self.refresh()
 
         # Remove Steem instance object
         safe_dict = remove_from_dict(self, ['steem'])
