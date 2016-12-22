@@ -12,8 +12,12 @@ from steem.steem import (
 
 identifier = "@xeroc/piston"
 testaccount = "xeroc"
-wif = "5KkUHuJEFhN1RCS3GLV7UMeQ5P1k5Vu31jRgivJei8dBtAcXYMV"
-steem = Steem(nobroadcast=True, wif=wif)
+wif = {
+    "active": "5KkUHuJEFhN1RCS3GLV7UMeQ5P1k5Vu31jRgivJei8dBtAcXYMV",
+    "posting": "5KkUHuJEFhN1RCS3GLV7UMeQ5P1k5Vu31jRgivJei8dBtAcXYMV",
+    "owner": "5KkUHuJEFhN1RCS3GLV7UMeQ5P1k5Vu31jRgivJei8dBtAcXYMV"
+}
+steem = Steem(nobroadcast=True, keys=wif)
 
 
 class Testcases(unittest.TestCase):
