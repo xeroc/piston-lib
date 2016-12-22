@@ -14,7 +14,7 @@ def decodeRPCErrorMsg(e):
         ),
         str(e),
         flags=re.M)
-    if found.group(2):
+    if found:
         return found.group(2).strip()
     else:
         return str(e)

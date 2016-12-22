@@ -4,6 +4,7 @@ import os
 import json
 from appdirs import user_data_dir
 import logging
+from . import steem as stm
 
 log = logging.getLogger(__name__)
 prefix = "STM"
@@ -28,7 +29,7 @@ class Wallet():
     keys = {}  # struct with pubkey as key and wif as value
     keyMap = {}  # type:wif pairs to force certain keys
 
-    def __init__(self, rpc, *args, **kwargs):
+    def __init__(self, *args, **kwargs):
         """ The wallet is meant to maintain access to private keys for
             your accounts. It either uses manually provided private keys
             or uses a SQLite database managed by storage.py.
@@ -54,7 +55,7 @@ class Wallet():
               any account. This mode is only used for *foreign*
               signatures!
         """
-        self.rpc = rpc
+        Wallet.rpc = stm.Steem.rpc
 
         # Compatibility after name change from wif->keys
         if "wif" in kwargs and "keys" not in kwargs:

@@ -12,3 +12,7 @@ class InsufficientAuthorityError(Exception):
 
 class MissingKeyError(Exception):
     pass
+
+
+class BlockDoesNotExistsException(Exception):
+    pass

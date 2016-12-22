@@ -8,5 +8,6 @@ __ALL__ = [
     "steem",
     "storage",
     "wallet",
-    "dex"
+    "dex",
+    "transactions",
 ]

@@ -27,6 +27,7 @@ from .post import (
     VotingInvalidOnArchivedPost
 )
 from .wallet import Wallet
+from .transaction import Transaction
 
 log = logging.getLogger(__name__)
 
@@ -139,14 +140,7 @@ class Steem(object):
         if Steem.expiration is None:
             Steem.expiration = int(kwargs.pop("expires", 30))
 
-        # Compatibility after name change from wif->keys
-        if "wif" in kwargs and "keys" not in kwargs:
-            kwargs["keys"] = kwargs["wif"]
-
-        if "keys" in kwargs:
-            Steem.wallet = Wallet(Steem.rpc, keys=kwargs["keys"])
-        else:
-            Steem.wallet = Wallet(Steem.rpc)
+        Steem.wallet = Wallet(**kwargs)
 
     def _connect(self,
                  node="",
@@ -169,43 +163,6 @@ class Steem(object):
 
         Steem.rpc = SteemNodeRPC(node, rpcuser, rpcpassword, **kwargs)
 
-    def _addUnsignedTxParameters(self, tx, account, permission):
-        """ This is a private method that adds side information to a
-            unsigned/partial transaction in order to simplify later
-            signing (e.g. for multisig or coldstorage)
-        """
-        accountObj = self.rpc.get_account(account)
-        if not accountObj:
-            raise AccountDoesNotExistsException(accountObj)
-        authority = accountObj.get(permission)
-        # We add a required_authorities to be able to identify
-        # how to sign later. This is an array, because we
-        # may later want to allow multiple operations per tx
-        tx.update({"required_authorities": {
-            account: authority
-        }})
-        for account_auth in authority["account_auths"]:
-            account_auth_account = self.rpc.get_account(account_auth[0])
-            if not account_auth_account:
-                raise AccountDoesNotExistsException(account_auth_account)
-            tx["required_authorities"].update({
-                account_auth[0]: account_auth_account.get(permission)
-            })
-
-        # Try to resolve required signatures for offline signing
-        tx["missing_signatures"] = [
-            x[0] for x in authority["key_auths"]
-        ]
-        # Add one recursion of keys from account_auths:
-        for account_auth in authority["account_auths"]:
-            account_auth_account = self.rpc.get_account(account_auth[0])
-            if not account_auth_account:
-                raise AccountDoesNotExistsException(account_auth_account)
-            tx["missing_signatures"].extend(
-                [x[0] for x in account_auth_account[permission]["key_auths"]]
-            )
-        return tx
-
     def finalizeOp(self, op, account, permission):
         """ This method obtains the required private keys if present in
             the wallet, finalizes the transaction, signs it and
@@ -225,58 +182,18 @@ class Steem(object):
                 posting permission. Neither can you use different
                 accounts for different operations!
         """
+        tx = Transaction()
+        tx.appendOps(op)
+        tx.constructTx()
+
         if self.unsigned:
-            tx = self.constructTx(op, None)
-            return self._addUnsignedTxParameters(tx, account, permission)
+            tx.addSigningInformation(account, permission)
+            return tx
         else:
-            if permission == "active":
-                wif = self.wallet.getActiveKeyForAccount(account)
-            elif permission == "posting":
-                wif = self.wallet.getPostingKeyForAccount(account)
-            elif permission == "owner":
-                wif = self.wallet.getOwnerKeyForAccount(account)
-            else:
-                raise ValueError("Invalid permission")
-            tx = self.constructTx(op, wif)
-            return self.broadcast(tx)
+            tx.appendSigner(account, permission)
+            tx.sign()
 
-    def constructTx(self, op, wifs=[]):
-        """ Execute an operation by signing it with the ``wif`` key
-
-            :param Object op: The operation (or list of oeprations) to
-                              be signed and broadcasts as provided by
-                              the ``transactions`` class.
-            :param string wifs: One or many wif keys to use for signing
-                                a transaction
-        """
-        if not isinstance(wifs, list):
-            wifs = [wifs]
-
-        if not any(wifs) and not self.unsigned:
-            raise MissingKeyError
-
-        if isinstance(op, list):
-            ops = [transactions.Operation(o) for o in op]
-        else:
-            ops = [transactions.Operation(op)]
-
-        expiration = transactions.formatTimeFromNow(self.expiration)
-        ref_block_num, ref_block_prefix = transactions.getBlockParams(self.rpc)
-        tx = transactions.Signed_Transaction(
-            ref_block_num=ref_block_num,
-            ref_block_prefix=ref_block_prefix,
-            expiration=expiration,
-            operations=ops
-        )
-        if not self.unsigned:
-            tx = tx.sign(wifs)
-
-        tx = tx.json()
-
-        if self.debug:
-            log.debug(str(tx))
-
-        return tx
+        return tx.broadcast()
 
     def sign(self, tx, wifs=[]):
         """ Sign a provided transaction witht he provided key(s)
@@ -287,49 +204,10 @@ class Steem(object):
                 from the wallet as defined in "missing_signatures" key
                 of the transactions.
         """
-        if not isinstance(wifs, list):
-            wifs = [wifs]
-
-        if not isinstance(tx, dict):
-            raise ValueError("Invalid Transaction Format")
-
-        if not any(wifs):
-            missing_signatures = tx.get("missing_signatures", [])
-            for pub in missing_signatures:
-                wif = self.wallet.getPrivateKeyForPublicKey(pub)
-                if wif:
-                    wifs.append(wif)
-        try:
-            signedtx = transactions.Signed_Transaction(**tx)
-        except:
-            raise ValueError("Invalid Transaction Format")
-
-        signedtx.sign(wifs)
-        tx["signatures"].extend(signedtx.json().get("signatures"))
-
-        return tx
-
-    def broadcast(self, tx):
-        """ Broadcast a transaction to the Steem network
-
-            :param tx tx: Signed transaction to broadcast
-        """
-        if self.nobroadcast:
-            log.warning("Not broadcasting anything!")
-            return tx
-
-        try:
-            if not self.rpc.verify_authority(tx):
-                raise InsufficientAuthorityError
-        except Exception as e:
-            raise e
-
-        try:
-            self.rpc.broadcast_transaction(tx, api="network_broadcast")
-        except Exception as e:
-            raise e
-
-        return tx
+        tx = Transaction(tx)
+        tx.appendMissingSignatures(wifs)
+        tx.sign()
+        return tx.json()
 
     def info(self):
         """ Returns the global properties
