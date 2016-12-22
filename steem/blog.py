@@ -34,8 +34,3 @@ class Blog(list):
         if not self.cached:
             self.refresh()
         return super(Blog, self).__getitem__(key)
-
-    def items(self):
-        if not self.cached:
-            self.refresh()
-        return super(Blog, self).items()
