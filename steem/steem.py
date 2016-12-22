@@ -208,6 +208,14 @@ class Steem(object):
         tx.sign()
         return tx.json()
 
+    def broadcast(self, tx):
+        """ Broadcast a transaction to the Steem network
+
+            :param tx tx: Signed transaction to broadcast
+        """
+        tx = Transaction(tx)
+        return tx.broadcast()
+
     def info(self):
         """ Returns the global properties
         """
