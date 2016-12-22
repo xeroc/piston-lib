@@ -88,7 +88,7 @@ class Transaction(dict):
             return self
 
         try:
-            if not self.steem.rpc.verify_authority(self):
+            if not self.steem.rpc.verify_authority(self.json()):
                 raise InsufficientAuthorityError
         except Exception as e:
             raise e

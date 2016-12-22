@@ -184,7 +184,6 @@ class Steem(object):
         """
         tx = Transaction()
         tx.appendOps(op)
-        tx.constructTx()
 
         if self.unsigned:
             tx.addSigningInformation(account, permission)
