@@ -1,5 +1,6 @@
-import steem as stm
-from steem.utils import parse_time
+from .block import Block
+from . import steem as stm
+from .utils import parse_time
 
 
 class Blockchain(object):
@@ -18,7 +19,7 @@ class Blockchain(object):
         """
         return self.steem.rpc.get_dynamic_global_properties()
 
-    def get_current_block(self, mode='last_irreversible_block_num'):
+    def get_current_block_num(self, mode='last_irreversible_block_num'):
         """ This call returns the current block
 
             :param str mode: (default)Irreversible block
@@ -27,6 +28,11 @@ class Blockchain(object):
         """
         assert mode == 'last_irreversible_block_num' or mode == "head_block_number"
         return self.info().get(mode)
+
+    def get_current_block(self, mode='last_irreversible_block_num'):
+        """ This call returns the current block
+        """
+        return Block(self.get_current_block(mode))
 
     def stream(self, **kwargs):
         """ Yield specific operations (e.g. comments) only
@@ -63,8 +69,7 @@ class Blockchain(object):
 
             :param int block_num: Block number
         """
-        block = self.steem.rpc.get_block(block_num)
-        return parse_time(block['timestamp']).timestamp()
+        return Block(block_num).time()
 
     def block_timestamp(self, block_num):
         """ Returns the timestamp of the block with the given block
@@ -72,8 +77,7 @@ class Blockchain(object):
 
             :param int block_num: Block number
         """
-        block = self.steem.rpc.get_block(block_num)
-        return int(parse_time(block['timestamp']).timestamp())
+        return int(Block(block_num).time().timestamp())
 
     def get_block_from_time(self, timestring, error_margin=10, mode="last_irreversible_block_num"):
         """ Estimate block number from given time

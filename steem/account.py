@@ -11,22 +11,26 @@ from .converter import Converter
 from .utils import parse_time
 from .blog import Blog
 
+from .exceptions import AccountDoesNotExistsException
+
 
 class Account(dict):
     def __init__(self, account_name, steem_instance=None):
+        self.cached = False
+        self.name = account_name
+
         if not steem_instance:
             steem_instance = stm.Steem()
         self.steem = steem_instance
-        self.name = account_name
 
         # caches
-        self.cached = False
         self._converter = None
 
     def refresh(self):
         account = self.steem.rpc.get_account(self.name)
-        for key, value in account.items():
-            self[key] = value
+        if not account:
+            raise AccountDoesNotExistsException
+        super(Account, self).__init__(account)
         self.cached = True
 
     def __getitem__(self, key):
@@ -49,9 +53,6 @@ class Account(dict):
     def blog(self):
         return self.get_blog()
 
-    def get_blog(self):
-        return Blog(self.name)
-
     @property
     def profile(self):
         with suppress(Exception):
@@ -66,6 +67,9 @@ class Account(dict):
     @property
     def rep(self):
         return self.reputation()
+
+    def get_blog(self):
+        return Blog(self.name)
 
     def get_balances(self, asfloat=False):
         my_account_balances = self.steem.get_balances(self.name)
