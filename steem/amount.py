@@ -23,6 +23,7 @@ class Amount(object):
     def __add__(self, other):
         a = Amount(str(self))
         if isinstance(other, Amount):
+            assert other.asset == self.asset
             a.amount += other.amount
         else:
             a.amount += float(other)
@@ -31,6 +32,7 @@ class Amount(object):
     def __sub__(self, other):
         a = Amount(str(self))
         if isinstance(other, Amount):
+            assert other.asset == self.asset
             a.amount -= other.amount
         else:
             a.amount -= float(other)
@@ -63,6 +65,7 @@ class Amount(object):
 
     def __iadd__(self, other):
         if isinstance(other, Amount):
+            assert other.asset == self.asset
             self.amount += other.amount
         else:
             self.amount += other
@@ -70,6 +73,7 @@ class Amount(object):
 
     def __isub__(self, other):
         if isinstance(other, Amount):
+            assert other.asset == self.asset
             self.amount -= other.amount
         else:
             self.amount -= other
@@ -81,6 +85,7 @@ class Amount(object):
 
     def __idiv__(self, other):
         if isinstance(other, Amount):
+            assert other.asset == self.asset
             return self.amount / other.amount
         else:
             self.amount /= other
@@ -100,36 +105,42 @@ class Amount(object):
 
     def __lt__(self, other):
         if isinstance(other, Amount):
+            assert other.asset == self.asset
             return self.amount < other.amount
         else:
             return self.amount < float(other)
 
     def __le__(self, other):
         if isinstance(other, Amount):
+            assert other.asset == self.asset
             return self.amount <= other.amount
         else:
             return self.amount <= float(other)
 
     def __eq__(self, other):
         if isinstance(other, Amount):
+            assert other.asset == self.asset
             return self.amount == other.amount
         else:
             return self.amount == float(other)
 
     def __ne__(self, other):
         if isinstance(other, Amount):
+            assert other.asset == self.asset
             return self.amount != other.amount
         else:
             return self.amount != float(other)
 
     def __ge__(self, other):
         if isinstance(other, Amount):
+            assert other.asset == self.asset
             return self.amount >= other.amount
         else:
             return self.amount >= float(other)
 
     def __gt__(self, other):
         if isinstance(other, Amount):
+            assert other.asset == self.asset
             return self.amount > other.amount
         else:
             return self.amount > float(other)
@@ -149,3 +160,6 @@ if __name__ == "__main__":
 
     c = Amount("100 STEEM")
     print(c * .10)
+
+    #print(a + c)
+    #print(a < c)
