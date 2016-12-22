@@ -1421,38 +1421,3 @@ class Steem(object):
                "json_metadata": profile}
         )
         return self.finalizeOp(op, account["name"], "active")
-
-
-class SteemConnector(object):
-    #: The static steem connection
-    steem = None
-
-    def __init__(self, *args, **kwargs):
-        """ This class is a singelton and makes sure that only one
-            connection to the Steem node is established and shared among
-            flask threads.
-        """
-        if not SteemConnector.steem:
-            self.connect(*args, **kwargs)
-
-    def getSteem(self):
-        return SteemConnector.steem
-
-    def connect(self, *args, **kwargs):
-        log.debug("trying to connect to %s" % config["node"])
-        try:
-            SteemConnector.steem = Steem(*args, **kwargs)
-        except NoAccessApi as e:
-            print("=" * 80)
-            print(str(e))
-            print("=" * 80)
-            exit(1)
-        except Exception as e:
-            print(
-                "No connection to %s could be established!\n" % config["node"] +
-                "Please try again later, or select another node via:\n"
-                "    piston node wss://example.com\n\n"
-                "Error: \n" + str(e)
-            )
-            print("=" * 80)
-            exit(1)
