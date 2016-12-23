@@ -54,3 +54,7 @@ class DuplicateTransaction(RPCError):
 
 class MissingRequiredPostingAuthority(RPCError):
     pass
+
+
+class UnhandledRPCError(RPCError):
+    pass

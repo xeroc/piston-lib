@@ -239,6 +239,8 @@ class SteemNodeRPC(GrapheneWebsocketRPC):
                 raise exceptions.DuplicateTransaction(msg)
             elif re.match("^no method with name.*", msg):
                 raise exceptions.NoMethodWithName(msg)
+            elif msg:
+                raise exceptions.UnhandledRPCError(msg)
             else:
                 raise e
         except Exception as e:
