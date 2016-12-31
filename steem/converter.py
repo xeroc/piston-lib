@@ -1,6 +1,7 @@
 import math
 
 import steem as stm
+
 from .amount import Amount
 from .utils import SimpleCache, simple_cache
 
@@ -24,8 +25,8 @@ class Converter(object):
             witness feeds. Return value will be SBD
         """
         return (
-            Amount(self.steem.rpc.get_feed_history()['current_median_history']['base']) /
-            Amount(self.steem.rpc.get_feed_history()['current_median_history']['quote'])
+            Amount(self.steem.rpc.get_feed_history()['current_median_history']['base']).amount /
+            Amount(self.steem.rpc.get_feed_history()['current_median_history']['quote']).amount
         )
 
     @simple_cache(converter_cache, timeout=5 * 60)
