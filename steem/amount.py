@@ -1,7 +1,10 @@
 class Amount(object):
     def __init__(self, amountString="0 SBD"):
         self.amount, self.asset = amountString.split(" ")
-        self.amount = float(self.amount)
+        if self.amount:
+            self.amount = float(self.amount)
+        else:
+            self.amount = 0.0
 
     def __str__(self):
         if self.asset == "SBD":
@@ -108,42 +111,42 @@ class Amount(object):
             assert other.asset == self.asset
             return self.amount < other.amount
         else:
-            return self.amount < float(other)
+            return self.amount < float(other or 0)
 
     def __le__(self, other):
         if isinstance(other, Amount):
             assert other.asset == self.asset
             return self.amount <= other.amount
         else:
-            return self.amount <= float(other)
+            return self.amount <= float(other or 0)
 
     def __eq__(self, other):
         if isinstance(other, Amount):
             assert other.asset == self.asset
             return self.amount == other.amount
         else:
-            return self.amount == float(other)
+            return self.amount == float(other or 0)
 
     def __ne__(self, other):
         if isinstance(other, Amount):
             assert other.asset == self.asset
             return self.amount != other.amount
         else:
-            return self.amount != float(other)
+            return self.amount != float(other or 0)
 
     def __ge__(self, other):
         if isinstance(other, Amount):
             assert other.asset == self.asset
             return self.amount >= other.amount
         else:
-            return self.amount >= float(other)
+            return self.amount >= float(other or 0)
 
     def __gt__(self, other):
         if isinstance(other, Amount):
             assert other.asset == self.asset
             return self.amount > other.amount
         else:
-            return self.amount > float(other)
+            return self.amount > float(other or 0)
 
     __repr__ = __str__
 
