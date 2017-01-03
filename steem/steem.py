@@ -27,7 +27,7 @@ from .post import (
     VotingInvalidOnArchivedPost
 )
 from .wallet import Wallet
-from .transaction import Transaction
+from .transactionbuilder import TransactionBuilder
 
 log = logging.getLogger(__name__)
 
@@ -182,7 +182,7 @@ class Steem(object):
                 posting permission. Neither can you use different
                 accounts for different operations!
         """
-        tx = Transaction()
+        tx = TransactionBuilder()
         tx.appendOps(op)
 
         if self.unsigned:
@@ -203,7 +203,7 @@ class Steem(object):
                 from the wallet as defined in "missing_signatures" key
                 of the transactions.
         """
-        tx = Transaction(tx)
+        tx = TransactionBuilder(tx)
         tx.appendMissingSignatures(wifs)
         tx.sign()
         return tx.json()
@@ -213,7 +213,7 @@ class Steem(object):
 
             :param tx tx: Signed transaction to broadcast
         """
-        tx = Transaction(tx)
+        tx = TransactionBuilder(tx)
         return tx.broadcast()
 
     def info(self):

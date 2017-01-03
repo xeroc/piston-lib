@@ -12,7 +12,7 @@ import logging
 log = logging.getLogger(__name__)
 
 
-class Transaction(dict):
+class TransactionBuilder(dict):
     def __init__(self, tx={}, steem_instance=None):
         if not steem_instance:
             steem_instance = stm.Steem()
@@ -20,8 +20,8 @@ class Transaction(dict):
         self.op = []
         self.wifs = []
         if not isinstance(tx, dict):
-            raise ValueError("Invalid Transaction Format")
-        super(Transaction, self).__init__(tx)
+            raise ValueError("Invalid TransactionBuilder Format")
+        super(TransactionBuilder, self).__init__(tx)
 
     def appendOps(self, ops):
         if isinstance(ops, list):
@@ -59,7 +59,7 @@ class Transaction(dict):
             expiration=expiration,
             operations=ops
         )
-        super(Transaction, self).__init__(tx.json())
+        super(TransactionBuilder, self).__init__(tx.json())
 
     def sign(self):
         """ Sign a provided transaction witht he provided key(s)
@@ -73,7 +73,7 @@ class Transaction(dict):
         try:
             signedtx = Signed_Transaction(**self.json())
         except:
-            raise ValueError("Invalid Transaction Format")
+            raise ValueError("Invalid TransactionBuilder Format")
 
         signedtx.sign(self.wifs)
         self["signatures"].extend(signedtx.json().get("signatures"))
