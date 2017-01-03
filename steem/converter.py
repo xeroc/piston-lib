@@ -1,7 +1,9 @@
 import math
-from .utils import SimpleCache, simple_cache
+
 import steem as stm
+
 from .amount import Amount
+from .utils import SimpleCache, simple_cache
 
 converter_cache = SimpleCache()
 
@@ -23,8 +25,8 @@ class Converter(object):
             witness feeds. Return value will be SBD
         """
         return (
-            Amount(self.steem.rpc.get_feed_history()['current_median_history']['base']) /
-            Amount(self.steem.rpc.get_feed_history()['current_median_history']['quote'])
+            Amount(self.steem.rpc.get_feed_history()['current_median_history']['base']).amount /
+            Amount(self.steem.rpc.get_feed_history()['current_median_history']['quote']).amount
         )
 
     @simple_cache(converter_cache, timeout=5 * 60)
@@ -33,8 +35,8 @@ class Converter(object):
         """
         info = self.steem.rpc.get_dynamic_global_properties()
         return (
-            Amount(info["total_vesting_fund_steem"]) /
-            (Amount(info["total_vesting_shares"]) / 1e6)
+            Amount(info["total_vesting_fund_steem"]).amount /
+            (Amount(info["total_vesting_shares"]).amount / 1e6)
         )
 
     def vests_to_sp(self, vests):
