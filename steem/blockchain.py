@@ -19,10 +19,11 @@ class Blockchain(object):
         if not steem_instance:
             steem_instance = stm.Steem()
         self.steem = steem_instance
+
         if mode == "irreversible":
             self.mode = 'last_irreversible_block_num'
         elif mode == "head":
-            self.mode == "head_block_number"
+            self.mode = "head_block_number"
         else:
             raise ValueError("invalid value for 'mode'!")
 
@@ -40,6 +41,14 @@ class Blockchain(object):
         """ This call returns the current block
         """
         return Block(self.get_current_block_num())
+
+    def blocks(self, **kwargs):
+        """ Yield Blocks as a generator
+
+            :param int start: Start at this block
+            :param int stop: Stop at this block
+        """
+        return self.steem.rpc.block_stream(**kwargs)
 
     def stream(self, **kwargs):
         """ Yield specific operations (e.g. comments) only
