@@ -214,35 +214,49 @@ class Post(dict):
     def reward(self):
         """Return a float value of estimated total SBD reward.
         """
+        if not self.loaded:
+            self.refresh()
         return self['total_payout_reward']
 
     @property
     def meta(self):
+        if not self.loaded:
+            self.refresh()
         return self.get('json_metadata', dict())
 
     def time_elapsed(self):
         """Return a timedelta on how old the post is.
         """
+        if not self.loaded:
+            self.refresh()
         return datetime.utcnow() - self['created']
 
     def is_main_post(self):
         """ Retuns True if main post, and False if this is a comment (reply).
         """
-        return len(self['depth']) == 0
+        if not self.loaded:
+            self.refresh()
+        return self['depth'] == 0
 
     def is_opening_post(self):
         """ Retuns True if main post, and False if this is a comment (reply).
         """
-        return len(self['depth']) == 0
+        if not self.loaded:
+            self.refresh()
+        return self['depth'] == 0
 
     def is_comment(self):
         """ Retuns True if post is a comment
         """
-        return len(self['depth']) > 0
+        if not self.loaded:
+            self.refresh()
+        return self['depth'] > 0
 
     def curation_reward_pct(self):
         """ If post is less than 30 minutes old, it will incur a curation reward penalty.
         """
+        if not self.loaded:
+            self.refresh()
         reward = (self.time_elapsed().seconds / 1800) * 100
         if reward > 100:
             reward = 100
