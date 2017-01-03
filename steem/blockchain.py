@@ -4,35 +4,42 @@ from .utils import parse_time
 
 
 class Blockchain(object):
-    def __init__(self, steem_instance=None):
+    def __init__(
+        self,
+        steem_instance=None,
+        mode="irreversible"
+    ):
         """ This class allows to access the blockchain and read data
             from it
 
             :param Steem steem: Steem() instance to use when accesing a RPC
+            :param str mode: (default) Irreversible block
+                    (``irreversible``) or actual head block (``head``)
         """
         if not steem_instance:
             steem_instance = stm.Steem()
         self.steem = steem_instance
+        if mode == "irreversible":
+            self.mode = 'last_irreversible_block_num'
+        elif mode == "head":
+            self.mode == "head_block_number"
+        else:
+            raise ValueError("invalid value for 'mode'!")
 
     def info(self):
         """ This call returns the *dynamic global properties*
         """
         return self.steem.rpc.get_dynamic_global_properties()
 
-    def get_current_block_num(self, mode='last_irreversible_block_num'):
-        """ This call returns the current block
-
-            :param str mode: (default)Irreversible block
-                    (``last_irreversible_block_num``) or actual head block
-                    (``head_block_number``)
-        """
-        assert mode == 'last_irreversible_block_num' or mode == "head_block_number"
-        return self.info().get(mode)
-
-    def get_current_block(self, mode='last_irreversible_block_num'):
+    def get_current_block_num(self):
         """ This call returns the current block
         """
-        return Block(self.get_current_block(mode))
+        return self.info().get(self.mode)
+
+    def get_current_block(self):
+        """ This call returns the current block
+        """
+        return Block(self.get_current_block_num())
 
     def stream(self, **kwargs):
         """ Yield specific operations (e.g. comments) only
@@ -47,9 +54,6 @@ class Blockchain(object):
                 fill_vesting_withdraw, fill_order,
             :param int start: Start at this block
             :param int stop: Stop at this block
-            :param str mode: We here have the choice between
-                 * "head": the last block
-                 * "irreversible": the block that is confirmed by 2/3 of all block producers and is thus irreversible!
         """
         return self.steem.rpc.stream(**kwargs)
 
@@ -60,6 +64,7 @@ class Blockchain(object):
             opNames=filter_by,
             start=start_block,
             stop=end_block,
+            mode=self.mode,
             **kwargs
         )
 
@@ -79,17 +84,14 @@ class Blockchain(object):
         """
         return int(Block(block_num).time().timestamp())
 
-    def get_block_from_time(self, timestring, error_margin=10, mode="last_irreversible_block_num"):
+    def get_block_from_time(self, timestring, error_margin=10):
         """ Estimate block number from given time
 
             :param str timestring: String representing time
             :param int error_margin: Estimate block number within this interval (in seconds)
-            :param str mode: (default)Irreversible block
-                    (``last_irreversible_block_num``) or actual head block
-                    (``head_block_number``)
 
         """
-        known_block = self.get_current_block(mode)
+        known_block = self.get_current_block()
         known_block_timestamp = self.block_timestamp(known_block)
         timestring_timestamp = parse_time(timestring).timestamp()
         delta = known_block_timestamp - timestring_timestamp
