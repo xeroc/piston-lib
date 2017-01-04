@@ -27,7 +27,12 @@ class Post(dict):
     """
     steem = None
 
-    def __init__(self, post, steem_instance=None):
+    def __init__(
+        self,
+        post,
+        steem_instance=None,
+        lazy=False
+    ):
         if not steem_instance:
             steem_instance = stm.Steem()
         self.steem = steem_instance
@@ -36,6 +41,9 @@ class Post(dict):
         if isinstance(post, str):  # From identifier
             self.identifier = post
 
+            if not lazy:
+                self.refresh()
+        
         elif (isinstance(post, dict) and  # From dictionary
                 "author" in post and
                 "permlink" in post):

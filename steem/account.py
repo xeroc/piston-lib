@@ -15,7 +15,12 @@ from .exceptions import AccountDoesNotExistsException
 
 
 class Account(dict):
-    def __init__(self, account_name, steem_instance=None):
+    def __init__(
+        self,
+        account_name,
+        steem_instance=None,
+        lazy=False,
+    ):
         self.cached = False
         self.name = account_name
 
@@ -25,6 +30,9 @@ class Account(dict):
 
         # caches
         self._converter = None
+
+        if not lazy:
+            self.refresh()
 
     def refresh(self):
         account = self.steem.rpc.get_account(self.name)

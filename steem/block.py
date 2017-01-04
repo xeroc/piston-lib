@@ -4,7 +4,12 @@ from .utils import parse_time
 
 
 class Block(dict):
-    def __init__(self, block, steem_instance=None):
+    def __init__(
+        self,
+        block,
+        steem_instance=None,
+        lazy=False
+    ):
         self.cached = False
         self.block = block
 
@@ -15,6 +20,8 @@ class Block(dict):
         if isinstance(block, Block):
             super(Block, self).__init__(block)
             self.cached = True
+        elif not lazy:
+            self.refresh()
 
     def refresh(self):
         block = self.steem.rpc.get_block(self.block)

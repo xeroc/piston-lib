@@ -3,13 +3,21 @@ from .post import Post
 
 
 class Blog(list):
-    def __init__(self, account_name, steem_instance=None):
+    def __init__(
+        self,
+        account_name,
+        steem_instance=None,
+        lazy=False
+    ):
         self.cached = False
         self.name = account_name
 
         if not steem_instance:
             steem_instance = stm.Steem()
         self.steem = steem_instance
+
+        if not lazy:
+            self.refresh()
 
     def refresh(self):
         state = self.steem.rpc.get_state("/@%s/blog" % self.name)

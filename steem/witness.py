@@ -3,13 +3,21 @@ from .exceptions import WitnessDoesNotExistsException
 
 
 class Witness(dict):
-    def __init__(self, witness, steem_instance=None):
+    def __init__(
+        self,
+        witness,
+        steem_instance=None,
+        lazy=False
+    ):
         self.cached = False
         self.witness = witness
 
         if not steem_instance:
             steem_instance = stm.Steem()
         self.steem = steem_instance
+
+        if not lazy:
+            self.refresh()
 
     def refresh(self):
         witness = self.steem.rpc.get_witness_by_account(self.witness)
