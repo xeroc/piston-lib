@@ -20,3 +20,7 @@ class BlockDoesNotExistsException(Exception):
 
 class WitnessDoesNotExistsException(Exception):
     pass
+
+
+class InvalidKeyFormat(Exception):
+    pass

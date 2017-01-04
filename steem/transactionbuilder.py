@@ -6,6 +6,7 @@ from steembase import transactions, operations
 from .exceptions import (
     InsufficientAuthorityError,
     MissingKeyError,
+    InvalidKeyFormat
 )
 from . import steem as stm
 import logging
@@ -44,7 +45,12 @@ class TransactionBuilder(dict):
         self.wifs.append(wif)
 
     def appendWif(self, wif):
-        self.wifs.append(wif)
+        if wif:
+            try:
+                PrivateKey(wif)
+                self.wifs.append(wif)
+            except:
+                raise InvalidKeyFormat
 
     def constructTx(self):
         if isinstance(self.op, list):
@@ -74,6 +80,9 @@ class TransactionBuilder(dict):
             signedtx = Signed_Transaction(**self.json())
         except:
             raise ValueError("Invalid TransactionBuilder Format")
+
+        if not any(self.wifs):
+            raise MissingKeyError
 
         signedtx.sign(self.wifs)
         self["signatures"].extend(signedtx.json().get("signatures"))
