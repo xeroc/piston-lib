@@ -52,10 +52,6 @@ class Blog:
                 self.seen_items.add(item['permlink'])
                 hist_uniq.append(item)
 
-        # see it in action
-        # from pprint import pprint
-        # pprint([x['title'] for x in hist_uniq])
-
         # LIFO
         self.history = hist_uniq[::-1]
 
@@ -71,9 +67,3 @@ class Blog:
         self.history = list(rest(self.history))
 
         return Post(next_item)
-
-# if __name__ == '__main__':
-#     from steem.blog import Blog
-#     b = Blog('furion')
-#     from funcy import *
-#     take(1000000, b)
