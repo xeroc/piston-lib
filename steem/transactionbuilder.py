@@ -14,10 +14,12 @@ log = logging.getLogger(__name__)
 
 
 class TransactionBuilder(dict):
+
     def __init__(self, tx={}, steem_instance=None):
         if not steem_instance:
             steem_instance = stm.Steem()
         self.steem = steem_instance
+
         self.op = []
         self.wifs = []
         if not isinstance(tx, dict):

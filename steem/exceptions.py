@@ -24,3 +24,15 @@ class WitnessDoesNotExistsException(Exception):
 
 class InvalidKeyFormat(Exception):
     pass
+
+
+class NoWallet(Exception):
+    pass
+
+
+class InvalidWifError(Exception):
+    pass
+
+
+class WalletExists(Exception):
+    pass

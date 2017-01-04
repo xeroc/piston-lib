@@ -1,5 +1,10 @@
 from steembase.account import PrivateKey, GraphenePrivateKey
 from graphenebase import bip38
+from .exceptions import (
+    NoWallet,
+    InvalidWifError,
+    WalletExists
+)
 import os
 import json
 from appdirs import user_data_dir
@@ -8,11 +13,6 @@ from . import steem as stm
 
 log = logging.getLogger(__name__)
 prefix = "STM"
-# prefix = "TST"
-
-
-class InvalidWifError(Exception):
-    pass
 
 
 class Wallet():
@@ -36,7 +36,6 @@ class Wallet():
 
             :param SteemNodeRPC rpc: RPC connection to a Steem node
             :param array,dict,string keys: Predefine the wif keys to shortcut the wallet database
-            :param bool skipcreatewallet: Skip creation of a wallet
 
             Three wallet operation modes are possible:
 
@@ -90,7 +89,7 @@ class Wallet():
                 key = PrivateKey(wif)
             except:
                 raise InvalidWifError
-            self.keys[format(key.pubkey, "STM")] = str(key)
+            self.keys[format(key.pubkey, prefix)] = str(key)
 
     def unlock(self, pwd=None):
         """ Unlock the wallet database
@@ -144,7 +143,7 @@ class Wallet():
         """ Create a new wallet database
         """
         if self.created():
-            raise Exception("You already have created a wallet!")
+            raise WalletExists("You already have created a wallet!")
         print("Please provide a password for the new wallet")
         pwd = self.getPassword(confirm=True)
         masterpwd = self.MasterPassword(pwd)
