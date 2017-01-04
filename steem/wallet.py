@@ -73,8 +73,6 @@ class Wallet():
             self.configStorage = configStorage
             self.MasterPassword = MasterPassword
             self.keyStorage = keyStorage
-            if not self.created() and not kwargs.get("skipcreatewallet", False):
-                self.newWallet()
 
     def setKeys(self, loadkeys):
         """ This method is strictly only for in memory keys that are
@@ -97,6 +95,9 @@ class Wallet():
     def unlock(self, pwd=None):
         """ Unlock the wallet database
         """
+        if not self.created():
+            self.newWallet()
+
         if (self.masterpassword is None and
                 self.configStorage[self.MasterPassword.config_key]):
             if pwd is None:
@@ -126,20 +127,6 @@ class Wallet():
         newpwd = self.getPassword(confirm=True)
         # Change passphrase
         masterpwd.changePassword(newpwd)
-
-    def reencryptKeys(self, oldpassword, newpassword):
-        """ (deprecated!) Reencrypt keys in the wallet database
-        """
-        # remove encryption from database
-        allPubs = self.getPublicKeys()
-        for i, pub in enumerate(allPubs):
-            log.critical("Updating key %d of %d" % (i + 1, len(allPubs)))
-            self.masterpassword = oldpassword
-            wif = self.getPrivateKeyForPublicKey(pub)
-            self.masterpassword = newpassword
-            if self.keyStorage:
-                self.keyStorage.updateWif(pub, wif)
-        log.critical("Removing password complete")
 
     def created(self):
         """ Do we have a wallet database already?
@@ -222,6 +209,11 @@ class Wallet():
             pub = format(PrivateKey(wif).pubkey, prefix)
         except:
             raise InvalidWifError("Invalid Private Key Format. Please use WIF!")
+
+        # Test if wallet exists
+        if not self.created():
+            self.newWallet()
+
         if self.keyStorage:
             self.keyStorage.add(self.encrypt_wif(wif), pub)
 
@@ -231,6 +223,10 @@ class Wallet():
             :param str pub: Public Key
         """
         if self.keyStorage:
+            # Test if wallet exists
+            if not self.created():
+                self.newWallet()
+
             return self.decrypt_wif(self.keyStorage.getPrivateKeyForPublicKey(pub))
         else:
             if pub in self.keys:
@@ -244,6 +240,10 @@ class Wallet():
     def removePrivateKeyFromPublicKey(self, pub):
         """ Remove a key from the wallet database
         """
+        # Test if wallet exists
+        if not self.created():
+            self.newWallet()
+
         if self.keyStorage:
             self.keyStorage.delete(pub)
 
