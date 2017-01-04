@@ -1,36 +1,79 @@
 import steem as stm
-from .post import Post
+from funcy import rest, first
+from steem.account import Account
+from steem.post import Post
+from steem.utils import is_comment
 
 
-class Blog(list):
-    def __init__(
-        self,
-        account_name,
-        steem_instance=None,
-        lazy=False
-    ):
-        self.cached = False
-        self.name = account_name
-
+class Blog:
+    def __init__(self, account_name, steem_instance=None):
         if not steem_instance:
             steem_instance = stm.Steem()
         self.steem = steem_instance
 
-        if not lazy:
-            self.refresh()
+        self.account = Account(account_name)
+        self.current_index = self.account.virtual_op_count()
+        self.history = None
+
+        # prevent duplicates
+        self.seen_items = set()
 
     def refresh(self):
-        state = self.steem.rpc.get_state("/@%s/blog" % self.name)
-        posts = state["accounts"][self.name].get("blog", [])
-        r = []
-        for p in posts:
-            post = state["content"][p]
-            self.append(Post(post, steem_instance=self))
-        return r
-        super(Blog, self).__init__(r)
-        self.cached = True
+        # fetch the next batch
+        if self.current_index == 0:
+            raise StopIteration
 
-    def __getitem__(self, key):
-        if not self.cached:
+        limit = 1000
+        if self.current_index < 1000:
+            # avoid duplicates on last batch
+            limit = 1000 - self.current_index
+            self.current_index = 1000
+
+        h = self.steem.rpc.get_account_history(self.account.name, self.current_index, limit)
+        if not h:
+            raise StopIteration
+
+        self.current_index -= 1000
+
+        # filter out irrelevant items
+        def blogpost_only(item):
+            op_type, op = item[1]['op']
+            return op_type == 'comment' and not is_comment(op)
+
+        hist = filter(blogpost_only, h)
+        hist = map(lambda x: x[1]['op'][1], hist)
+        hist = [x for x in hist if x['author'] == self.account.name]
+
+        # filter out items that have been already passed on
+        # this is necessary because post edits create multiple entries in the chain
+        hist_uniq = []
+        for item in hist:
+            if item['permlink'] not in self.seen_items:
+                self.seen_items.add(item['permlink'])
+                hist_uniq.append(item)
+
+        # see it in action
+        # from pprint import pprint
+        # pprint([x['title'] for x in hist_uniq])
+
+        # LIFO
+        self.history = hist_uniq[::-1]
+
+    def __iter__(self):
+        return self
+
+    def __next__(self):
+        while not self.history:
             self.refresh()
-        return super(Blog, self).__getitem__(key)
+
+        # consume an item from history
+        next_item = first(self.history)
+        self.history = list(rest(self.history))
+
+        return Post(next_item)
+
+# if __name__ == '__main__':
+#     from steem.blog import Blog
+#     b = Blog('furion')
+#     from funcy import *
+#     take(1000000, b)

@@ -6,12 +6,11 @@ from contextlib import suppress
 
 import steem as stm
 from funcy import walk_keys
+
 from .amount import Amount
 from .converter import Converter
-from .utils import parse_time
-from .blog import Blog
-
 from .exceptions import AccountDoesNotExistsException
+from .utils import parse_time
 
 
 class Account(dict):
@@ -58,10 +57,6 @@ class Account(dict):
         return self._converter
 
     @property
-    def blog(self):
-        return self.get_blog()
-
-    @property
     def profile(self):
         with suppress(Exception):
             meta_str = self.get("json_metadata", "")
@@ -75,9 +70,6 @@ class Account(dict):
     @property
     def rep(self):
         return self.reputation()
-
-    def get_blog(self):
-        return Blog(self.name)
 
     def get_balances(self, asfloat=False):
         my_account_balances = self.steem.get_balances(self.name)

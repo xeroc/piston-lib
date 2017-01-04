@@ -176,7 +176,7 @@ def simple_cache(func, cache_obj, timeout=3600):
 def is_comment(item):
     """Quick check whether an item is a comment (reply) to another post.
     """
-    return item["depth"] > 0
+    return item['permlink'][:3] == "re-" and item['parent_author']
 
 
 def time_elapsed(posting_time):
