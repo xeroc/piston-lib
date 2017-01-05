@@ -124,9 +124,13 @@ class Post(dict):
         # Store original values as obtained from the rpc
         for key, value in post.items():
             super(Post, self).__setitem__(key, value)
+
         # Set attributes as well
         for key in post:
             setattr(self, key, post[key])
+
+        # also set identifier
+        super(Post, self).__setitem__("identifier", self.identifier)
 
         self.loaded = True
 
