@@ -79,7 +79,7 @@ class Wallet():
         """
         log.debug("Force setting of private keys. Not using the wallet database!")
         if isinstance(loadkeys, dict):
-            self.keyMap = loadkeys
+            Wallet.keyMap = loadkeys
             loadkeys = list(loadkeys.values())
         elif not isinstance(loadkeys, list):
             loadkeys = [loadkeys]
@@ -255,8 +255,8 @@ class Wallet():
     def getOwnerKeyForAccount(self, name):
         """ Obtain owner Private Key for an account from the wallet database
         """
-        if "owner" in self.keyMap:
-            return self.keyMap.get("owner")
+        if "owner" in Wallet.keyMap:
+            return Wallet.keyMap.get("owner")
         else:
             account = self.rpc.get_account(name)
             if not account:
@@ -270,8 +270,8 @@ class Wallet():
     def getPostingKeyForAccount(self, name):
         """ Obtain owner Posting Key for an account from the wallet database
         """
-        if "posting" in self.keyMap:
-            return self.keyMap.get("posting")
+        if "posting" in Wallet.keyMap:
+            return Wallet.keyMap.get("posting")
         else:
             account = self.rpc.get_account(name)
             if not account:
@@ -285,8 +285,8 @@ class Wallet():
     def getMemoKeyForAccount(self, name):
         """ Obtain owner Memo Key for an account from the wallet database
         """
-        if "memo" in self.keyMap:
-            return self.keyMap.get("memo")
+        if "memo" in Wallet.keyMap:
+            return Wallet.keyMap.get("memo")
         else:
             account = self.rpc.get_account(name)
             if not account:
@@ -299,8 +299,8 @@ class Wallet():
     def getActiveKeyForAccount(self, name):
         """ Obtain owner Active Key for an account from the wallet database
         """
-        if "active" in self.keyMap:
-            return self.keyMap.get("active")
+        if "active" in Wallet.keyMap:
+            return Wallet.keyMap.get("active")
         else:
             account = self.rpc.get_account(name)
             if not account:
