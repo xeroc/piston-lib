@@ -209,11 +209,10 @@ class Wallet():
         except:
             raise InvalidWifError("Invalid Private Key Format. Please use WIF!")
 
-        # Test if wallet exists
-        if not self.created():
-            self.newWallet()
-
         if self.keyStorage:
+            # Test if wallet exists
+            if not self.created():
+                self.newWallet()
             self.keyStorage.add(self.encrypt_wif(wif), pub)
 
     def getPrivateKeyForPublicKey(self, pub):
@@ -239,11 +238,10 @@ class Wallet():
     def removePrivateKeyFromPublicKey(self, pub):
         """ Remove a key from the wallet database
         """
-        # Test if wallet exists
-        if not self.created():
-            self.newWallet()
-
         if self.keyStorage:
+            # Test if wallet exists
+            if not self.created():
+                self.newWallet()
             self.keyStorage.delete(pub)
 
     def removeAccount(self, account):
