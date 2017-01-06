@@ -175,6 +175,7 @@ def simple_cache(func, cache_obj, timeout=3600):
 
 def is_comment(item):
     """Quick check whether an item is a comment (reply) to another post.
+    The item can be a Post object or just a raw comment object from the blockchain.
     """
     return item['permlink'][:3] == "re-" and item['parent_author']
 
