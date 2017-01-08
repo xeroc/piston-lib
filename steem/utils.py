@@ -183,7 +183,9 @@ def is_comment(item):
 def time_elapsed(posting_time):
     """Takes a string time from a post or blockchain event, and returns a time delta from now.
     """
-    return datetime.utcnow() - parse_time(posting_time)
+    if type(posting_time) == str:
+        posting_time = parse_time(posting_time)
+    return datetime.utcnow() - posting_time
 
 
 def parse_time(block_time):
