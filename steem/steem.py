@@ -165,12 +165,12 @@ class Steem(object):
 
         Steem.rpc = SteemNodeRPC(node, rpcuser, rpcpassword, **kwargs)
 
-    def finalizeOp(self, op, account, permission):
+    def finalizeOp(self, ops, account, permission):
         """ This method obtains the required private keys if present in
             the wallet, finalizes the transaction, signs it and
             broadacasts it
 
-            :param operation op: The operation (or list of operaions) to broadcast
+            :param operation ops: The operation (or list of operaions) to broadcast
             :param operation account: The account that authorizes the
                 operation
             :param string permission: The required permission for
@@ -178,14 +178,14 @@ class Steem(object):
 
             ... note::
 
-                If ``op`` is a list of operation, they all need to be
+                If ``ops`` is a list of operation, they all need to be
                 signable by the same key! Thus, you cannot combine ops
                 that require active permission with ops that require
                 posting permission. Neither can you use different
                 accounts for different operations!
         """
         tx = TransactionBuilder()
-        tx.appendOps(op)
+        tx.appendOps(ops)
 
         if self.unsigned:
             tx.addSigningInformation(account, permission)
@@ -311,7 +311,18 @@ class Steem(object):
                                ``default_user`` will be used, if present, else
                                a ``ValueError`` will be raised.
             :param json meta: JSON meta object that can be attached to the
-                              post.
+                              post. This can be used to add ``tags`` or ``options``.
+                              The default options are:::
+
+                                   {
+                                        "author": "",
+                                        "permlink": "",
+                                        "max_accepted_payout": "1000000.000 SBD",
+                                        "percent_steem_dollars": 10000,
+                                        "allow_votes": True,
+                                        "allow_curation_rewards": True,
+                                    }
+
             :param str reply_identifier: Identifier of the post to reply to. Takes the
                                          form ``@author/permlink``
             :param str category: (deprecated, see ``tags``) Allows to
@@ -332,11 +343,25 @@ class Steem(object):
                 "Please define an author. (Try 'piston set default_author'"
             )
 
+        # Deal with meta data
         if not isinstance(meta, dict):
             try:
                 meta = json.loads(meta)
             except:
                 meta = {}
+
+        # Identify the comment options
+        options = {}
+        if "max_accepted_payout" in meta:
+            options["max_accepted_payout"] = meta.pop("max_accepted_payout", None)
+        if "percent_steem_dollars" in meta:
+            options["percent_steem_dollars"] = meta.pop("percent_steem_dollars", None)
+        if "allow_votes" in meta:
+            options["allow_votes"] = meta.pop("allow_votes", None)
+        if "allow_curation_rewards" in meta:
+            options["allow_curation_rewards"] = meta.pop("allow_curation_rewards", None)
+
+        # deal with the category and tags
         if isinstance(tags, str):
             tags = list(filter(None, (re.split("[\W_]", tags))))
         if not category and tags:
@@ -350,6 +375,7 @@ class Steem(object):
             tags = list(set(tags))
             meta.update({"tags": tags})
 
+        # Deal with replies
         if reply_identifier and not category:
             parent_author, parent_permlink = resolveIdentifier(reply_identifier)
             if not permlink:
@@ -369,7 +395,7 @@ class Steem(object):
                 "You can't provide a category while replying to a post"
             )
 
-        op = transactions.Comment(
+        postOp = transactions.Comment(
             **{"parent_author": parent_author,
                "parent_permlink": parent_permlink,
                "author": author,
@@ -378,6 +404,21 @@ class Steem(object):
                "body": body,
                "json_metadata": meta}
         )
+        op = [postOp]
+
+        # If comment_options are used, add a new op to the transaction
+        if options:
+            op.append(
+                operations.Comment_options(**{
+                    "author": author,
+                    "permlink": permlink,
+                    "max_accepted_payout": options.get("max_accepted_payout" ,"1000000.000 SBD"),
+                    "percent_steem_dollars": int(
+                        options.get("percent_steem_dollars", 100) * STEEMIT_1_PERCENT
+                    ),
+                    "allow_votes": options.get("allow_votes", True),
+                    "allow_curation_rewards": options.get("allow_curation_rewards", True),
+            }))
 
         return self.finalizeOp(op, author, "posting")
 
@@ -1424,7 +1465,6 @@ class Steem(object):
                         "percent_steem_dollars": 10000,
                         "allow_votes": True,
                         "allow_curation_rewards": True,
-                        "extensions": []
                     }
 
             :param str account: (optional) the account to allow access
