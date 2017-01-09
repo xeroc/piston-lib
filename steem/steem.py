@@ -497,7 +497,7 @@ class Steem(object):
 
         account = None
         try:
-            account = self.rpc.get_account(account_name)
+            account = Account(account_name)
         except:
             pass
         if account:
@@ -603,9 +603,7 @@ class Steem(object):
             memo_wif = self.wallet.getMemoKeyForAccount(account)
             if not memo_wif:
                 raise MissingKeyError("Memo key for %s missing!" % account)
-            to_account = self.rpc.get_account(to)
-            if not to_account:
-                raise AccountDoesNotExistsException(to_account)
+            to_account = Account(to)
             nonce = str(random.getrandbits(64))
             memo = Memo.encode_memo(
                 PrivateKey(memo_wif),
@@ -1007,9 +1005,7 @@ class Steem(object):
                 account = config["default_account"]
         if not account:
             raise ValueError("You need to provide an account")
-        a = self.rpc.get_account(account)
-        if not a:
-            raise AccountDoesNotExistsException(account)
+        a = Account(account)
         info = self.rpc.get_dynamic_global_properties()
         steem_per_mvest = (
             Amount(info["total_vesting_fund_steem"]).amount /
@@ -1056,9 +1052,7 @@ class Steem(object):
 
             :param str account: Account name to get interest for
         """
-        account = self.rpc.get_account(account)
-        if not account:
-            raise AccountDoesNotExistsException(account)
+        account = Account(account)
         last_payment = formatTimeString(account["sbd_last_interest_payment"])
         next_payment = last_payment + timedelta(days=30)
         interest_rate = self.info()["sbd_interest_rate"] / 100  # the result is in percent!
@@ -1140,10 +1134,7 @@ class Steem(object):
             raise ValueError(
                 "Permission needs to be either 'owner', 'posting', or 'active"
             )
-        account = self.rpc.get_account(account)
-        if not account:
-            raise AccountDoesNotExistsException(account)
-
+        account = Account(account)
         if not weight:
             weight = account[permission]["weight_threshold"]
 
@@ -1156,7 +1147,7 @@ class Steem(object):
             ])
         except:
             try:
-                foreign_account = self.rpc.get_account(foreign)
+                foreign_account = Account(foreign)
                 authority["account_auths"].append([
                     foreign_account["name"],
                     weight
@@ -1203,9 +1194,7 @@ class Steem(object):
             raise ValueError(
                 "Permission needs to be either 'owner', 'posting', or 'active"
             )
-        account = self.rpc.get_account(account)
-        if not account:
-            raise AccountDoesNotExistsException(account)
+        account = Account(account)
         authority = account[permission]
 
         try:
@@ -1219,7 +1208,7 @@ class Steem(object):
             ))
         except:
             try:
-                foreign_account = self.rpc.get_account(foreign)
+                foreign_account = Account(foreign)
                 affected_items = list(
                     filter(lambda x: x[0] == foreign_account["name"],
                            authority["account_auths"]))
@@ -1278,11 +1267,7 @@ class Steem(object):
             raise ValueError("You need to provide an account")
 
         PublicKey(key)  # raises exception if invalid
-
-        account = self.rpc.get_account(account)
-        if not account:
-            raise AccountDoesNotExistsException(account)
-
+        account = Account(account)
         op = transactions.Account_update(
             **{"account": account["name"],
                "memo_key": key,
@@ -1304,11 +1289,7 @@ class Steem(object):
                 account = config["default_author"]
         if not account:
             raise ValueError("You need to provide an account")
-
-        account = self.rpc.get_account(account)
-        if not account:
-            raise AccountDoesNotExistsException(account)
-
+        account = Account(account)
         op = transactions.Account_witness_vote(
             **{"account": account["name"],
                "witness": witness,
@@ -1422,11 +1403,7 @@ class Steem(object):
                 account = config["default_account"]
         if not account:
             raise ValueError("You need to provide an account")
-
-        account = self.rpc.get_account(account)
-        if not account:
-            raise AccountDoesNotExistsException(account)
-
+        account = Account(account)
         op = transactions.Account_update(
             **{"account": account["name"],
                "memo_key": account["memo_key"],
