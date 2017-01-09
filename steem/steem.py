@@ -1481,7 +1481,7 @@ class Steem(object):
             **{
                 "author": author,
                 "permlink": permlink,
-                "max_accepted_payout": options.get("max_accepted_payout" ,"1000000.000 SBD"),
+                "max_accepted_payout": options.get("max_accepted_payout", "1000000.000 SBD"),
                 "percent_steem_dollars": options.get("percent_steem_dollars", 100) * STEEMIT_1_PERCENT,
                 "allow_votes": options.get("allow_votes", True),
                 "allow_curation_rewards": options.get("allow_curation_rewards", True),

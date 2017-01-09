@@ -1,6 +1,7 @@
 import json
 import re
 from datetime import datetime
+from steembase.operations import Comment_options
 
 import steem as stm
 from funcy import walk_values
@@ -39,11 +40,12 @@ class Post(dict):
         self.loaded = False
 
         if isinstance(post, str):  # From identifier
-            self.identifier = post
+            parts = post.split("@")
+            self.identifier = "@" + parts[-1]
 
             if not lazy:
                 self.refresh()
-        
+
         elif (isinstance(post, dict) and  # From dictionary
                 "author" in post and
                 "permlink" in post):
@@ -278,3 +280,16 @@ class Post(dict):
                 return item.__dict__
             return item
         return walk_values(decompose_amounts, safe_dict)
+
+    def set_comment_options(self, options):
+        op = Comment_options(
+            **{
+                "author": self["author"],
+                "permlink": self["permlink"],
+                "max_accepted_payout": options.get("max_accepted_payout", "1000000.000 SBD"),
+                "percent_steem_dollars": options.get("percent_steem_dollars", 100) * 100,
+                "allow_votes": options.get("allow_votes", True),
+                "allow_curation_rewards": options.get("allow_curation_rewards", True),
+            }
+        )
+        return self.steem.finalizeOp(op, self["author"], "posting")
