@@ -219,6 +219,8 @@ class Account_create(GrapheneObject):
             if len(args) == 1 and len(kwargs) == 0:
                 kwargs = args[0]
 
+            assert len(kwargs["new_account_name"]) <= 16, "Account name must be at most 16 chars long"
+
             meta = ""
             if "json_metadata" in kwargs and kwargs["json_metadata"]:
                 if isinstance(kwargs["json_metadata"], dict):

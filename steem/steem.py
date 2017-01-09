@@ -480,6 +480,8 @@ class Steem(object):
             :raises AccountExistsException: if the account already exists on the blockchain
 
         """
+        assert len(account_name) <= 16, "Account name must be at most 16 chars long"
+
         if not creator and config["default_author"]:
             creator = config["default_author"]
         if not creator:
