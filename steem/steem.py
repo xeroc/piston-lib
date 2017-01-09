@@ -5,9 +5,11 @@ import re
 from datetime import datetime, timedelta
 
 import steembase.transactions as transactions
+from steembase import operations
 from steemapi.steemnoderpc import SteemNodeRPC, NoAccessApi
 from steembase import memo
 from steembase.account import PrivateKey, PublicKey
+from .account import Account
 from .amount import Amount
 from .storage import configStorage as config
 from .utils import (
@@ -1431,3 +1433,41 @@ class Steem(object):
                "json_metadata": profile}
         )
         return self.finalizeOp(op, account["name"], "active")
+
+    def comment_options(self, identifier, options, account=None):
+        """ Set the comment options
+
+            :param str identifier: Post identifier
+            :param dict options: The options to define. Defaults:::
+
+                    {
+                        "author": "",
+                        "permlink": "",
+                        "max_accepted_payout": "1000000.000 SBD",
+                        "percent_steem_dollars": 10000,
+                        "allow_votes": True,
+                        "allow_curation_rewards": True,
+                        "extensions": []
+                    }
+
+            :param str account: (optional) the account to allow access
+                to (defaults to ``default_account``)
+        """
+        if not account:
+            if "default_author" in config:
+                account = config["default_account"]
+        if not account:
+            raise ValueError("You need to provide an account")
+        account = Account(account)
+        author, permlink = resolveIdentifier(identifier)
+        op = operations.Comment_options(
+            **{
+                "author": author,
+                "permlink": permlink,
+                "max_accepted_payout": options.get("max_accepted_payout" ,"1000000.000 SBD"),
+                "percent_steem_dollars": options.get("percent_steem_dollars", 100) * STEEMIT_1_PERCENT,
+                "allow_votes": options.get("allow_votes", True),
+                "allow_curation_rewards": options.get("allow_curation_rewards", True),
+            }
+        )
+        return self.finalizeOp(op, account["name"], "posting")
