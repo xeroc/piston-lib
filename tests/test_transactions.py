@@ -2,7 +2,8 @@ import unittest
 from binascii import hexlify
 from pprint import pprint
 from steembase.account import PrivateKey
-from steembase import transactions
+from steembase.transactions import Signed_Transaction
+from steembase import operations
 from collections import OrderedDict
 
 wif = "5KQwrPbwdL6PhXujxW37FSSQZ1JiwsST4cqQzDeyXtP79zkvFD3"
@@ -17,7 +18,7 @@ class Testcases(unittest.TestCase):
         self.maxDiff = None
 
     def test_Comment(self):
-        op = transactions.Comment(
+        op = operations.Comment(
             **{"parent_author": "foobara",
                "parent_permlink": "foobarb",
                "author": "foobarc",
@@ -26,8 +27,8 @@ class Testcases(unittest.TestCase):
                "body": "foobarf",
                "json_metadata": {"foo": "bar"}}
         )
-        ops = [transactions.Operation(op)]
-        tx = transactions.Signed_Transaction(
+        ops = [operations.Operation(op)]
+        tx = Signed_Transaction(
             ref_block_num=ref_block_num,
             ref_block_prefix=ref_block_prefix,
             expiration=expiration,
@@ -45,14 +46,14 @@ class Testcases(unittest.TestCase):
         self.assertEqual(compare[:-130], txWire[:-130])
 
     def test_Vote(self):
-        op = transactions.Vote(
+        op = operations.Vote(
             **{"voter": "foobara",
                "author": "foobarc",
                "permlink": "foobard",
                "weight": 1000}
         )
-        ops = [transactions.Operation(op)]
-        tx = transactions.Signed_Transaction(
+        ops = [operations.Operation(op)]
+        tx = Signed_Transaction(
             ref_block_num=ref_block_num,
             ref_block_prefix=ref_block_prefix,
             expiration=expiration,
@@ -71,7 +72,7 @@ class Testcases(unittest.TestCase):
         self.assertEqual(compare[:-130], txWire[:-130])
 
     def test_create_account(self):
-        op = transactions.Account_create(
+        op = operations.Account_create(
             **{'creator': 'xeroc',
                'fee': '10.000 STEEM',
                'json_metadata': '',
@@ -99,8 +100,8 @@ class Testcases(unittest.TestCase):
                                          ]],
                            'weight_threshold': 1}}
         )
-        ops = [transactions.Operation(op)]
-        tx = transactions.Signed_Transaction(
+        ops = [operations.Operation(op)]
+        tx = Signed_Transaction(
             ref_block_num=ref_block_num,
             ref_block_prefix=ref_block_prefix,
             expiration=expiration,
@@ -128,15 +129,15 @@ class Testcases(unittest.TestCase):
         self.assertEqual(compare[:-130], txWire[:-130])
 
     def test_Transfer(self):
-        op = transactions.Transfer(
+        op = operations.Transfer(
             **{"from": "foo",
                "to": "baar",
                "amount": "111.110 STEEM",
                "memo": "Fooo"
                }
         )
-        ops = [transactions.Operation(op)]
-        tx = transactions.Signed_Transaction(
+        ops = [operations.Operation(op)]
+        tx = Signed_Transaction(
             ref_block_num=ref_block_num,
             ref_block_prefix=ref_block_prefix,
             expiration=expiration,
@@ -154,14 +155,14 @@ class Testcases(unittest.TestCase):
         self.assertEqual(compare[:-130], txWire[:-130])
 
     def test_Transfer_to_vesting(self):
-        op = transactions.Transfer_to_vesting(
+        op = operations.Transfer_to_vesting(
             **{"from": "foo",
                "to": "baar",
                "amount": "111.110 STEEM",
                }
         )
-        ops = [transactions.Operation(op)]
-        tx = transactions.Signed_Transaction(
+        ops = [operations.Operation(op)]
+        tx = Signed_Transaction(
             ref_block_num=ref_block_num,
             ref_block_prefix=ref_block_prefix,
             expiration=expiration,
@@ -178,14 +179,14 @@ class Testcases(unittest.TestCase):
         self.assertEqual(compare[:-130], txWire[:-130])
 
     def test_withdraw_vesting(self):
-        op = transactions.Transfer_to_vesting(
+        op = operations.Transfer_to_vesting(
             **{"from": "foo",
                "to": "baar",
                "amount": "111.110 STEEM",
                }
         )
-        ops = [transactions.Operation(op)]
-        tx = transactions.Signed_Transaction(
+        ops = [operations.Operation(op)]
+        tx = Signed_Transaction(
             ref_block_num=ref_block_num,
             ref_block_prefix=ref_block_prefix,
             expiration=expiration,
@@ -202,7 +203,7 @@ class Testcases(unittest.TestCase):
         self.assertEqual(compare[:-130], txWire[:-130])
 
     def test_Transfer_to_savings(self):
-        op = transactions.Transfer_to_savings(
+        op = operations.Transfer_to_savings(
             **{
                 "from": "testuser",
                 "to": "testuser",
@@ -210,8 +211,8 @@ class Testcases(unittest.TestCase):
                 "memo": "testmemo",
             }
         )
-        ops = [transactions.Operation(op)]
-        tx = transactions.Signed_Transaction(
+        ops = [operations.Operation(op)]
+        tx = Signed_Transaction(
             ref_block_num=ref_block_num,
             ref_block_prefix=ref_block_prefix,
             expiration=expiration,
@@ -227,7 +228,7 @@ class Testcases(unittest.TestCase):
         self.assertEqual(compare[:-130], txWire[:-130])
 
     def test_Transfer_from_savings(self):
-        op = transactions.Transfer_from_savings(
+        op = operations.Transfer_from_savings(
             **{
                 "from": "testuser",
                 "request_id": 9001,
@@ -236,8 +237,8 @@ class Testcases(unittest.TestCase):
                 "memo": "memohere",
             }
         )
-        ops = [transactions.Operation(op)]
-        tx = transactions.Signed_Transaction(
+        ops = [operations.Operation(op)]
+        tx = Signed_Transaction(
             ref_block_num=ref_block_num,
             ref_block_prefix=ref_block_prefix,
             expiration=expiration,
@@ -254,14 +255,14 @@ class Testcases(unittest.TestCase):
         self.assertEqual(compare[:-130], txWire[:-130])
 
     def test_Cancel_transfer_from_savings(self):
-        op = transactions.Cancel_transfer_from_savings(
+        op = operations.Cancel_transfer_from_savings(
             **{
                 "from": "tesuser",
                 "request_id": 9001,
             }
         )
-        ops = [transactions.Operation(op)]
-        tx = transactions.Signed_Transaction(
+        ops = [operations.Operation(op)]
+        tx = Signed_Transaction(
             ref_block_num=ref_block_num,
             ref_block_prefix=ref_block_prefix,
             expiration=expiration,
@@ -277,7 +278,7 @@ class Testcases(unittest.TestCase):
         self.assertEqual(compare[:-130], txWire[:-130])
 
     def test_order_create(self):
-        op = transactions.Limit_order_create(
+        op = operations.Limit_order_create(
             **{"owner": "",
                "orderid": 0,
                "amount_to_sell": "0.000 STEEM",
@@ -286,8 +287,8 @@ class Testcases(unittest.TestCase):
                "expiration": "2016-12-31T23:59:59"
                }
         )
-        ops = [transactions.Operation(op)]
-        tx = transactions.Signed_Transaction(
+        ops = [operations.Operation(op)]
+        tx = Signed_Transaction(
             ref_block_num=ref_block_num,
             ref_block_prefix=ref_block_prefix,
             expiration=expiration,
@@ -304,7 +305,7 @@ class Testcases(unittest.TestCase):
         self.assertEqual(compare[:-130], txWire[:-130])
 
     def test_account_update(self):
-        op = transactions.Account_update(
+        op = operations.Account_update(
             **{"account": "streemian",
                "posting": {
                    "weight_threshold": 1,
@@ -327,8 +328,8 @@ class Testcases(unittest.TestCase):
                "memo_key": "STM728uLvStTeAkYJsQefks3FX8yfmpFHp8wXw3RY3kwey2JGDooR",
                "json_metadata": ""}
         )
-        ops = [transactions.Operation(op)]
-        tx = transactions.Signed_Transaction(
+        ops = [operations.Operation(op)]
+        tx = Signed_Transaction(
             ref_block_num=ref_block_num,
             ref_block_prefix=ref_block_prefix,
             expiration=expiration,
@@ -355,13 +356,13 @@ class Testcases(unittest.TestCase):
         self.assertEqual(compare[:-130], txWire[:-130])
 
     def test_order_cancel(self):
-        op = transactions.Limit_order_cancel(
+        op = operations.Limit_order_cancel(
             **{"owner": "",
                "orderid": 2141244,
                }
         )
-        ops = [transactions.Operation(op)]
-        tx = transactions.Signed_Transaction(
+        ops = [operations.Operation(op)]
+        tx = Signed_Transaction(
             ref_block_num=ref_block_num,
             ref_block_prefix=ref_block_prefix,
             expiration=expiration,
@@ -377,15 +378,15 @@ class Testcases(unittest.TestCase):
         self.assertEqual(compare[:-130], txWire[:-130])
 
     def test_set_route(self):
-        op = transactions.Set_withdraw_vesting_route(
+        op = operations.Set_withdraw_vesting_route(
             **{"from_account": "xeroc",
                "to_account": "xeroc",
                "percent": 1000,
                "auto_vest": False
                }
         )
-        ops = [transactions.Operation(op)]
-        tx = transactions.Signed_Transaction(
+        ops = [operations.Operation(op)]
+        tx = Signed_Transaction(
             ref_block_num=ref_block_num,
             ref_block_prefix=ref_block_prefix,
             expiration=expiration,
@@ -401,13 +402,13 @@ class Testcases(unittest.TestCase):
         self.assertEqual(compare[:-130], txWire[:-130])
 
     def test_convert(self):
-        op = transactions.Convert(
+        op = operations.Convert(
             **{"owner": "xeroc",
                "requestid": 2342343235,
                "amount": "100.000 SBD"}
         )
-        ops = [transactions.Operation(op)]
-        tx = transactions.Signed_Transaction(
+        ops = [operations.Operation(op)]
+        tx = Signed_Transaction(
             ref_block_num=ref_block_num,
             ref_block_prefix=ref_block_prefix,
             expiration=expiration,
@@ -423,7 +424,7 @@ class Testcases(unittest.TestCase):
         self.assertEqual(compare[:-130], txWire[:-130])
 
     def test_utf8tests(self):
-        op = transactions.Comment(
+        op = operations.Comment(
             **{"parent_author": "",
                "parent_permlink": "",
                "author": "a",
@@ -432,8 +433,8 @@ class Testcases(unittest.TestCase):
                "body": "".join([chr(i) for i in range(0, 2048)]),
                "json_metadata": {}}
         )
-        ops = [transactions.Operation(op)]
-        tx = transactions.Signed_Transaction(
+        ops = [operations.Operation(op)]
+        tx = Signed_Transaction(
             ref_block_num=ref_block_num,
             ref_block_prefix=ref_block_prefix,
             expiration=expiration,
@@ -597,12 +598,12 @@ class Testcases(unittest.TestCase):
         self.assertEqual(compare[:-130], txWire[:-130])
 
     def test_feed_publish(self):
-        op = transactions.Feed_publish(
+        op = operations.Feed_publish(
             **{"publisher": "xeroc",
                "exchange_rate": {"base": "1.000 SBD",
                                  "quote": "4.123 STEEM"}})
-        ops = [transactions.Operation(op)]
-        tx = transactions.Signed_Transaction(
+        ops = [operations.Operation(op)]
+        tx = Signed_Transaction(
             ref_block_num=ref_block_num,
             ref_block_prefix=ref_block_prefix,
             expiration=expiration,
@@ -618,7 +619,7 @@ class Testcases(unittest.TestCase):
         self.assertEqual(compare[:-130], txWire[:-130])
 
     def test_witness_update(self):
-        op = transactions.Witness_update(
+        op = operations.Witness_update(
             **{"owner": "xeroc",
                "url": "foooobar",
                "block_signing_key": "STM6zLNtyFVToBsBZDsgMhgjpwysYVbsQD6YhP3kRkQhANUB4w7Qp",
@@ -628,8 +629,8 @@ class Testcases(unittest.TestCase):
                "fee": "10.000 STEEM",
                }
         )
-        ops = [transactions.Operation(op)]
-        tx = transactions.Signed_Transaction(
+        ops = [operations.Operation(op)]
+        tx = Signed_Transaction(
             ref_block_num=ref_block_num,
             ref_block_prefix=ref_block_prefix,
             expiration=expiration,
@@ -647,14 +648,14 @@ class Testcases(unittest.TestCase):
         self.assertEqual(compare[:-130], txWire[:-130])
 
     def test_witness_vote(self):
-        op = transactions.Account_witness_vote(
+        op = operations.Account_witness_vote(
             **{"account": "xeroc",
                "witness": "chainsquad",
                "approve": True,
                }
         )
-        ops = [transactions.Operation(op)]
-        tx = transactions.Signed_Transaction(
+        ops = [operations.Operation(op)]
+        tx = Signed_Transaction(
             ref_block_num=ref_block_num,
             ref_block_prefix=ref_block_prefix,
             expiration=expiration,
@@ -670,7 +671,7 @@ class Testcases(unittest.TestCase):
         self.assertEqual(compare[:-130], txWire[:-130])
 
     def test_custom_json(self):
-        op = transactions.Custom_json(
+        op = operations.Custom_json(
             **{"json": ["reblog",
                         OrderedDict([  # need an ordered dict to keep order for the test
                             ("account", "xeroc"),
@@ -682,8 +683,8 @@ class Testcases(unittest.TestCase):
                "id": "follow"
                }
         )
-        ops = [transactions.Operation(op)]
-        tx = transactions.Signed_Transaction(
+        ops = [operations.Operation(op)]
+        tx = Signed_Transaction(
             ref_block_num=ref_block_num,
             ref_block_prefix=ref_block_prefix,
             expiration=expiration,
@@ -704,20 +705,52 @@ class Testcases(unittest.TestCase):
         )
         self.assertEqual(compare[:-130], txWire[:-130])
 
+    def test_comment_options(self):
+        op = operations.Comment_options(
+            **{
+                "author": "xeroc",
+                "permlink": "piston",
+                "max_accepted_payout": "1000000.000 SBD",
+                "percent_steem_dollars": 10000,
+                "allow_votes": True,
+                "allow_curation_rewards": True,
+                "extensions": []
+            }
+        )
+        ops = [operations.Operation(op)]
+        tx = Signed_Transaction(
+            ref_block_num=ref_block_num,
+            ref_block_prefix=ref_block_prefix,
+            expiration=expiration,
+            operations=ops
+        )
+        tx = tx.sign([wif])
+        txWire = hexlify(bytes(tx)).decode("ascii")
+        compare = (
+            "f68585abf4dce7c804570113057865726f6306706973746f6e"
+            "00ca9a3b000000000353424400000000102701010000011f20"
+            "feacc3f917dfa2d6082afb5ab5aab82d7df1428130c7b7eec4"
+            "56d259e59fc54ee582a5a86073508f69ffebea4283f13d1a89"
+            "6243754a4a82fa18077f832225"
+        )
+        self.assertEqual(compare[:-130], txWire[:-130])
+
     def compareConstructedTX(self):
         #    def test_online(self):
         #        self.maxDiff = None
-        op = transactions.Custom_json(
-            **{"json": ["reblog",
-                        {"account": "xeroc",
-                         "author": "chainsquad",
-                         "permlink": "streemian-com-to-open-its-doors-and-offer-a-20-discount"
-                         }],
-               "required_auths": [],
-               "required_posting_auths": ["xeroc"],
-               "id": "follow"})
-        ops = [transactions.Operation(op)]
-        tx = transactions.Signed_Transaction(
+        op = operations.Comment_options(
+            **{
+                "author": "xeroc",
+                "permlink": "piston",
+                "max_accepted_payout": "1000000.000 SBD",
+                "percent_steem_dollars": 10000,
+                "allow_votes": True,
+                "allow_curation_rewards": True,
+                "extensions": []
+            }
+        )
+        ops = [operations.Operation(op)]
+        tx = Signed_Transaction(
             ref_block_num=ref_block_num,
             ref_block_prefix=ref_block_prefix,
             expiration=expiration,

@@ -490,3 +490,23 @@ class Custom_json(GrapheneObject):
                 ('id', String(kwargs["id"])),
                 ('json', String(js)),
             ]))
+
+
+class Comment_options(GrapheneObject):
+    def __init__(self, *args, **kwargs):
+        if isArgsThisClass(self, args):
+            self.data = args[0].data
+        else:
+            if len(args) == 1 and len(kwargs) == 0:
+                kwargs = args[0]
+            super().__init__(OrderedDict([
+                ('author', String(kwargs["author"])),
+                ('permlink', String(kwargs["permlink"])),
+                ('max_accepted_payout', Amount(kwargs["max_accepted_payout"])),
+                ('percent_steem_dollars', Uint16(int(kwargs["percent_steem_dollars"]))),
+                ('allow_votes', Bool(bool(kwargs["allow_votes"]))),
+                ('allow_curation_rewards', Bool(bool(kwargs["allow_curation_rewards"]))),
+                ('extensions', Array([])),
+            ]))
+
+
