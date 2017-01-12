@@ -11,6 +11,7 @@ from steembase import memo
 from steembase.account import PrivateKey, PublicKey
 from .account import Account
 from .amount import Amount
+from .blockchain import Blockchain
 from .storage import configStorage as config
 from .utils import (
     resolveIdentifier,
@@ -257,8 +258,7 @@ class Steem(object):
             :param bool replace: Instead of calculating a *diff*, replace
                                  the post entirely (defaults to ``False``)
         """
-        post_author, post_permlink = resolveIdentifier(identifier)
-        original_post = self.rpc.get_content(post_author, post_permlink)
+        original_post = Post(identifier)
 
         if replace:
             newbody = body
@@ -1006,12 +1006,7 @@ class Steem(object):
             :param str identifier: Identifier of a post. Takes an
                                    identifier of the form ``@author/permlink``
         """
-        post_author, post_permlink = resolveIdentifier(identifier)
-        posts = self.rpc.get_content_replies(post_author, post_permlink)
-        r = []
-        for post in posts:
-            r.append(Post(post, steem_instance=self))
-        return r
+        return Post(identifier).get_comments()
 
     def get_categories(self, sort="trending", begin=None, limit=10):
         """ List categories
@@ -1063,8 +1058,8 @@ class Steem(object):
             "vesting_shares_steem": Amount(vesting_shares_steem),
         }
 
-    def get_account_history(self, *args, **kwargs):
-        return self.rpc.account_history(*args, **kwargs)
+    def get_account_history(self, account, **kwargs):
+        return Account(account).rawhistory(**kwargs)
 
     def decode_memo(self, enc_memo, account):
         """ Try to decode an encrypted memo
@@ -1085,7 +1080,9 @@ class Steem(object):
 
             To be used in a for loop that returns an instance of `Post()`.
         """
-        for c in self.rpc.stream("comment", *args, **kwargs):
+        for c in Blockchain(
+            mode=kwargs.get("mode", "irreversible")
+        ).stream("comment", *args, **kwargs):
             yield Post(c, steem_instance=self)
 
     def interest(self, account):
