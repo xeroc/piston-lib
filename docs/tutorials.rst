@@ -1,3 +1,7 @@
+*****************
+Tutorials
+*****************
+
 Auto Reply Bot
 --------------
 
@@ -14,7 +18,7 @@ The most easy auto-reply bot can be coded with just a few lines of code:
            print(c.reply(".. doobidoo"))
 
 Block Stream
-~~~~~~~~~~~~
+------------
 
 This module allows to stream blocks and individual operations from the
 blockchain and run bots with a minimum of code.
@@ -29,7 +33,7 @@ This example code shows all comments starting at block 1893850.
        pprint(a)
 
 Operation Stream
-~~~~~~~~~~~~~~~~~
+-----------------
 
 .. code-block:: python
 
@@ -40,7 +44,7 @@ Operation Stream
        pprint(a)
 
 Decentralized Exchange
-~~~~~~~~~~~~~~~~~~~~~~
+----------------------
 
 .. code-block:: python
 
