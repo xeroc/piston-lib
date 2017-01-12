@@ -34,6 +34,14 @@ class Post(dict):
         steem_instance=None,
         lazy=False
     ):
+        # Legacy API compatibility
+        if isinstance(post, stm.Steem) and steem_instance:
+            import warnings
+            tmp = steem_instance
+            steem_instance = post
+            post = tmp
+            warnings.warn("The Post() API has changed! Please read the documentation and update your code")
+
         if not steem_instance:
             steem_instance = stm.Steem()
         self.steem = steem_instance
