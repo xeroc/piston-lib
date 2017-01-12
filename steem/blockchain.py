@@ -61,7 +61,7 @@ class Blockchain(object):
         """
         return Block(self.get_current_block_num())
 
-    def blocks(self, start, stop):
+    def blocks(self, start=None, stop=None):
         """ Yields blocks starting from ``start``.
 
             :param int start: Starting block
