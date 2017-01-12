@@ -58,3 +58,7 @@ class MissingRequiredPostingAuthority(RPCError):
 
 class UnhandledRPCError(RPCError):
     pass
+
+
+class ExceededAllowedBandwidth(RPCError):
+    pass

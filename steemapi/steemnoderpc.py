@@ -237,6 +237,8 @@ class SteemNodeRPC(GrapheneWebsocketRPC):
                 raise exceptions.PostOnlyEvery5Min(msg)
             elif msg == "Duplicate transaction check failed":
                 raise exceptions.DuplicateTransaction(msg)
+            elif msg == "Account exceeded maximum allowed bandwidth per vesting share.":
+                raise exceptions.ExceededAllowedBandwidth(msg)
             elif re.match("^no method with name.*", msg):
                 raise exceptions.NoMethodWithName(msg)
             elif msg:
