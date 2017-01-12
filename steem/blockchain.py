@@ -3,6 +3,21 @@ from .block import Block
 from . import steem as stm
 from .utils import parse_time
 
+virtual_operations = [
+    "fill_convert_request",
+    "author_reward",
+    "curation_reward",
+    "comment_reward",
+    "liquidity_reward",
+    "interest",
+    "fill_vesting_withdraw",
+    "fill_order",
+    "shutdown_witness",
+    "fill_transfer_from_savings",
+    "hardfork",
+    "comment_payout_update"
+]
+
 
 class Blockchain(object):
     def __init__(
@@ -83,7 +98,7 @@ class Blockchain(object):
             # Sleep for one block
             time.sleep(block_interval)
 
-    def ops(self, start=None, stop=None):
+    def ops(self, start=None, stop=None, only_virtual_ops=False, **kwargs):
         """ Yields all operations (including virtual operations) starting from ``start``.
 
             :param int start: Starting block
@@ -91,6 +106,7 @@ class Blockchain(object):
             :param str mode: We here have the choice between
                  * "head": the last block
                  * "irreversible": the block that is confirmed by 2/3 of all block producers and is thus irreversible!
+            :param bool only_virtual_ops: Only yield virtual operations
 
             This call returns a list with elements that look like
             this and carries only one operation each:::
@@ -124,7 +140,7 @@ class Blockchain(object):
             # Blocks from start until head block
             for blocknum in range(start, head_block + 1):
                 # Get full block
-                yield from self.steem.rpc.get_ops_in_block(blocknum, False)
+                yield from self.steem.rpc.get_ops_in_block(blocknum, only_virtual_ops)
 
             # Set new start
             start = head_block + 1
@@ -135,7 +151,7 @@ class Blockchain(object):
             # Sleep for one block
             time.sleep(block_interval)
 
-    def stream(self, opNames, *args, **kwargs):
+    def stream(self, opNames=None, *args, **kwargs):
         """ Yield specific operations (e.g. comments) only
 
             :param array opNames: List of operations to filter for, e.g.
@@ -154,23 +170,20 @@ class Blockchain(object):
         """
         if isinstance(opNames, str):
             opNames = [opNames]
-        for block in self.blocks(*args, **kwargs):
-            if "transactions" not in block:
-                continue
-            for tx in block["transactions"]:
-                for op in tx["operations"]:
-                    if not opNames or op[0] in opNames:
-                        yield {
-                            **op[1],
-                            "type": op[0],
-                            "timestamp": block.get("timestamp"),
-                            "block_num": block.get("block_num"),
-                        }
+        kwargs["only_virtual_ops"] = not bool(set(opNames).difference(virtual_operations))
+        for op in self.ops(*args, **kwargs):
+            if not opNames or op["op"][0] in opNames:
+                yield {
+                    **op["op"][1],
+                    "type": op["op"][0],
+                    "timestamp": op.get("timestamp"),
+                    "block_num": op.get("block_num")
+                }
 
     def replay(self, start_block=1, end_block=None, filter_by=list(), **kwargs):
         """ Same as ``stream`` with different prototyp
         """
-        return self.steem.rpc.stream(
+        return self.stream(
             opNames=filter_by,
             start=start_block,
             stop=end_block,
