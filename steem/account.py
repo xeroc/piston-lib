@@ -149,6 +149,58 @@ class Account(dict):
         else:
             return last_item
 
+    def get_account_votes(self):
+        return self.steem.rpc.get_account_votes(self.name)
+
+    def get_withdraw_routes(self):
+        return self.steem.rpc.get_withdraw_routes(self.name, 'all')
+
+    def get_conversion_requests(self):
+        return self.steem.rpc.get_conversion_requests(self.name)
+
+    @staticmethod
+    def filter_by_date(items, start_time, end_time=None):
+        start_time = parse_time(start_time).timestamp()
+        if end_time:
+            end_time = parse_time(end_time).timestamp()
+        else:
+            end_time = time.time()
+
+        filtered_items = []
+        for item in items:
+            if 'time' in item:
+                item_time = item['time']
+            elif 'timestamp' in item:
+                item_time = item['timestamp']
+            timestamp = parse_time(item_time).timestamp()
+            if end_time > timestamp > start_time:
+                filtered_items.append(item)
+
+        return filtered_items
+
+    def export(self):
+        """ This method returns a dictionary that is type-safe to store as JSON or in a database.
+        """
+        self.refresh()
+        followers = self.get_followers()
+        following = self.get_following()
+
+        return {
+            **self,
+            "profile": self.profile,
+            "sp": self.sp,
+            "rep": self.rep,
+            "balances": walk_keys(str.upper, self.get_balances()),
+            "followers": followers,
+            "followers_count": len(followers),
+            "following": following,
+            "following_count": len(following),
+            "curation_stats": self.curation_stats(),
+            "withdrawal_routes": self.get_withdraw_routes(),
+            "conversion_requests": self.get_conversion_requests(),
+            "account_votes": self.get_account_votes(),
+        }
+
     def history(self, filter_by=None, start=0):
         """
         Take all elements from start to last from history, oldest first.
@@ -209,54 +261,38 @@ class Account(dict):
 
         return self.history(filter_by, start=start_index)
 
-    def get_account_votes(self):
-        return self.steem.rpc.get_account_votes(self.name)
+    def rawhistory(
+        self, first=99999999999,
+        limit=-1, only_ops=[], exclude_ops=[]
+    ):
+        """ Returns a generator for individual account transactions. The
+            latest operation will be first. This call can be used in a
+            ``for`` loop.
 
-    def get_withdraw_routes(self):
-        return self.steem.rpc.get_withdraw_routes(self.name, 'all')
-
-    def get_conversion_requests(self):
-        return self.steem.rpc.get_conversion_requests(self.name)
-
-    @staticmethod
-    def filter_by_date(items, start_time, end_time=None):
-        start_time = parse_time(start_time).timestamp()
-        if end_time:
-            end_time = parse_time(end_time).timestamp()
-        else:
-            end_time = time.time()
-
-        filtered_items = []
-        for item in items:
-            if 'time' in item:
-                item_time = item['time']
-            elif 'timestamp' in item:
-                item_time = item['timestamp']
-            timestamp = parse_time(item_time).timestamp()
-            if end_time > timestamp > start_time:
-                filtered_items.append(item)
-
-        return filtered_items
-
-    def export(self):
-        """ This method returns a dictionary that is type-safe to store as JSON or in a database.
+            :param str account: account name to get history for
+            :param int first: sequence number of the first transaction to return
+            :param int limit: limit number of transactions to return
+            :param array only_ops: Limit generator by these operations
         """
-        self.refresh()
-        followers = self.get_followers()
-        following = self.get_following()
-
-        return {
-            **self,
-            "profile": self.profile,
-            "sp": self.sp,
-            "rep": self.rep,
-            "balances": walk_keys(str.upper, self.get_balances()),
-            "followers": followers,
-            "followers_count": len(followers),
-            "following": following,
-            "following_count": len(following),
-            "curation_stats": self.curation_stats(),
-            "withdrawal_routes": self.get_withdraw_routes(),
-            "conversion_requests": self.get_conversion_requests(),
-            "account_votes": self.get_account_votes(),
-        }
+        cnt = 0
+        _limit = 100
+        if _limit > first:
+            _limit = first
+        while first > 0:
+            # RPC call
+            txs = self.steem.rpc.get_account_history(self.name, first, _limit)
+            for i in txs[::-1]:
+                if exclude_ops and i[1]["op"][0] in exclude_ops:
+                    continue
+                if not only_ops or i[1]["op"][0] in only_ops:
+                    cnt += 1
+                    yield i
+                    if limit >= 0 and cnt >= limit:
+                        break
+            if limit >= 0 and cnt >= limit:
+                break
+            if len(txs) < _limit:
+                break
+            first = txs[0][0] - 1  # new first
+            if _limit > first:
+                _limit = first

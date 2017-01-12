@@ -1,3 +1,4 @@
+import time
 from .block import Block
 from . import steem as stm
 from .utils import parse_time
@@ -32,6 +33,9 @@ class Blockchain(object):
         """
         return self.steem.rpc.get_dynamic_global_properties()
 
+    def config(self):
+        return self.steem.rpc.get_config()
+
     def get_current_block_num(self):
         """ This call returns the current block
         """
@@ -42,15 +46,96 @@ class Blockchain(object):
         """
         return Block(self.get_current_block_num())
 
-    def blocks(self, **kwargs):
-        """ Yield Blocks as a generator
+    def blocks(self, start, stop):
+        """ Yields blocks starting from ``start``.
 
-            :param int start: Start at this block
+            :param int start: Starting block
             :param int stop: Stop at this block
+            :param str mode: We here have the choice between
+                 * "head": the last block
+                 * "irreversible": the block that is confirmed by 2/3 of all block producers and is thus irreversible!
         """
-        return self.steem.rpc.block_stream(**kwargs)
+        # Let's find out how often blocks are generated!
+        block_interval = self.config().get("STEEMIT_BLOCK_INTERVAL")
 
-    def stream(self, **kwargs):
+        if not start:
+            start = self.get_current_block_num()
+
+        # We are going to loop indefinitely
+        while True:
+
+            # Get chain properies to identify the
+            head_block = self.get_current_block_num()
+
+            # Blocks from start until head block
+            for blocknum in range(start, head_block + 1):
+                # Get full block
+                block = self.steem.rpc.get_block(blocknum)
+                block.update({"block_num": blocknum})
+                yield block
+
+            # Set new start
+            start = head_block + 1
+
+            if stop and start > stop:
+                break
+
+            # Sleep for one block
+            time.sleep(block_interval)
+
+    def ops(self, start=None, stop=None):
+        """ Yields all operations (including virtual operations) starting from ``start``.
+
+            :param int start: Starting block
+            :param int stop: Stop at this block
+            :param str mode: We here have the choice between
+                 * "head": the last block
+                 * "irreversible": the block that is confirmed by 2/3 of all block producers and is thus irreversible!
+
+            This call returns a list with elements that look like
+            this and carries only one operation each:::
+
+                {'block': 8411453,
+                 'op': ['vote',
+                        {'author': 'dana-edwards',
+                         'permlink': 'church-encoding-numbers-defined-as-functions',
+                         'voter': 'juanmiguelsalas',
+                         'weight': 6000}],
+                 'op_in_trx': 0,
+                 'timestamp': '2017-01-12T12:26:03',
+                 'trx_id': 'e897886e8b7560f37da31eb1a42177c6f236c985',
+                 'trx_in_block': 1,
+                 'virtual_op': 0}
+
+        """
+
+        # Let's find out how often blocks are generated!
+        block_interval = self.config().get("STEEMIT_BLOCK_INTERVAL")
+
+        if not start:
+            start = self.get_current_block_num()
+
+        # We are going to loop indefinitely
+        while True:
+
+            # Get chain properies to identify the
+            head_block = self.get_current_block_num()
+
+            # Blocks from start until head block
+            for blocknum in range(start, head_block + 1):
+                # Get full block
+                yield from self.steem.rpc.get_ops_in_block(blocknum, False)
+
+            # Set new start
+            start = head_block + 1
+
+            if stop and start > stop:
+                break
+
+            # Sleep for one block
+            time.sleep(block_interval)
+
+    def stream(self, opNames, *args, **kwargs):
         """ Yield specific operations (e.g. comments) only
 
             :param array opNames: List of operations to filter for, e.g.
@@ -63,8 +148,24 @@ class Blockchain(object):
                 fill_vesting_withdraw, fill_order,
             :param int start: Start at this block
             :param int stop: Stop at this block
+            :param str mode: We here have the choice between
+                 * "head": the last block
+                 * "irreversible": the block that is confirmed by 2/3 of all block producers and is thus irreversible!
         """
-        return self.steem.rpc.stream(**kwargs)
+        if isinstance(opNames, str):
+            opNames = [opNames]
+        for block in self.blocks(*args, **kwargs):
+            if "transactions" not in block:
+                continue
+            for tx in block["transactions"]:
+                for op in tx["operations"]:
+                    if not opNames or op[0] in opNames:
+                        yield {
+                            **op[1],
+                            "type": op[0],
+                            "timestamp": block.get("timestamp"),
+                            "block_num": block.get("block_num"),
+                        }
 
     def replay(self, start_block=1, end_block=None, filter_by=list(), **kwargs):
         """ Same as ``stream`` with different prototyp
@@ -114,7 +215,7 @@ class Blockchain(object):
             error = timestring_timestamp - guess_block_timestamp
         return int(guess_block)
 
-    def get_all_accounts(self, start='', stop='', steps=1e6):
+    def get_all_accounts(self, start='', stop='', steps=1e6, **kwargs):
         """ Yields account names between start and stop.
 
             :param str start: Start at this account name
