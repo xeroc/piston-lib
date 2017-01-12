@@ -412,13 +412,13 @@ class Steem(object):
                 operations.Comment_options(**{
                     "author": author,
                     "permlink": permlink,
-                    "max_accepted_payout": options.get("max_accepted_payout" ,"1000000.000 SBD"),
+                    "max_accepted_payout": options.get("max_accepted_payout", "1000000.000 SBD"),
                     "percent_steem_dollars": int(
                         options.get("percent_steem_dollars", 100) * STEEMIT_1_PERCENT
                     ),
                     "allow_votes": options.get("allow_votes", True),
                     "allow_curation_rewards": options.get("allow_curation_rewards", True),
-            }))
+                    }))
 
         return self.finalizeOp(op, author, "posting")
 
@@ -868,15 +868,16 @@ class Steem(object):
 
             :param pubkey signing_key: Signing key
             :param str url: URL
-            :param dict props: Properties:::
+            :param dict props: Properties
+            :param str account: (optional) witness account name
+
+             Properties:::
 
                 {
-                "account_creation_fee": x,
-                "maximum_block_size": x,
-                "sbd_interest_rate": x,
+                    "account_creation_fee": x,
+                    "maximum_block_size": x,
+                    "sbd_interest_rate": x,
                 }
-
-            :param str account: (optional) witness account name
 
         """
         if not account:
@@ -1453,7 +1454,11 @@ class Steem(object):
         """ Set the comment options
 
             :param str identifier: Post identifier
-            :param dict options: The options to define. Defaults:::
+            :param dict options: The options to define.
+            :param str account: (optional) the account to allow access
+                to (defaults to ``default_account``)
+
+            For the options, you have these defaults:::
 
                     {
                         "author": "",
@@ -1464,8 +1469,6 @@ class Steem(object):
                         "allow_curation_rewards": True,
                     }
 
-            :param str account: (optional) the account to allow access
-                to (defaults to ``default_account``)
         """
         if not account:
             if "default_author" in config:
