@@ -190,7 +190,6 @@ class Account(dict):
         following = self.get_following()
 
         return {
-            **self,
             "profile": self.profile,
             "sp": self.sp,
             "rep": self.rep,
@@ -203,7 +202,7 @@ class Account(dict):
             "withdrawal_routes": self.get_withdraw_routes(),
             "conversion_requests": self.get_conversion_requests(),
             "account_votes": self.get_account_votes(),
-        }
+        }.update(self)
 
     def history(self, filter_by=None, start=0):
         """
@@ -234,13 +233,12 @@ class Account(dict):
 
                 def construct_op(account_name):
                     return {
-                        **op,
                         "index": index,
                         "account": account_name,
                         "trx_id": trx_id,
                         "timestamp": timestamp,
                         "type": op_type,
-                    }
+                    }.update(op)
 
                 if filter_by is None:
                     yield construct_op(self.name)
