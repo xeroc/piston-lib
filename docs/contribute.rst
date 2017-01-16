@@ -6,7 +6,7 @@ We welcome your contributions to our project.
 Flow
 ----
 
-This project makes heavy use of [git flow](http://nvie.com/posts/a-successful-git-branching-model/).
+This project makes heavy use of `git flow <http://nvie.com/posts/a-successful-git-branching-model/>`_.
 If you are not familiar with it, then the most important thing for your
 to understand is that:
 
@@ -15,7 +15,7 @@ to understand is that:
 How to Contribute
 -----------------
 
-0. Familiarize yourself with [contributing on github](https://guides.github.com/activities/contributing-to-open-source/)
+0. Familiarize yourself with `contributing on github <https://guides.github.com/activities/contributing-to-open-source/>`
 1. Fork or branch from the master.
 2. Create commits following the commit style
 3. Start a pull request to the master branch
