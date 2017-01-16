@@ -291,13 +291,18 @@ class Post(dict):
 
     def set_comment_options(self, options):
         op = Comment_options(
-            **{
-                "author": self["author"],
-                "permlink": self["permlink"],
-                "max_accepted_payout": options.get("max_accepted_payout", "1000000.000 SBD"),
-                "percent_steem_dollars": options.get("percent_steem_dollars", 100) * 100,
-                "allow_votes": options.get("allow_votes", True),
-                "allow_curation_rewards": options.get("allow_curation_rewards", True),
-            }
+            **{"author": self["author"],
+               "permlink": self["permlink"],
+               "max_accepted_payout":
+                   options.get("max_accepted_payout", str(self["max_accepted_payout"])),
+               "percent_steem_dollars": int(
+                   options.get("percent_steem_dollars",
+                               self["percent_steem_dollars"] / 100
+                               ) * 100),
+               "allow_votes":
+                   options.get("allow_votes", self["allow_votes"]),
+               "allow_curation_rewards":
+                   options.get("allow_curation_rewards", self["allow_curation_rewards"]),
+               }
         )
         return self.steem.finalizeOp(op, self["author"], "posting")
