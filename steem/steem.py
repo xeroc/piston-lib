@@ -417,8 +417,7 @@ class Steem(object):
                         options.get("percent_steem_dollars", 100) * STEEMIT_1_PERCENT
                     ),
                     "allow_votes": options.get("allow_votes", True),
-                    "allow_curation_rewards": options.get("allow_curation_rewards", True),
-                    }))
+                    "allow_curation_rewards": options.get("allow_curation_rewards", True)}))
 
         return self.finalizeOp(op, author, "posting")
 
@@ -934,13 +933,8 @@ class Steem(object):
 
             :param str user: Show recommendations for this author
         """
-        state = self.rpc.get_state("/@%s/blog" % user)
-        posts = state["accounts"][user].get("blog", [])
-        r = []
-        for p in posts:
-            post = state["content"][p]
-            r.append(Post(post, steem_instance=self))
-        return r
+        from .blog import Blog
+        return Blog(user)
 
     def get_replies(self, author, skipown=True):
         """ Get replies for an author

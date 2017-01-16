@@ -6,7 +6,7 @@ from grapheneapi.graphenewsrpc import GrapheneWebsocketRPC
 import logging
 import warnings
 warnings.filterwarnings('default', module=__name__)
-log = logging.getLogger("grapheneapi.steemnoderpc")
+log = logging.getLogger(__name__)
 
 
 class SteemNodeRPC(GrapheneWebsocketRPC):

@@ -71,6 +71,10 @@ class Account(dict):
     def rep(self):
         return self.reputation()
 
+    @property
+    def balances(self):
+        return self.get_balances()
+
     def get_balances(self, asfloat=False):
         my_account_balances = self.steem.get_balances(self.name)
         balance = {

@@ -1,5 +1,4 @@
 import steem as stm
-from funcy import rest, first
 from steem.account import Account
 from steem.post import Post
 from steem.utils import is_comment
