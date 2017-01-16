@@ -49,8 +49,8 @@ Additional dependencies
 Documentation
 -------------
 
-Thanks to readthedocs.io, the documentation can be viewed
-[online](http://python-steem.readthedocs.io/en/latest/)
+Thanks to readthedocs.io, the documentation can be viewed on
+[pysteem.com](http://pysteem.com)
 
 Documentation is written with the help of sphinx and can be compile to
 html with:
