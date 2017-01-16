@@ -23,6 +23,7 @@ Getting Started
    installation
    quickstart
    tutorials
+   contribute
 
 
 Python-Steem Libraries
