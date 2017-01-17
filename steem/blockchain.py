@@ -78,6 +78,7 @@ class Blockchain(object):
 
         # We are going to loop indefinitely
         while True:
+            retry = False
 
             # Get chain properies to identify the
             head_block = self.get_current_block_num()
@@ -86,8 +87,15 @@ class Blockchain(object):
             for blocknum in range(start, head_block + 1):
                 # Get full block
                 block = self.steem.rpc.get_block(blocknum)
+                if not block:
+                    start = blocknum
+                    retry = True
+                    break
                 block.update({"block_num": blocknum})
                 yield block
+
+            if retry:
+                continue
 
             # Set new start
             start = head_block + 1
