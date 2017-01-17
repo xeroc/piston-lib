@@ -1,6 +1,6 @@
 import time
 from .block import Block
-from . import steem as stm
+import steem as stm
 from .utils import parse_time
 
 virtual_operations = [
@@ -183,23 +183,25 @@ class Blockchain(object):
             for block in self.blocks(*args, **kwargs):
                 for tx in block.get("transactions"):
                     for op in tx["operations"]:
-                        yield {
-                            **op[1],
+                        r = {
                             "type": op[0],
                             "timestamp": block.get("timestamp"),
                             "block_num": block.get("block_num")
                         }
+                        r.update(op[1])
+                        yield r
         else:
             # uses get_ops_in_block
             kwargs["only_virtual_ops"] = not bool(set(opNames).difference(virtual_operations))
             for op in self.ops(*args, **kwargs):
                 if not opNames or op["op"][0] in opNames:
-                    yield {
-                        **op["op"][1],
+                    r = {
                         "type": op["op"][0],
                         "timestamp": op.get("timestamp"),
                         "block_num": op.get("block_num")
                     }
+                    r.update(op["op"][1])
+                    yield r
 
     def replay(self, start_block=1, end_block=None, filter_by=list(), **kwargs):
         """ Same as ``stream`` with different prototyp

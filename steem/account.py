@@ -188,9 +188,7 @@ class Account(dict):
         self.refresh()
         followers = self.get_followers()
         following = self.get_following()
-
-        return {
-            **self,
+        r = {
             "profile": self.profile,
             "sp": self.sp,
             "rep": self.rep,
@@ -204,6 +202,8 @@ class Account(dict):
             "conversion_requests": self.get_conversion_requests(),
             "account_votes": self.get_account_votes(),
         }
+        r.update(self)
+        return r
 
     def history(self, filter_by=None, start=0):
         """
@@ -233,14 +233,15 @@ class Account(dict):
                 trx_id = item[1]['trx_id']
 
                 def construct_op(account_name):
-                    return {
-                        **op,
+                    r = {
                         "index": index,
                         "account": account_name,
                         "trx_id": trx_id,
                         "timestamp": timestamp,
                         "type": op_type,
                     }
+                    r.update(op)
+                    return r
 
                 if filter_by is None:
                     yield construct_op(self.name)
