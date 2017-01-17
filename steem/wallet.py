@@ -9,7 +9,7 @@ import os
 import json
 from appdirs import user_data_dir
 import logging
-import steem as stm
+from . import steem as stm
 
 log = logging.getLogger(__name__)
 prefix = "STM"

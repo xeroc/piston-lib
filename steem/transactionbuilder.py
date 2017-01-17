@@ -8,7 +8,7 @@ from .exceptions import (
     MissingKeyError,
     InvalidKeyFormat
 )
-import steem as stm
+from . import steem as stm
 import logging
 log = logging.getLogger(__name__)
 

@@ -1,4 +1,4 @@
-import steem as stm
+from . import steem as stm
 from .exceptions import BlockDoesNotExistsException
 from .utils import parse_time
 
