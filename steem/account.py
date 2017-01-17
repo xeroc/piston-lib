@@ -91,12 +91,11 @@ class Account(dict):
 
     def reputation(self, precision=2):
         rep = int(self['reputation'])
-        if rep < 0:
-            return -1
         if rep == 0:
             return 25
-
         score = (math.log10(abs(rep)) - 9) * 9 + 25
+        if rep < 0:
+            score = 50 - score
         return round(score, precision)
 
     def voting_power(self):
