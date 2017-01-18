@@ -34,7 +34,7 @@ setup(
         'Topic :: Office/Business :: Financial',
     ],
     install_requires=[
-        "graphenelib>=0.4.6",
+        "graphenelib",
         "websockets==2.0",
         "scrypt==0.7.1",
         "diff-match-patch==20121119",
@@ -46,6 +46,9 @@ setup(
         'grequests',
         # "python-dateutil",
         # "secp256k1==0.13.2"
+    ],
+    dependency_links=[
+        "git+https://github.com/xeroc/python-graphenelib@minimal#egg=graphenelib"
     ],
     setup_requires=['pytest-runner'],
     tests_require=['pytest'],
