@@ -1,15 +1,16 @@
 import os
+import re
 import sys
-import frontmatter
 import time
 from datetime import datetime
-import re
-import logging
-log = logging.getLogger(__name__)
+
+import frontmatter
+from funcy import decorator
+from werkzeug.contrib.cache import SimpleCache
 
 
-def constructIdentifier(a, p):
-    return "@%s/%s" % (a, p)
+def constructIdentifier(author, slug):
+    return "@%s/%s" % (author, slug)
 
 
 def sanitizePermlink(permlink):
@@ -58,9 +59,9 @@ def yaml_parse_file(args, initial_content):
         # if "permlink" in initial_content.metadata:
         #   prefix = initial_content.metadata["permlink"]
         with tempfile.NamedTemporaryFile(
-            suffix=b".md",
-            prefix=b"steem-",
-            delete=False
+                suffix=b".md",
+                prefix=b"steem-",
+                delete=False
         ) as fp:
             # Write initial content
             fp.write(bytes(frontmatter.dumps(initial_content), 'utf-8'))
@@ -156,3 +157,64 @@ def formatTimeFromNow(secs=0):
 
     """
     return datetime.utcfromtimestamp(time.time() + int(secs)).strftime('%Y-%m-%dT%H:%M:%S')
+
+
+@decorator
+def simple_cache(func, cache_obj, timeout=3600):
+    if type(cache_obj) is not SimpleCache:
+        return func()
+    name = "%s_%s_%s" % (func._func.__name__, func._args, func._kwargs)
+    cache_value = cache_obj.get(name)
+    if cache_value:
+        return cache_value
+    else:
+        out = func()
+        cache_obj.set(name, out, timeout=timeout)
+        return out
+
+
+def is_comment(item):
+    """Quick check whether an item is a comment (reply) to another post.
+    The item can be a Post object or just a raw comment object from the blockchain.
+    """
+    return item['permlink'][:3] == "re-" and item['parent_author']
+
+
+def time_elapsed(posting_time):
+    """Takes a string time from a post or blockchain event, and returns a time delta from now.
+    """
+    if type(posting_time) == str:
+        posting_time = parse_time(posting_time)
+    return datetime.utcnow() - posting_time
+
+
+def parse_time(block_time):
+    """Take a string representation of time from the blockchain, and parse it into datetime object.
+    """
+    return datetime.strptime(block_time, '%Y-%m-%dT%H:%M:%S')
+
+
+def time_diff(time1, time2):
+    return parse_time(time1) - parse_time(time2)
+
+
+def keep_in_dict(obj, allowed_keys=list()):
+    """ Prune a class or dictionary of all but allowed keys.
+    """
+    if type(obj) == dict:
+        items = obj.items()
+    else:
+        items = obj.__dict__.items()
+
+    return {k: v for k, v in items if k in allowed_keys}
+
+
+def remove_from_dict(obj, remove_keys=list()):
+    """ Prune a class or dictionary of specified keys.
+    """
+    if type(obj) == dict:
+        items = obj.items()
+    else:
+        items = obj.__dict__.items()
+
+    return {k: v for k, v in items if k not in remove_keys}

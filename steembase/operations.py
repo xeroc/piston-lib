@@ -11,53 +11,20 @@ from graphenebase.types import (
 from graphenebase.objects import GrapheneObject, isArgsThisClass
 from graphenebase.account import PublicKey
 from graphenebase.operations import (
-    Operation as GrapheneOperation,
+    Operation as GrapheneOperation
 )
-
-#: Operation ids
-operations = {}
-operations["vote"] = 0
-operations["comment"] = 1
-operations["transfer"] = 2
-operations["transfer_to_vesting"] = 3
-operations["withdraw_vesting"] = 4
-operations["limit_order_create"] = 5
-operations["limit_order_cancel"] = 6
-operations["feed_publish"] = 7
-operations["convert"] = 8
-operations["account_create"] = 9
-operations["account_update"] = 10
-operations["witness_update"] = 11
-operations["account_witness_vote"] = 12
-operations["account_witness_proxy"] = 13
-operations["pow"] = 14
-operations["custom"] = 15
-operations["report_over_production"] = 16
-operations["delete_comment"] = 17
-operations["custom_json"] = 18
-operations["comment_options"] = 19
-operations["set_withdraw_vesting_route"] = 20
-operations["limit_order_create2"] = 21
-operations["challenge_authority"] = 22
-operations["prove_authority"] = 23
-operations["request_account_recovery"] = 24
-operations["recover_account"] = 25
-operations["change_recovery_account"] = 26
-operations["escrow_transfer"] = 27
-operations["escrow_dispute"] = 28
-operations["escrow_release"] = 29
-operations["pow2"] = 30
-operations["escrow_approve"] = 31
-operations["transfer_to_savings"] = 32
-operations["transfer_from_savings"] = 33
-operations["cancel_transfer_from_savings"] = 34
-operations["custom_binary_operation"] = 35
-operations["decline_voting_rights_operation"] = 36
-operations["reset_account_operation"] = 37
-operations["set_reset_account_operation"] = 38
-
+from .operationids import operations
 prefix = "STM"
 # prefix = "TST"
+
+asset_precision = {
+    "STEEM": 3,
+    "VESTS": 6,
+    "SBD": 3,
+    "GOLOS": 3,
+    "GESTS": 6,
+    "GBG": 3
+}
 
 
 class Operation(GrapheneOperation):
@@ -187,12 +154,8 @@ class Amount():
         self.amount, self.asset = d.strip().split(" ")
         self.amount = float(self.amount)
 
-        if self.asset == "STEEM":
-            self.precision = 3
-        elif self.asset == "VESTS":
-            self.precision = 6
-        elif self.asset == "SBD":
-            self.precision = 3
+        if self.asset in asset_precision:
+            self.precision = asset_precision[self.asset]
         else:
             raise Exception("Asset unknown")
 
@@ -255,6 +218,8 @@ class Account_create(GrapheneObject):
         else:
             if len(args) == 1 and len(kwargs) == 0:
                 kwargs = args[0]
+
+            assert len(kwargs["new_account_name"]) <= 16, "Account name must be at most 16 chars long"
 
             meta = ""
             if "json_metadata" in kwargs and kwargs["json_metadata"]:
@@ -524,4 +489,22 @@ class Custom_json(GrapheneObject):
                     Array([String(o) for o in kwargs["required_posting_auths"]])),
                 ('id', String(kwargs["id"])),
                 ('json', String(js)),
+            ]))
+
+
+class Comment_options(GrapheneObject):
+    def __init__(self, *args, **kwargs):
+        if isArgsThisClass(self, args):
+            self.data = args[0].data
+        else:
+            if len(args) == 1 and len(kwargs) == 0:
+                kwargs = args[0]
+            super().__init__(OrderedDict([
+                ('author', String(kwargs["author"])),
+                ('permlink', String(kwargs["permlink"])),
+                ('max_accepted_payout', Amount(kwargs["max_accepted_payout"])),
+                ('percent_steem_dollars', Uint16(int(kwargs["percent_steem_dollars"]))),
+                ('allow_votes', Bool(bool(kwargs["allow_votes"]))),
+                ('allow_curation_rewards', Bool(bool(kwargs["allow_curation_rewards"]))),
+                ('extensions', Array([])),
             ]))

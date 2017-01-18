@@ -1,6 +1,6 @@
 from .steem import Steem
 
-__ALL__ = [
+__all__ = [
     "aes",
     "amount",
     "post",
@@ -8,5 +8,7 @@ __ALL__ = [
     "steem",
     "storage",
     "wallet",
-    "dex"
+    "dex",
+    "transactions",
+    "witness"
 ]

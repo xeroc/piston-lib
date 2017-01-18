@@ -1,17 +1,18 @@
 from steembase.account import PrivateKey, GraphenePrivateKey
 from graphenebase import bip38
+from .exceptions import (
+    NoWallet,
+    InvalidWifError,
+    WalletExists
+)
 import os
 import json
 from appdirs import user_data_dir
 import logging
+import steem as stm
 
 log = logging.getLogger(__name__)
 prefix = "STM"
-# prefix = "TST"
-
-
-class InvalidWifError(Exception):
-    pass
 
 
 class Wallet():
@@ -28,14 +29,13 @@ class Wallet():
     keys = {}  # struct with pubkey as key and wif as value
     keyMap = {}  # type:wif pairs to force certain keys
 
-    def __init__(self, rpc, *args, **kwargs):
+    def __init__(self, *args, **kwargs):
         """ The wallet is meant to maintain access to private keys for
             your accounts. It either uses manually provided private keys
             or uses a SQLite database managed by storage.py.
 
             :param SteemNodeRPC rpc: RPC connection to a Steem node
             :param array,dict,string keys: Predefine the wif keys to shortcut the wallet database
-            :param bool skipcreatewallet: Skip creation of a wallet
 
             Three wallet operation modes are possible:
 
@@ -54,7 +54,7 @@ class Wallet():
               any account. This mode is only used for *foreign*
               signatures!
         """
-        self.rpc = rpc
+        Wallet.rpc = stm.Steem.rpc
 
         # Compatibility after name change from wif->keys
         if "wif" in kwargs and "keys" not in kwargs:
@@ -72,8 +72,6 @@ class Wallet():
             self.configStorage = configStorage
             self.MasterPassword = MasterPassword
             self.keyStorage = keyStorage
-            if not self.created() and not kwargs.get("skipcreatewallet", False):
-                self.newWallet()
 
     def setKeys(self, loadkeys):
         """ This method is strictly only for in memory keys that are
@@ -81,7 +79,7 @@ class Wallet():
         """
         log.debug("Force setting of private keys. Not using the wallet database!")
         if isinstance(loadkeys, dict):
-            self.keyMap = loadkeys
+            Wallet.keyMap = loadkeys
             loadkeys = list(loadkeys.values())
         elif not isinstance(loadkeys, list):
             loadkeys = [loadkeys]
@@ -91,11 +89,14 @@ class Wallet():
                 key = PrivateKey(wif)
             except:
                 raise InvalidWifError
-            self.keys[format(key.pubkey, "STM")] = str(key)
+            self.keys[format(key.pubkey, prefix)] = str(key)
 
     def unlock(self, pwd=None):
         """ Unlock the wallet database
         """
+        if not self.created():
+            self.newWallet()
+
         if (self.masterpassword is None and
                 self.configStorage[self.MasterPassword.config_key]):
             if pwd is None:
@@ -126,20 +127,6 @@ class Wallet():
         # Change passphrase
         masterpwd.changePassword(newpwd)
 
-    def reencryptKeys(self, oldpassword, newpassword):
-        """ (deprecated!) Reencrypt keys in the wallet database
-        """
-        # remove encryption from database
-        allPubs = self.getPublicKeys()
-        for i, pub in enumerate(allPubs):
-            log.critical("Updating key %d of %d" % (i + 1, len(allPubs)))
-            self.masterpassword = oldpassword
-            wif = self.getPrivateKeyForPublicKey(pub)
-            self.masterpassword = newpassword
-            if self.keyStorage:
-                self.keyStorage.updateWif(pub, wif)
-        log.critical("Removing password complete")
-
     def created(self):
         """ Do we have a wallet database already?
         """
@@ -156,7 +143,7 @@ class Wallet():
         """ Create a new wallet database
         """
         if self.created():
-            raise Exception("You already have created a wallet!")
+            raise WalletExists("You already have created a wallet!")
         print("Please provide a password for the new wallet")
         pwd = self.getPassword(confirm=True)
         masterpwd = self.MasterPassword(pwd)
@@ -221,7 +208,11 @@ class Wallet():
             pub = format(PrivateKey(wif).pubkey, prefix)
         except:
             raise InvalidWifError("Invalid Private Key Format. Please use WIF!")
+
         if self.keyStorage:
+            # Test if wallet exists
+            if not self.created():
+                self.newWallet()
             self.keyStorage.add(self.encrypt_wif(wif), pub)
 
     def getPrivateKeyForPublicKey(self, pub):
@@ -230,6 +221,10 @@ class Wallet():
             :param str pub: Public Key
         """
         if self.keyStorage:
+            # Test if wallet exists
+            if not self.created():
+                self.newWallet()
+
             return self.decrypt_wif(self.keyStorage.getPrivateKeyForPublicKey(pub))
         else:
             if pub in self.keys:
@@ -244,6 +239,9 @@ class Wallet():
         """ Remove a key from the wallet database
         """
         if self.keyStorage:
+            # Test if wallet exists
+            if not self.created():
+                self.newWallet()
             self.keyStorage.delete(pub)
 
     def removeAccount(self, account):
@@ -257,8 +255,8 @@ class Wallet():
     def getOwnerKeyForAccount(self, name):
         """ Obtain owner Private Key for an account from the wallet database
         """
-        if "owner" in self.keyMap:
-            return self.keyMap.get("owner")
+        if "owner" in Wallet.keyMap:
+            return Wallet.keyMap.get("owner")
         else:
             account = self.rpc.get_account(name)
             if not account:
@@ -272,8 +270,8 @@ class Wallet():
     def getPostingKeyForAccount(self, name):
         """ Obtain owner Posting Key for an account from the wallet database
         """
-        if "posting" in self.keyMap:
-            return self.keyMap.get("posting")
+        if "posting" in Wallet.keyMap:
+            return Wallet.keyMap.get("posting")
         else:
             account = self.rpc.get_account(name)
             if not account:
@@ -287,8 +285,8 @@ class Wallet():
     def getMemoKeyForAccount(self, name):
         """ Obtain owner Memo Key for an account from the wallet database
         """
-        if "memo" in self.keyMap:
-            return self.keyMap.get("memo")
+        if "memo" in Wallet.keyMap:
+            return Wallet.keyMap.get("memo")
         else:
             account = self.rpc.get_account(name)
             if not account:
@@ -301,8 +299,8 @@ class Wallet():
     def getActiveKeyForAccount(self, name):
         """ Obtain owner Active Key for an account from the wallet database
         """
-        if "active" in self.keyMap:
-            return self.keyMap.get("active")
+        if "active" in Wallet.keyMap:
+            return Wallet.keyMap.get("active")
         else:
             account = self.rpc.get_account(name)
             if not account:

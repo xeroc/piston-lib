@@ -1,18 +1,12 @@
-from grapheneapi.graphenewsrpc import GrapheneWebsocketRPC
-import threading
-from websocket import create_connection
-import json
+import re
 import time
+from . import exceptions
+from .exceptions import NoAccessApi, RPCError
+from grapheneapi.graphenewsrpc import GrapheneWebsocketRPC
 import logging
-log = logging.getLogger("grapheneapi.steemnoderpc")
-
-
-class RPCError(Exception):
-    pass
-
-
-class NoAccessApi(Exception):
-    pass
+import warnings
+warnings.filterwarnings('default', module=__name__)
+log = logging.getLogger(__name__)
 
 
 class SteemNodeRPC(GrapheneWebsocketRPC):
@@ -68,147 +62,82 @@ class SteemNodeRPC(GrapheneWebsocketRPC):
         if account:
             return account[0]
 
-    def get_asset(self, name):
-        raise NotImplementedError  # We overwrite this method from grapehenlib
-
-    def getFullAccountHistory(self, account, begin=1, limit=100, sort="block"):
-        raise NotImplementedError  # We overwrite this method from grapehenlib
-
-    def get_object(self, o):
-        raise NotImplementedError  # We overwrite this method from grapehenlib
-
     def account_history(self, account, first=99999999999,
                         limit=-1, only_ops=[], exclude_ops=[]):
-        """ Returns a generator for individual account transactions. The
-            latest operation will be first. This call can be used in a
-            ``for`` loop.
+        warnings.warn(
+            "The block_stream() call has been moved to `steem.account.Account.rawhistory()`",
+            DeprecationWarning
+        )
+        from steem.account import Account
+        return Account(account).rawhistory(first=first, limit=limit,
+                                           only_ops=only_ops,
+                                           exclude_ops=exclude_ops)
 
-            :param str account: account name to get history for
-            :param int first: sequence number of the first transaction to return
-            :param int limit: limit number of transactions to return
-            :param array only_ops: Limit generator by these operations
-        """
-        cnt = 0
-        _limit = 100
-        if _limit > first:
-            _limit = first
-        while first > 0:
-            # RPC call
-            txs = self.get_account_history(account, first, _limit)
-            for i in txs[::-1]:
-                if exclude_ops and i[1]["op"][0] in exclude_ops:
-                    continue
-                if not only_ops or i[1]["op"][0] in only_ops:
-                    cnt += 1
-                    yield i
-                    if limit >= 0 and cnt >= limit:
-                        break
-            if limit >= 0 and cnt >= limit:
-                break
-            if len(txs) < _limit:
-                break
-            first = txs[0][0] - 1  # new first
-            if _limit > first:
-                _limit = first
-
-    def block_stream(self, start=None, mode="irreversible"):
-        """ Yields blocks starting from ``start``.
-
-            :param int start: Starting block
-            :param str mode: We here have the choice between
-                 * "head": the last block
-                 * "irreversible": the block that is confirmed by 2/3 of all block producers and is thus irreversible!
-        """
-        # Let's find out how often blocks are generated!
-        config = self.get_config()
-        block_interval = config["STEEMIT_BLOCK_INTERVAL"]
-
-        if not start:
-            props = self.get_dynamic_global_properties()
-            # Get block number
-            if mode == "head":
-                start = props['head_block_number']
-            elif mode == "irreversible":
-                start = props['last_irreversible_block_num']
-            else:
-                raise ValueError(
-                    '"mode" has to be "head" or "irreversible"'
-                )
-
-        # We are going to loop indefinitely
-        while True:
-
-            # Get chain properies to identify the
-            # head/last reversible block
-            props = self.get_dynamic_global_properties()
-
-            # Get block number
-            if mode == "head":
-                head_block = props['head_block_number']
-            elif mode == "irreversible":
-                head_block = props['last_irreversible_block_num']
-            else:
-                raise ValueError(
-                    '"mode" has to be "head" or "irreversible"'
-                )
-
-            # Blocks from start until head block
-            for blocknum in range(start, head_block + 1):
-                # Get full block
-                block = self.get_block(blocknum)
-                block.update({"block_num": blocknum})
-                yield block
-
-            # Set new start
-            start = head_block + 1
-
-            # Sleep for one block
-            time.sleep(block_interval)
+    def block_stream(self, start=None, stop=None, mode="irreversible"):
+        warnings.warn(
+            "The block_stream() call has been moved to `steem.blockchain.Blockchain.blocks()`",
+            DeprecationWarning
+        )
+        from steem.blockchain import Blockchain
+        return Blockchain(mode=mode).blocks(start, stop)
 
     def stream(self, opNames, *args, **kwargs):
-        """ Yield specific operations (e.g. comments) only
+        warnings.warn(
+            "The stream() call has been moved to `steem.blockchain.Blockchain.stream()`",
+            DeprecationWarning
+        )
+        from steem.blockchain import Blockchain
+        return Blockchain(mode=kwargs.get("mode", "irreversible")).stream(opNames, *args, **kwargs)
 
-            :param array opNames: List of operations to filter for, e.g.
-                vote, comment, transfer, transfer_to_vesting,
-                withdraw_vesting, limit_order_create, limit_order_cancel,
-                feed_publish, convert, account_create, account_update,
-                witness_update, account_witness_vote, account_witness_proxy,
-                pow, custom, report_over_production, fill_convert_request,
-                comment_reward, curate_reward, liquidity_reward, interest,
-                fill_vesting_withdraw, fill_order,
-            :param int start: Begin at this block
+    def list_accounts(self, start=None, step=1000, limit=None, **kwargs):
+        warnings.warn(
+            "The list_accounts() call has been moved to `steem.blockchain.Blockchain.get_all_accounts()`",
+            DeprecationWarning
+        )
+        from steem.blockchain import Blockchain
+        return Blockchain(mode=kwargs.get("mode", "irreversible")).get_all_accounts(start=start, steps=step, **kwargs)
+
+    def rpcexec(self, payload):
+        """ Execute a call by sending the payload.
+            It makes use of the GrapheneRPC library.
+            In here, we mostly deal with Steem specific error handling
+
+            :param json payload: Payload data
+            :raises ValueError: if the server does not respond in proper JSON format
+            :raises RPCError: if the server returns an error
         """
-        if isinstance(opNames, str):
-            opNames = [opNames]
-        for block in self.block_stream(*args, **kwargs):
-            if "transactions" not in block:
-                continue
-            for tx in block["transactions"]:
-                for op in tx["operations"]:
-                    if op[0] in opNames:
-                        yield op[1]
+        try:
+            # Forward call to GrapheneWebsocketRPC and catch+evaluate errors
+            return super(SteemNodeRPC, self).rpcexec(payload)
+        except RPCError as e:
+            msg = exceptions.decodeRPCErrorMsg(e).strip()
+            if msg == "Account already transacted this block.":
+                raise exceptions.AlreadyTransactedThisBlock(msg)
+            elif msg == "missing required posting authority":
+                raise exceptions.MissingRequiredPostingAuthority
+            elif msg == "Voting weight is too small, please accumulate more voting power or steem power.":
+                raise exceptions.VoteWeightTooSmall(msg)
+            elif msg == "Can only vote once every 3 seconds.":
+                raise exceptions.OnlyVoteOnceEvery3Seconds(msg)
+            elif msg == "You have already voted in a similar way.":
+                raise exceptions.AlreadyVotedSimilarily(msg)
+            elif msg == "You may only post once every 5 minutes.":
+                raise exceptions.PostOnlyEvery5Min(msg)
+            elif msg == "Duplicate transaction check failed":
+                raise exceptions.DuplicateTransaction(msg)
+            elif msg == "Account exceeded maximum allowed bandwidth per vesting share.":
+                raise exceptions.ExceededAllowedBandwidth(msg)
+            elif re.match("^no method with name.*", msg):
+                raise exceptions.NoMethodWithName(msg)
+            elif msg:
+                raise exceptions.UnhandledRPCError(msg)
+            else:
+                raise e
+        except Exception as e:
+            raise e
 
-    def list_accounts(self, start=None, step=1000, limit=None):
-        """ Yield list of user accounts in alphabetical order
-
-        :param str start: Name of account, which should be yield first
-        :param int step: Describes how many accounts should be fetched in each rpc request
-        :param int limit: Limit number of returned user accounts
+    def __getattr__(self, name):
+        """ Map all methods to RPC calls and pass through the arguments.
+            It makes use of the GrapheneRPC library.
         """
-        if limit and limit < step:
-            step = limit
-
-        number_of_fetched_users = 0
-        progress = step
-
-        while progress == step and (not limit or number_of_fetched_users < limit):
-            users = self.lookup_accounts(start, step)
-            progress = len(users)
-
-            if progress > 0:
-                yield from users
-                number_of_fetched_users += progress
-
-                # concatenate last fetched account name with lowest possible
-                # ascii character to get next lowest possible login as lower_bound
-                start = users[-1] + '\0'
+        return super(SteemNodeRPC, self).__getattr__(name)

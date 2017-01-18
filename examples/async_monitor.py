@@ -1,3 +1,5 @@
+from steem.utils import parse_time
+
 try:
     import asyncio
 except ImportError:
@@ -10,9 +12,6 @@ except ImportError:
 
 from steemapi.steemasyncclient import SteemAsyncClient, Config
 import re
-import dateutil.parser
-from pprint import pprint
-
 
 account = "witness-account"  # Replace with  account you wish to monitor
 
@@ -25,7 +24,7 @@ def read_asset(asset_string):
 
 
 def read_time(time_string):
-    return int(dateutil.parser.parse(time_string + "UTC").timestamp())
+    return int(parse_time(time_string).timestamp())
 
 
 @asyncio.coroutine
