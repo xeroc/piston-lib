@@ -164,5 +164,5 @@ if __name__ == "__main__":
     c = Amount("100 STEEM")
     print(c * .10)
 
-    #print(a + c)
-    #print(a < c)
+    # print(a + c)
+    # print(a < c)

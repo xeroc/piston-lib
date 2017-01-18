@@ -508,5 +508,3 @@ class Comment_options(GrapheneObject):
                 ('allow_curation_rewards', Bool(bool(kwargs["allow_curation_rewards"]))),
                 ('extensions', Array([])),
             ]))
-
-
