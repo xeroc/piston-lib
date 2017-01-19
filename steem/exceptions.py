@@ -36,3 +36,11 @@ class InvalidWifError(Exception):
 
 class WalletExists(Exception):
     pass
+
+
+class PostDoesNotExist(Exception):
+    pass
+
+
+class VotingInvalidOnArchivedPost(Exception):
+    pass

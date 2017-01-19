@@ -13,10 +13,10 @@ from .utils import (
     remove_from_dict,
     parse_time,
 )
-
-
-class VotingInvalidOnArchivedPost(Exception):
-    pass
+from .exceptions import (
+    PostDoesNotExist,
+    VotingInvalidOnArchivedPost
+)
 
 
 class Post(dict):
@@ -78,7 +78,7 @@ class Post(dict):
         post_author, post_permlink = resolveIdentifier(self.identifier)
         post = self.steem.rpc.get_content(post_author, post_permlink)
         if not post["permlink"]:
-            raise Exception("Post does not exist!")
+            raise PostDoesNotExist("Post does not exist!")
 
         # If this 'post' comes from an operation, it might carry a patch
         if "body" in post and re.match("^@@", post["body"]):
