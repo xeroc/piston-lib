@@ -5,6 +5,12 @@ from steem.utils import is_comment
 
 
 class Blog(list):
+    """ Obtain a list of blog posts of an account
+
+        :param str account_name: Name of the account
+        :param Steem steem_instance: Steem() instance to use when accesing a RPC
+
+    """
     def __init__(self, account_name, steem_instance=None):
         if not steem_instance:
             steem_instance = stm.Steem()

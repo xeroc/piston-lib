@@ -4,6 +4,13 @@ from .utils import parse_time
 
 
 class Block(dict):
+    """ Read a single block from the chain
+
+        :param int block: block number
+        :param Steem steem_instance: Steem() instance to use when accesing a RPC
+        :param bool lazy: Use lazy loading
+
+    """
     def __init__(
         self,
         block,

@@ -13,18 +13,20 @@ from .utils import (
     remove_from_dict,
     parse_time,
 )
-
-
-class VotingInvalidOnArchivedPost(Exception):
-    pass
+from .exceptions import (
+    PostDoesNotExist,
+    VotingInvalidOnArchivedPost
+)
 
 
 class Post(dict):
     """ This object gets instanciated by Steem.streams and is used as an
         abstraction layer for Comments in Steem
 
-        :param Steem steem: An instance of the Steem() object
-        :param object post: The post as obtained by `get_content`
+        :param identifier post: The post as obtained by `get_content` or the identifier string of the post (``@author/permlink``)
+        :param Steem steem_instance: Steem() instance to use when accesing a RPC
+        :param bool lazy: Use lazy loading
+
     """
     steem = None
 
@@ -76,7 +78,7 @@ class Post(dict):
         post_author, post_permlink = resolveIdentifier(self.identifier)
         post = self.steem.rpc.get_content(post_author, post_permlink)
         if not post["permlink"]:
-            raise Exception("Post does not exist!")
+            raise PostDoesNotExist("Post does not exist!")
 
         # If this 'post' comes from an operation, it might carry a patch
         if "body" in post and re.match("^@@", post["body"]):

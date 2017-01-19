@@ -18,6 +18,26 @@ timeformat = "%Y%m%d-%H%M%S"
 
 
 class DataDir(object):
+    """ This class ensures that the user's data is stored in its OS
+        preotected user directory:
+
+        **OSX:**
+
+         * `~/Library/Application Support/<AppName>`
+
+        **Windows:**
+
+         * `C:\Documents and Settings\<User>\Application Data\Local Settings\<AppAuthor>\<AppName>`
+         * `C:\Documents and Settings\<User>\Application Data\<AppAuthor>\<AppName>`
+
+        **Linux:**
+
+         * `~/.local/share/<AppName>`
+
+         Furthermore, it offers an interface to generated backups
+         in the `backups/` directory every now and then.
+    """
+
     appname = "steem"
     appauthor = "Fabian Schuh"
     storageDatabase = "steem.sqlite"
@@ -26,26 +46,6 @@ class DataDir(object):
     sqlDataBaseFile = os.path.join(data_dir, storageDatabase)
 
     def __init__(self):
-        """ This class ensures that the user's data is stored in its OS
-            preotected user directory:
-
-            **OSX:**
-
-             * `~/Library/Application Support/<AppName>`
-
-            **Windows:**
-
-             * `C:\Documents and Settings\<User>\Application Data\Local Settings\<AppAuthor>\<AppName>`
-             * `C:\Documents and Settings\<User>\Application Data\<AppAuthor>\<AppName>`
-
-            **Linux:**
-
-             * `~/.local/share/<AppName>`
-
-             Furthermore, it offers an interface to generated backups
-             in the `backups/` directory every now and then.
-        """
-
         #: Storage
         self.check_legacy_v1()
         self.mkdir_p()

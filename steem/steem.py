@@ -42,7 +42,44 @@ STEEMIT_1_PERCENT = (STEEMIT_100_PERCENT / 100)
 
 
 class Steem(object):
-    """ The purpose of this class it to simplify posting and dealing
+    """ Connect to the Steem network.
+
+        :param str node: Node to connect to *(optional)*
+        :param str rpcuser: RPC user *(optional)*
+        :param str rpcpassword: RPC password *(optional)*
+        :param bool nobroadcast: Do **not** broadcast a transaction! *(optional)*
+        :param bool debug: Enable Debugging *(optional)*
+        :param array,dict,string keys: Predefine the wif keys to shortcut the wallet database
+        :param bool offline: Boolean to prevent connecting to network (defaults to ``False``)
+
+        Three wallet operation modes are possible:
+
+        * **Wallet Database**: Here, the steemlibs load the keys from the
+          locally stored wallet SQLite database (see ``storage.py``).
+          To use this mode, simply call ``Steem()`` without the
+          ``keys`` parameter
+        * **Providing Keys**: Here, you can provide the keys for
+          your accounts manually. All you need to do is add the wif
+          keys for the accounts you want to use as a simple array
+          using the ``keys`` parameter to ``Steem()``.
+        * **Force keys**: This more is for advanced users and
+          requires that you know what you are doing. Here, the
+          ``keys`` parameter is a dictionary that overwrite the
+          ``active``, ``owner``, ``posting`` or ``memo`` keys for
+          any account. This mode is only used for *foreign*
+          signatures!
+
+        If no node is provided, it will connect to the node of
+        http://piston.rocks. It is **highly** recommended that you pick your own
+        node instead. Default settings can be changed with:
+
+        .. code-block:: python
+
+            piston set node <host>
+
+        where ``<host>`` starts with ``ws://`` or ``wss://``.
+
+        The purpose of this class it to simplify posting and dealing
         with accounts, posts and categories in Steem.
 
         The idea is to have a class that allows to do this:
@@ -81,44 +118,6 @@ class Steem(object):
                  rpcpassword="",
                  debug=False,
                  **kwargs):
-        """ Connect to the Steem network.
-
-            :param str node: Node to connect to *(optional)*
-            :param str rpcuser: RPC user *(optional)*
-            :param str rpcpassword: RPC password *(optional)*
-            :param bool nobroadcast: Do **not** broadcast a transaction! *(optional)*
-            :param bool debug: Enable Debugging *(optional)*
-            :param array,dict,string keys: Predefine the wif keys to shortcut the wallet database
-            :param bool offline: Boolean to prevent connecting to network (defaults to ``False``)
-            :param bool skipcreatewallet: Skip creation of a wallet
-
-            Three wallet operation modes are possible:
-
-            * **Wallet Database**: Here, the steemlibs load the keys from the
-              locally stored wallet SQLite database (see ``storage.py``).
-              To use this mode, simply call ``Steem()`` without the
-              ``keys`` parameter
-            * **Providing Keys**: Here, you can provide the keys for
-              your accounts manually. All you need to do is add the wif
-              keys for the accounts you want to use as a simple array
-              using the ``keys`` parameter to ``Steem()``.
-            * **Force keys**: This more is for advanced users and
-              requires that you know what you are doing. Here, the
-              ``keys`` parameter is a dictionary that overwrite the
-              ``active``, ``owner``, ``posting`` or ``memo`` keys for
-              any account. This mode is only used for *foreign*
-              signatures!
-
-            If no node is provided, it will connect to the node of
-            http://piston.rocks. It is **highly** recommended that you pick your own
-            node instead. Default settings can be changed with:
-
-            .. code-block:: python
-
-                piston set node <host>
-
-            where ``<host>`` starts with ``ws://`` or ``wss://``.
-        """
         # More specific set of APIs to register to
         if "apis" not in kwargs:
             kwargs["apis"] = [

@@ -20,18 +20,19 @@ virtual_operations = [
 
 
 class Blockchain(object):
+    """ This class allows to access the blockchain and read data
+        from it
+
+        :param Steem steem_instance: Steem() instance to use when accesing a RPC
+        :param str mode: (default) Irreversible block
+                (``irreversible``) or actual head block (``head``)
+
+    """
     def __init__(
         self,
         steem_instance=None,
         mode="irreversible"
     ):
-        """ This class allows to access the blockchain and read data
-            from it
-
-            :param Steem steem: Steem() instance to use when accesing a RPC
-            :param str mode: (default) Irreversible block
-                    (``irreversible``) or actual head block (``head``)
-        """
         if not steem_instance:
             steem_instance = stm.Steem()
         self.steem = steem_instance
@@ -183,13 +184,14 @@ class Blockchain(object):
             for block in self.blocks(*args, **kwargs):
                 for tx in block.get("transactions"):
                     for op in tx["operations"]:
-                        r = {
-                            "type": op[0],
-                            "timestamp": block.get("timestamp"),
-                            "block_num": block.get("block_num")
-                        }
-                        r.update(op[1])
-                        yield r
+                        if not opNames or op[0] in opNames:
+                            r = {
+                                "type": op[0],
+                                "timestamp": block.get("timestamp"),
+                                "block_num": block.get("block_num")
+                            }
+                            r.update(op[1])
+                            yield r
         else:
             # uses get_ops_in_block
             kwargs["only_virtual_ops"] = not bool(set(opNames).difference(virtual_operations))

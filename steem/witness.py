@@ -3,6 +3,13 @@ from .exceptions import WitnessDoesNotExistsException
 
 
 class Witness(dict):
+    """ Read data about a witness in the chain
+
+        :param str account_name: Name of the witness
+        :param Steem steem_instance: Steem() instance to use when accesing a RPC
+        :param bool lazy: Use lazy loading
+
+    """
     def __init__(
         self,
         witness,
