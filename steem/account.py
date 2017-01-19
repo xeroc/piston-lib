@@ -14,6 +14,13 @@ from .utils import parse_time
 
 
 class Account(dict):
+    """ This class allows to easily access Account data
+
+        :param str account_name: Name of the account
+        :param Steem steem_instance: Steem() instance to use when accesing a RPC
+        :param bool lazy: Use lazy loading
+
+    """
     def __init__(
         self,
         account_name,

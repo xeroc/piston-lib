@@ -14,6 +14,9 @@ log = logging.getLogger(__name__)
 
 
 class TransactionBuilder(dict):
+    """ This class simplifies the creation of transactions by adding
+        operations and signers.
+    """
 
     def __init__(self, tx={}, steem_instance=None):
         if not steem_instance:

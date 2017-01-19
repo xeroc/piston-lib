@@ -16,6 +16,30 @@ prefix = "STM"
 
 
 class Wallet():
+    """ The wallet is meant to maintain access to private keys for
+        your accounts. It either uses manually provided private keys
+        or uses a SQLite database managed by storage.py.
+
+        :param SteemNodeRPC rpc: RPC connection to a Steem node
+        :param array,dict,string keys: Predefine the wif keys to shortcut the wallet database
+
+        Three wallet operation modes are possible:
+
+        * **Wallet Database**: Here, steemlibs loads the keys from the
+          locally stored wallet SQLite database (see ``storage.py``).
+          To use this mode, simply call ``Steem()`` without the
+          ``keys`` parameter
+        * **Providing Keys**: Here, you can provide the keys for
+          your accounts manually. All you need to do is add the wif
+          keys for the accounts you want to use as a simple array
+          using the ``keys`` parameter to ``Steem()``.
+        * **Force keys**: This more is for advanced users and
+          requires that you know what you are doing. Here, the
+          ``keys`` parameter is a dictionary that overwrite the
+          ``active``, ``owner``, ``posting`` or ``memo`` keys for
+          any account. This mode is only used for *foreign*
+          signatures!
+    """
     keys = []
     rpc = None
     masterpassword = None
@@ -30,30 +54,6 @@ class Wallet():
     keyMap = {}  # type:wif pairs to force certain keys
 
     def __init__(self, *args, **kwargs):
-        """ The wallet is meant to maintain access to private keys for
-            your accounts. It either uses manually provided private keys
-            or uses a SQLite database managed by storage.py.
-
-            :param SteemNodeRPC rpc: RPC connection to a Steem node
-            :param array,dict,string keys: Predefine the wif keys to shortcut the wallet database
-
-            Three wallet operation modes are possible:
-
-            * **Wallet Database**: Here, steemlibs loads the keys from the
-              locally stored wallet SQLite database (see ``storage.py``).
-              To use this mode, simply call ``Steem()`` without the
-              ``keys`` parameter
-            * **Providing Keys**: Here, you can provide the keys for
-              your accounts manually. All you need to do is add the wif
-              keys for the accounts you want to use as a simple array
-              using the ``keys`` parameter to ``Steem()``.
-            * **Force keys**: This more is for advanced users and
-              requires that you know what you are doing. Here, the
-              ``keys`` parameter is a dictionary that overwrite the
-              ``active``, ``owner``, ``posting`` or ``memo`` keys for
-              any account. This mode is only used for *foreign*
-              signatures!
-        """
         Wallet.rpc = stm.Steem.rpc
 
         # Compatibility after name change from wif->keys

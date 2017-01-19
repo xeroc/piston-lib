@@ -20,18 +20,19 @@ virtual_operations = [
 
 
 class Blockchain(object):
+    """ This class allows to access the blockchain and read data
+        from it
+
+        :param Steem steem_instance: Steem() instance to use when accesing a RPC
+        :param str mode: (default) Irreversible block
+                (``irreversible``) or actual head block (``head``)
+
+    """
     def __init__(
         self,
         steem_instance=None,
         mode="irreversible"
     ):
-        """ This class allows to access the blockchain and read data
-            from it
-
-            :param Steem steem: Steem() instance to use when accesing a RPC
-            :param str mode: (default) Irreversible block
-                    (``irreversible``) or actual head block (``head``)
-        """
         if not steem_instance:
             steem_instance = stm.Steem()
         self.steem = steem_instance

@@ -9,10 +9,13 @@ converter_cache = SimpleCache()
 
 
 class Converter(object):
+    """ Converter simplifies the handling of different metrics of
+        the blockchain
+
+        :param Steem steem_instance: Steem() instance to use when accesing a RPC
+
+    """
     def __init__(self, steem_instance=None):
-        """ Converter simplifies the handling of different metrics of
-            the blockchain
-        """
         if not steem_instance:
             steem_instance = stm.Steem()
         self.steem = steem_instance

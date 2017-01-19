@@ -3,6 +3,7 @@ from steembase import transactions
 from steembase.account import PrivateKey
 from .amount import Amount
 from .storage import configStorage as config
+import steem as stm
 from .utils import (
     formatTimeFromNow
 )
@@ -13,17 +14,16 @@ class Dex(object):
     """ This class allows to access calls specific for the internal
         exchange of STEEM.
 
-        :param Steem steem: An instance of the Steem() object
+        :param Steem steem_instance: Steem() instance to use when accesing a RPC
+
     """
     steem = None
     assets = ["STEEM", "SBD"]
 
-    def __init__(self, steem):
-        if steem.__class__.__name__ != "Steem":
-            raise ValueError(
-                "First argument must be instance of Steem()"
-            )
-        self.steem = steem
+    def __init__(self, steem_instance=None):
+        if not steem_instance:
+            steem_instance = stm.Steem()
+        self.steem = steem_instance
         # ensure market_history is registered
         self.steem.rpc.apis = list(set(self.steem.rpc.apis + ["market_history"]))
         self.steem.rpc.register_apis()

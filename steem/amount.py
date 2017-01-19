@@ -1,4 +1,8 @@
 class Amount(object):
+    """ This class helps deal and calculate with the different assets on the chain.
+
+        :param str amountString: Amount string as used by the backend (e.g. "10 SBD")
+    """
     def __init__(self, amountString="0 SBD"):
         self.amount, self.asset = amountString.split(" ")
         if self.amount:

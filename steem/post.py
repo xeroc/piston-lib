@@ -23,8 +23,10 @@ class Post(dict):
     """ This object gets instanciated by Steem.streams and is used as an
         abstraction layer for Comments in Steem
 
-        :param Steem steem: An instance of the Steem() object
-        :param object post: The post as obtained by `get_content`
+        :param identifier post: The post as obtained by `get_content` or the identifier string of the post (``@author/permlink``)
+        :param Steem steem_instance: Steem() instance to use when accesing a RPC
+        :param bool lazy: Use lazy loading
+
     """
     steem = None
 
