@@ -184,13 +184,14 @@ class Blockchain(object):
             for block in self.blocks(*args, **kwargs):
                 for tx in block.get("transactions"):
                     for op in tx["operations"]:
-                        r = {
-                            "type": op[0],
-                            "timestamp": block.get("timestamp"),
-                            "block_num": block.get("block_num")
-                        }
-                        r.update(op[1])
-                        yield r
+                        if not opNames or op[0] in opNames:
+                            r = {
+                                "type": op[0],
+                                "timestamp": block.get("timestamp"),
+                                "block_num": block.get("block_num")
+                            }
+                            r.update(op[1])
+                            yield r
         else:
             # uses get_ops_in_block
             kwargs["only_virtual_ops"] = not bool(set(opNames).difference(virtual_operations))
