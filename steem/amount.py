@@ -4,11 +4,15 @@ class Amount(object):
         :param str amountString: Amount string as used by the backend (e.g. "10 SBD")
     """
     def __init__(self, amountString="0 SBD"):
-        self.amount, self.asset = amountString.split(" ")
-        if self.amount:
-            self.amount = float(self.amount)
+        if isinstance(amountString, Amount):
+            self.amount = amountString.amount
+            self.asset = amountString.asset
         else:
-            self.amount = 0.0
+            self.amount, self.asset = amountString.split(" ")
+            if self.amount:
+                self.amount = float(self.amount)
+            else:
+                self.amount = 0.0
 
     def __str__(self):
         if self.asset == "SBD":
