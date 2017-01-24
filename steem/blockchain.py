@@ -49,6 +49,15 @@ class Blockchain(object):
         """
         return self.steem.rpc.get_dynamic_global_properties()
 
+    def chainParameters(self):
+        return self.config()["parameters"]
+
+    def get_network(self):
+        return self.steem.rpc.get_network()
+
+    def get_chain_properties(self):
+        return self.steem.rpc.get_chain_properties()
+
     def config(self):
         return self.steem.rpc.get_config()
 
@@ -61,6 +70,22 @@ class Blockchain(object):
         """ This call returns the current block
         """
         return Block(self.get_current_block_num())
+
+    def block_time(self, block_num):
+        """ Returns a datetime of the block with the given block
+            number.
+
+            :param int block_num: Block number
+        """
+        return Block(block_num).time()
+
+    def block_timestamp(self, block_num):
+        """ Returns the timestamp of the block with the given block
+            number.
+
+            :param int block_num: Block number
+        """
+        return int(Block(block_num).time().timestamp())
 
     def blocks(self, start=None, stop=None):
         """ Yields blocks starting from ``start``.

@@ -3,6 +3,7 @@ import time
 from . import exceptions
 from .exceptions import NoAccessApi, RPCError
 from grapheneapi.graphenewsrpc import GrapheneWebsocketRPC
+from steembase.chains import known_chains
 import logging
 import warnings
 warnings.filterwarnings('default', module=__name__)
@@ -49,9 +50,10 @@ class SteemNodeRPC(GrapheneWebsocketRPC):
             ["database", "network_broadcast"]
         )
         super(SteemNodeRPC, self).__init__(urls, user, password, **kwargs)
+        self.chain_params = self.get_network()
 
-    def register_apis(self):
-        for api in self.apis:
+    def register_apis(self, apis=None):
+        for api in (apis or self.apis):
             api = api.replace("_api", "")
             self.api_id[api] = self.get_api_by_name("%s_api" % api, api_id=1)
             if not self.api_id[api] and not isinstance(self.api_id[api], int):
@@ -96,6 +98,14 @@ class SteemNodeRPC(GrapheneWebsocketRPC):
         )
         from steem.blockchain import Blockchain
         return Blockchain(mode=kwargs.get("mode", "irreversible")).get_all_accounts(start=start, steps=step, **kwargs)
+
+    def get_network(self):
+        """ Identify the connected network. This call returns a
+            dictionary with keys chain_id, core_symbol and prefix
+        """
+        props = self.get_dynamic_global_properties()
+        chain = props["current_supply"].split(" ")[1]
+        return known_chains.get(chain)
 
     def rpcexec(self, payload):
         """ Execute a call by sending the payload.

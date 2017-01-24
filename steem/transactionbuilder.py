@@ -89,7 +89,7 @@ class TransactionBuilder(dict):
         if not any(self.wifs):
             raise MissingKeyError
 
-        signedtx.sign(self.wifs)
+        signedtx.sign(self.wifs, chain=self.steem.rpc.chain_params)
         self["signatures"].extend(signedtx.json().get("signatures"))
 
     def broadcast(self):
