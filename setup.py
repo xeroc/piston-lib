@@ -41,9 +41,7 @@ setup(
         "appdirs==1.4.0",
         "python-frontmatter==0.2.1",
         "pycrypto==2.6.1",
-        'funcy',
-        'werkzeug',
-        'grequests',
+        "funcy",
         # "python-dateutil",
         # "secp256k1==0.13.2"
     ],

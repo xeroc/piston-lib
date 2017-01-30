@@ -5,8 +5,6 @@ import time
 from datetime import datetime
 
 import frontmatter
-from funcy import decorator
-from werkzeug.contrib.cache import SimpleCache
 
 
 def constructIdentifier(author, slug):
@@ -157,20 +155,6 @@ def formatTimeFromNow(secs=0):
 
     """
     return datetime.utcfromtimestamp(time.time() + int(secs)).strftime('%Y-%m-%dT%H:%M:%S')
-
-
-@decorator
-def simple_cache(func, cache_obj, timeout=3600):
-    if type(cache_obj) is not SimpleCache:
-        return func()
-    name = "%s_%s_%s" % (func._func.__name__, func._args, func._kwargs)
-    cache_value = cache_obj.get(name)
-    if cache_value:
-        return cache_value
-    else:
-        out = func()
-        cache_obj.set(name, out, timeout=timeout)
-        return out
 
 
 def is_comment(item):
