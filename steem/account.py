@@ -72,7 +72,7 @@ class Account(dict):
     @property
     def sp(self):
         vests = Amount(self['vesting_shares']).amount
-        return self.converter.vests_to_sp(vests)
+        return round(self.converter.vests_to_sp(vests), 3)
 
     @property
     def rep(self):
