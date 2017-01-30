@@ -56,10 +56,6 @@ class Wallet():
     def __init__(self, *args, **kwargs):
         Wallet.rpc = stm.Steem.rpc
         self.prefix = Wallet.rpc.chain_params["prefix"]
-
-        from pprint import pprint
-        pprint(kwargs)
-
         # Compatibility after name change from wif->keys
         if "wif" in kwargs and "keys" not in kwargs:
             kwargs["keys"] = kwargs["wif"]
