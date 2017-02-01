@@ -31,6 +31,7 @@ from .post import (
 )
 from .wallet import Wallet
 from .transactionbuilder import TransactionBuilder
+import pkg_resources  # part of setuptools
 
 log = logging.getLogger(__name__)
 
@@ -351,6 +352,11 @@ class Steem(object):
                 meta = json.loads(meta)
             except:
                 meta = {}
+
+        # Default "app"
+        if "app" not in meta:
+            version = pkg_resources.require("steem")[0].version
+            meta["app"] = "pysteem/{}".format(version)
 
         # Identify the comment options
         options = {}
