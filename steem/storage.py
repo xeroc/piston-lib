@@ -245,7 +245,8 @@ class Configuration(DataDir):
         "web:port": 5054,
         "web:debug": False,
         "web:host": "127.0.0.1",
-        "web:nobroadcast": False
+        "web:nobroadcast": False,
+        "prefix": "STM"
     }
 
     def __init__(self):

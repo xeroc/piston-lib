@@ -14,8 +14,8 @@ from graphenebase.operations import (
     Operation as GrapheneOperation
 )
 from .operationids import operations
-prefix = "STM"
-# prefix = "TST"
+
+default_prefix = "STM"
 
 asset_precision = {
     "STEEM": 3,
@@ -60,6 +60,8 @@ class Permission(GrapheneObject):
         if isArgsThisClass(self, args):
             self.data = args[0].data
         else:
+            prefix = kwargs.pop("prefix", default_prefix)
+
             if len(args) == 1 and len(kwargs) == 0:
                 kwargs = args[0]
 
@@ -96,6 +98,8 @@ class Memo(GrapheneObject):
         if isArgsThisClass(self, args):
             self.data = args[0].data
         else:
+            prefix = kwargs.pop("prefix", default_prefix)
+
             if len(args) == 1 and len(kwargs) == 0:
                 kwargs = args[0]
 
@@ -216,6 +220,8 @@ class Account_create(GrapheneObject):
         if isArgsThisClass(self, args):
             self.data = args[0].data
         else:
+            prefix = kwargs.pop("prefix", default_prefix)
+
             if len(args) == 1 and len(kwargs) == 0:
                 kwargs = args[0]
 
@@ -231,9 +237,9 @@ class Account_create(GrapheneObject):
                 ('fee', Amount(kwargs["fee"])),
                 ('creator', String(kwargs["creator"])),
                 ('new_account_name', String(kwargs["new_account_name"])),
-                ('owner', Permission(kwargs["owner"])),
-                ('active', Permission(kwargs["active"])),
-                ('posting', Permission(kwargs["posting"])),
+                ('owner', Permission(kwargs["owner"], prefix=prefix)),
+                ('active', Permission(kwargs["active"], prefix=prefix)),
+                ('posting', Permission(kwargs["posting"], prefix=prefix)),
                 ('memo_key', PublicKey(kwargs["memo_key"], prefix=prefix)),
                 ('json_metadata', String(meta)),
             ]))
@@ -244,6 +250,8 @@ class Account_update(GrapheneObject):
         if isArgsThisClass(self, args):
             self.data = args[0].data
         else:
+            prefix = kwargs.pop("prefix", default_prefix)
+
             if len(args) == 1 and len(kwargs) == 0:
                 kwargs = args[0]
 
@@ -254,9 +262,9 @@ class Account_update(GrapheneObject):
                 else:
                     meta = kwargs["json_metadata"]
 
-            owner = Permission(kwargs["owner"]) if "owner" in kwargs else None
-            active = Permission(kwargs["active"]) if "active" in kwargs else None
-            posting = Permission(kwargs["posting"]) if "posting" in kwargs else None
+            owner = Permission(kwargs["owner"], prefix=prefix) if "owner" in kwargs else None
+            active = Permission(kwargs["active"], prefix=prefix) if "active" in kwargs else None
+            posting = Permission(kwargs["posting"], prefix=prefix) if "posting" in kwargs else None
 
             super().__init__(OrderedDict([
                 ('account', String(kwargs["account"])),
@@ -389,8 +397,11 @@ class Witness_update(GrapheneObject):
         if isArgsThisClass(self, args):
             self.data = args[0].data
         else:
+            prefix = kwargs.pop("prefix", default_prefix)
+
             if len(args) == 1 and len(kwargs) == 0:
                 kwargs = args[0]
+
             if not kwargs["block_signing_key"]:
                 kwargs["block_signing_key"] = "STM1111111111111111111111111111111114T1Anm"
             super().__init__(OrderedDict([

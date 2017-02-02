@@ -9,7 +9,7 @@ import struct
 " This class and the methods require python3 "
 assert sys.version_info[0] == 3, "graphenelib requires python3"
 
-prefix = "STM"
+default_prefix = "STM"
 
 
 def get_shared_secret(priv, pub):
@@ -68,7 +68,7 @@ def _unpad(s, BS):
     return s
 
 
-def encode_memo(priv, pub, nonce, message):
+def encode_memo(priv, pub, nonce, message, **kwargs):
     """ Encode a message with a shared secret between Alice and Bob
 
         :param PrivateKey priv: Private Key (of Alice)
@@ -89,6 +89,7 @@ def encode_memo(priv, pub, nonce, message):
         raw = _pad(raw, BS)
     " Encryption "
     cipher = hexlify(aes.encrypt(raw)).decode('ascii')
+    prefix = kwargs.pop("prefix", default_prefix)
     s = {
         "from": format(priv.pubkey, prefix),
         "to": format(pub, prefix),

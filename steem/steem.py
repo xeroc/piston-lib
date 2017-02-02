@@ -125,7 +125,9 @@ class Steem(object):
                 # "follow",
             ]
 
-        if Steem.rpc is None and not kwargs.pop("offline", False):
+        Steem.offline = kwargs.get("offline", False)
+
+        if Steem.rpc is None and not Steem.offline:
             self._connect(node=node,
                           rpcuser=rpcuser,
                           rpcpassword=rpcpassword,
@@ -403,7 +405,7 @@ class Steem(object):
                 "You can't provide a category while replying to a post"
             )
 
-        postOp = transactions.Comment(
+        postOp = operations.Comment(
             **{"parent_author": parent_author,
                "parent_permlink": parent_permlink,
                "author": author,
@@ -456,7 +458,7 @@ class Steem(object):
 
         post_author, post_permlink = resolveIdentifier(identifier)
 
-        op = transactions.Vote(
+        op = operations.Vote(
             **{"voter": voter,
                "author": post_author,
                "permlink": post_permlink,
@@ -625,7 +627,11 @@ class Steem(object):
              'posting': {'account_auths': posting_accounts_authority,
                          'key_auths': posting_key_authority,
                          'weight_threshold': 1}}
-        op = transactions.Account_create(**s)
+
+        op = operations.Account_create(
+            **s,
+            prefix=self.rpc.chain_params["prefix"]
+        )
 
         return self.finalizeOp(op, creator, "active")
 
@@ -657,10 +663,11 @@ class Steem(object):
                 PrivateKey(memo_wif),
                 PublicKey(to_account["memo_key"], prefix=self.rpc.chain_params["prefix"]),
                 nonce,
-                memo
+                memo,
+                prefix=self.rpc.chain_params["prefix"]
             )
 
-        op = transactions.Transfer(
+        op = operations.Transfer(
             **{"from": account,
                "to": to,
                "amount": '{:.{prec}f} {asset}'.format(
@@ -685,7 +692,7 @@ class Steem(object):
         if not account:
             raise ValueError("You need to provide an account")
 
-        op = transactions.Withdraw_vesting(
+        op = operations.Withdraw_vesting(
             **{"account": account,
                "vesting_shares": '{:.{prec}f} {asset}'.format(
                    float(amount),
@@ -713,7 +720,7 @@ class Steem(object):
         if not to:
             to = account  # powerup on the same account
 
-        op = transactions.Transfer_to_vesting(
+        op = operations.Transfer_to_vesting(
             **{"from": account,
                "to": to,
                "amount": '{:.{prec}f} {asset}'.format(
@@ -741,7 +748,7 @@ class Steem(object):
             requestid = int(requestid)
         else:
             requestid = random.getrandbits(32)
-        op = transactions.Convert(
+        op = operations.Convert(
             **{"owner": account,
                "requestid": requestid,
                "amount": '{:.{prec}f} {asset}'.format(
@@ -773,7 +780,7 @@ class Steem(object):
         if not to:
             to = account  # move to savings on same account
 
-        op = transactions.Transfer_to_savings(
+        op = operations.Transfer_to_savings(
             **{
                 "from": account,
                 "to": to,
@@ -812,7 +819,7 @@ class Steem(object):
         else:
             request_id = random.getrandbits(32)
 
-        op = transactions.Transfer_from_savings(
+        op = operations.Transfer_from_savings(
             **{
                 "from": account,
                 "request_id": request_id,
@@ -838,7 +845,7 @@ class Steem(object):
         if not account:
             raise ValueError("You need to provide an account")
 
-        op = transactions.Cancel_transfer_from_savings(
+        op = operations.Cancel_transfer_from_savings(
             **{
                 "from": account,
                 "request_id": request_id,
@@ -859,7 +866,7 @@ class Steem(object):
         if not account:
             raise ValueError("You need to provide an account")
 
-        op = transactions.Feed_publish(
+        op = operations.Feed_publish(
             **{
                 "publisher": account,
                 "exchange_rate": {
@@ -898,14 +905,15 @@ class Steem(object):
         except Exception as e:
             raise e
 
-        op = transactions.Witness_update(
+        op = operations.Witness_update(
             **{
                 "owner": account,
                 "url": url,
                 "block_signing_key": signing_key,
                 "props": props,
                 "fee": "0.000 STEEM",
-            }
+            },
+            prefix=self.rpc.chain_params["prefix"]
         )
         return self.finalizeOp(op, account, "active")
 
@@ -1129,7 +1137,7 @@ class Steem(object):
         if not account:
             raise ValueError("You need to provide an account")
 
-        op = transactions.Set_withdraw_vesting_route(
+        op = operations.Set_withdraw_vesting_route(
             **{"from_account": account,
                "to_account": to,
                "percent": int(percentage * STEEMIT_1_PERCENT),
@@ -1201,11 +1209,12 @@ class Steem(object):
             authority["weight_threshold"] = threshold
             self._test_weights_treshold(authority)
 
-        op = transactions.Account_update(
+        op = operations.Account_update(
             **{"account": account["name"],
                permission: authority,
                "memo_key": account["memo_key"],
-               "json_metadata": account["json_metadata"]}
+               "json_metadata": account["json_metadata"]},
+            prefix=self.rpc.chain_params["prefix"]
         )
         if permission == "owner":
             return self.finalizeOp(op, account["name"], "owner")
@@ -1280,7 +1289,7 @@ class Steem(object):
             authority["weight_threshold"] -= removed_weight
             self._test_weights_treshold(authority)
 
-        op = transactions.Account_update(
+        op = operations.Account_update(
             **{"account": account["name"],
                permission: authority,
                "memo_key": account["memo_key"],
@@ -1309,7 +1318,7 @@ class Steem(object):
 
         PublicKey(key)  # raises exception if invalid
         account = Account(account)
-        op = transactions.Account_update(
+        op = operations.Account_update(
             **{"account": account["name"],
                "memo_key": key,
                "json_metadata": account["json_metadata"]}
@@ -1331,7 +1340,7 @@ class Steem(object):
         if not account:
             raise ValueError("You need to provide an account")
         account = Account(account)
-        op = transactions.Account_witness_vote(
+        op = operations.Account_witness_vote(
             **{"account": account["name"],
                "witness": witness,
                "approve": approve,
@@ -1364,7 +1373,7 @@ class Steem(object):
             account = required_posting_auths[0]
         else:
             raise Exception("At least on account needs to be specified")
-        op = transactions.Custom_json(
+        op = operations.Custom_json(
             **{"json": json,
                "required_auths": required_auths,
                "required_posting_auths": required_posting_auths,
@@ -1445,7 +1454,7 @@ class Steem(object):
         if not account:
             raise ValueError("You need to provide an account")
         account = Account(account)
-        op = transactions.Account_update(
+        op = operations.Account_update(
             **{"account": account["name"],
                "memo_key": account["memo_key"],
                "json_metadata": profile}

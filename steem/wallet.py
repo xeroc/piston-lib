@@ -54,8 +54,10 @@ class Wallet():
     keyMap = {}  # type:wif pairs to force certain keys
 
     def __init__(self, *args, **kwargs):
+        from .storage import configStorage
+        self.configStorage = configStorage
+
         Wallet.rpc = stm.Steem.rpc
-        self.prefix = Wallet.rpc.chain_params["prefix"]
         # Compatibility after name change from wif->keys
         if "wif" in kwargs and "keys" not in kwargs:
             kwargs["keys"] = kwargs["wif"]
@@ -66,11 +68,16 @@ class Wallet():
                 keyStorage
             """
             from .storage import (keyStorage,
-                                  MasterPassword,
-                                  configStorage)
-            self.configStorage = configStorage
+                                  MasterPassword)
             self.MasterPassword = MasterPassword
             self.keyStorage = keyStorage
+
+        # Prefix?
+        if Wallet.rpc:
+            self.prefix = Wallet.rpc.chain_params["prefix"]
+        else:
+            # If not connected, load prefix from config
+            self.prefix = self.configStorage["prefix"]
 
     def setKeys(self, loadkeys):
         """ This method is strictly only for in memory keys that are
