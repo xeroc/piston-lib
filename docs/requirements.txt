@@ -1,3 +1,5 @@
--e git://github.com/xeroc/python-steem@develop#egg=steem
 pyyaml
 pycrypto==2.6.1
+appdirs==1.4.0
+-e git://github.com/xeroc/python-graphenelib@minimal#egg=graphenelib
+-e git://github.com/xeroc/python-steem@develop#egg=steem

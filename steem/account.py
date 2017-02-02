@@ -5,7 +5,6 @@ import time
 from contextlib import suppress
 
 import steem as stm
-from funcy import walk_keys
 
 from .amount import Amount
 from .converter import Converter
@@ -72,7 +71,7 @@ class Account(dict):
     @property
     def sp(self):
         vests = Amount(self['vesting_shares']).amount
-        return self.converter.vests_to_sp(vests)
+        return round(self.converter.vests_to_sp(vests), 3)
 
     @property
     def rep(self):
@@ -82,7 +81,7 @@ class Account(dict):
     def balances(self):
         return self.get_balances()
 
-    def get_balances(self, asfloat=False):
+    def get_balances(self, as_float=False):
         my_account_balances = self.steem.get_balances(self.name)
         balance = {
             "STEEM": my_account_balances["balance"],
@@ -91,7 +90,7 @@ class Account(dict):
             "SAVINGS_STEEM": my_account_balances["savings_balance"],
             "SAVINGS_SBD": my_account_balances["savings_sbd_balance"]
         }
-        if asfloat:
+        if as_float:
             return {k: v.amount for k, v in balance.items()}
         else:
             return balance
@@ -199,7 +198,7 @@ class Account(dict):
             "profile": self.profile,
             "sp": self.sp,
             "rep": self.rep,
-            "balances": walk_keys(str.upper, self.get_balances()),
+            "balances": self.get_balances(as_float=True),
             "followers": followers,
             "followers_count": len(followers),
             "following": following,

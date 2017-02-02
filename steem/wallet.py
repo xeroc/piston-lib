@@ -1,5 +1,6 @@
 from steembase.account import PrivateKey, GraphenePrivateKey
 from graphenebase import bip38
+import steem as stm
 from .exceptions import (
     NoWallet,
     InvalidWifError,
@@ -9,10 +10,9 @@ import os
 import json
 from appdirs import user_data_dir
 import logging
-import steem as stm
+from .account import Account
 
 log = logging.getLogger(__name__)
-prefix = "STM"
 
 
 class Wallet():
@@ -55,12 +55,11 @@ class Wallet():
 
     def __init__(self, *args, **kwargs):
         Wallet.rpc = stm.Steem.rpc
-
+        self.prefix = Wallet.rpc.chain_params["prefix"]
         # Compatibility after name change from wif->keys
         if "wif" in kwargs and "keys" not in kwargs:
             kwargs["keys"] = kwargs["wif"]
-
-        if "keys" in kwargs:
+        elif "keys" in kwargs:
             self.setKeys(kwargs["keys"])
         else:
             """ If no keys are provided manually we load the SQLite
@@ -89,7 +88,7 @@ class Wallet():
                 key = PrivateKey(wif)
             except:
                 raise InvalidWifError
-            self.keys[format(key.pubkey, prefix)] = str(key)
+            Wallet.keys[format(key.pubkey, self.prefix)] = str(key)
 
     def unlock(self, pwd=None):
         """ Unlock the wallet database
@@ -205,7 +204,7 @@ class Wallet():
         if isinstance(wif, PrivateKey) or isinstance(wif, GraphenePrivateKey):
             wif = str(wif)
         try:
-            pub = format(PrivateKey(wif).pubkey, prefix)
+            pub = format(PrivateKey(wif).pubkey, self.prefix)
         except:
             raise InvalidWifError("Invalid Private Key Format. Please use WIF!")
 
@@ -220,20 +219,20 @@ class Wallet():
 
             :param str pub: Public Key
         """
-        if self.keyStorage:
+        if(Wallet.keys):
+            if pub in Wallet.keys:
+                return Wallet.keys[pub]
+            elif len(Wallet.keys) == 1:
+                # If there is only one key in my overwrite-storage, then
+                # use that one! Whether it will has sufficient
+                # authorization is left to ensure by the developer
+                return list(self.keys.values())[0]
+        else:
             # Test if wallet exists
             if not self.created():
                 self.newWallet()
 
             return self.decrypt_wif(self.keyStorage.getPrivateKeyForPublicKey(pub))
-        else:
-            if pub in self.keys:
-                return self.keys[pub]
-            elif len(self.keys) == 1:
-                # If there is only one key in my overwrite-storage, then
-                # use that one! Feather it will has sufficient
-                # authorization is left to ensure by the developer
-                return list(self.keys.values())[0]
 
     def removePrivateKeyFromPublicKey(self, pub):
         """ Remove a key from the wallet database
@@ -314,7 +313,7 @@ class Wallet():
     def getAccountFromPrivateKey(self, wif):
         """ Obtain account name from private key
         """
-        pub = format(PrivateKey(wif).pubkey, prefix)
+        pub = format(PrivateKey(wif).pubkey, self.prefix)
         return self.getAccountFromPublicKey(pub)
 
     def getAccountFromPublicKey(self, pub):
@@ -323,7 +322,12 @@ class Wallet():
         # FIXME, this only returns the first associated key.
         # If the key is used by multiple accounts, this
         # will surely lead to undesired behavior
-        names = self.rpc.get_key_references([pub], api="account_by_key")[0]
+        try:
+            # STEEM
+            names = self.rpc.get_key_references([pub], api="account_by_key")[0]
+        except:
+            # GOLOS
+            names = self.rpc.get_key_references([pub])[0]
         if not names:
             return None
         else:
@@ -339,11 +343,13 @@ class Wallet():
                     "pubkey": pub
                     }
         else:
-            account = self.rpc.get_account(name)
-            if not account:
+            try:
+                account = Account(name)
+            except:
                 return
             keyType = self.getKeyType(account, pub)
             return {"name": name,
+                    "account": account,
                     "type": keyType,
                     "pubkey": pub
                     }
@@ -362,7 +368,13 @@ class Wallet():
     def getAccounts(self):
         """ Return all accounts installed in the wallet database
         """
-        return [self.getAccount(a) for a in self.getPublicKeys()]
+        pubkeys = self.getPublicKeys()
+        accounts = []
+        for pubkey in pubkeys:
+            # Filter those keys not for our network
+            if pubkey[:len(self.prefix)] == self.prefix:
+                accounts.append(self.getAccount(pubkey))
+        return accounts
 
     def getAccountsWithPermissions(self):
         """ Return a dictionary for all installed accounts with their
@@ -389,4 +401,4 @@ class Wallet():
         if self.keyStorage:
             return self.keyStorage.getPublicKeys()
         else:
-            return list(self.keys.keys())
+            return list(Wallet.keys.keys())

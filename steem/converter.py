@@ -3,9 +3,6 @@ import math
 import steem as stm
 
 from .amount import Amount
-from .utils import SimpleCache, simple_cache
-
-converter_cache = SimpleCache()
 
 
 class Converter(object):
@@ -22,7 +19,6 @@ class Converter(object):
 
         self.CONTENT_CONSTANT = 2000000000000
 
-    @simple_cache(converter_cache, timeout=5 * 60)
     def sbd_median_price(self):
         """ Obtain the sbd price as derived from the median over all
             witness feeds. Return value will be SBD
@@ -32,7 +28,6 @@ class Converter(object):
             Amount(self.steem.rpc.get_feed_history()['current_median_history']['quote']).amount
         )
 
-    @simple_cache(converter_cache, timeout=5 * 60)
     def steem_per_mvests(self):
         """ Obtain STEEM/MVESTS ratio
         """

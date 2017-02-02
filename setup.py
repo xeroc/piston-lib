@@ -9,7 +9,7 @@ except LookupError:
     ascii = codecs.lookup('ascii')
     codecs.register(lambda name, enc=ascii: {True: enc}.get(name == 'mbcs'))
 
-VERSION = '0.4.1'
+VERSION = '0.4.2'
 
 setup(
     name='steem',
@@ -41,9 +41,7 @@ setup(
         "appdirs==1.4.0",
         "python-frontmatter==0.2.1",
         "pycrypto==2.6.1",
-        'funcy',
-        'werkzeug',
-        'grequests',
+        "funcy",
         # "python-dateutil",
         # "secp256k1==0.13.2"
     ],

@@ -31,11 +31,9 @@ from .post import (
 )
 from .wallet import Wallet
 from .transactionbuilder import TransactionBuilder
+import pkg_resources  # part of setuptools
 
 log = logging.getLogger(__name__)
-
-prefix = "STM"
-# prefix = "TST"
 
 STEEMIT_100_PERCENT = 10000
 STEEMIT_1_PERCENT = (STEEMIT_100_PERCENT / 100)
@@ -123,8 +121,8 @@ class Steem(object):
             kwargs["apis"] = [
                 "database",
                 "network_broadcast",
-                "account_by_key",
-                "follow",
+                # "account_by_key",
+                # "follow",
             ]
 
         if Steem.rpc is None and not kwargs.pop("offline", False):
@@ -132,6 +130,12 @@ class Steem(object):
                           rpcuser=rpcuser,
                           rpcpassword=rpcpassword,
                           **kwargs)
+
+            # Optional APIs
+            try:
+                self.rpc.register_apis(["account_by_key", "follow"])
+            except NoAccessApi as e:
+                log.info(str(e))
 
         if Steem.debug is None:
             Steem.debug = debug
@@ -349,6 +353,11 @@ class Steem(object):
             except:
                 meta = {}
 
+        # Default "app"
+        if "app" not in meta:
+            version = pkg_resources.require("steem")[0].version
+            meta["app"] = "pysteem/{}".format(version)
+
         # Identify the comment options
         options = {}
         if "max_accepted_payout" in meta:
@@ -564,19 +573,19 @@ class Steem(object):
                 self.wallet.addPrivateKey(posting_privkey)
                 self.wallet.addPrivateKey(memo_privkey)
         elif (owner_key and posting_key and active_key and memo_key):
-            posting_pubkey = PublicKey(posting_key, prefix=prefix)
-            active_pubkey = PublicKey(active_key, prefix=prefix)
-            owner_pubkey = PublicKey(owner_key, prefix=prefix)
-            memo_pubkey = PublicKey(memo_key, prefix=prefix)
+            posting_pubkey = PublicKey(posting_key, prefix=self.rpc.chain_params["prefix"])
+            active_pubkey = PublicKey(active_key, prefix=self.rpc.chain_params["prefix"])
+            owner_pubkey = PublicKey(owner_key, prefix=self.rpc.chain_params["prefix"])
+            memo_pubkey = PublicKey(memo_key, prefix=self.rpc.chain_params["prefix"])
         else:
             raise ValueError(
                 "Call incomplete! Provide either a password or public keys!"
             )
 
-        owner = format(owner_pubkey, prefix)
-        active = format(active_pubkey, prefix)
-        posting = format(posting_pubkey, prefix)
-        memo = format(memo_pubkey, prefix)
+        owner = format(owner_pubkey, self.rpc.chain_params["prefix"])
+        active = format(active_pubkey, self.rpc.chain_params["prefix"])
+        posting = format(posting_pubkey, self.rpc.chain_params["prefix"])
+        memo = format(memo_pubkey, self.rpc.chain_params["prefix"])
 
         owner_key_authority = [[owner, 1]]
         active_key_authority = [[active, 1]]
@@ -646,7 +655,7 @@ class Steem(object):
             nonce = str(random.getrandbits(64))
             memo = Memo.encode_memo(
                 PrivateKey(memo_wif),
-                PublicKey(to_account["memo_key"], prefix=prefix),
+                PublicKey(to_account["memo_key"], prefix=self.rpc.chain_params["prefix"]),
                 nonce,
                 memo
             )

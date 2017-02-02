@@ -78,7 +78,7 @@ class Post(dict):
         post_author, post_permlink = resolveIdentifier(self.identifier)
         post = self.steem.rpc.get_content(post_author, post_permlink)
         if not post["permlink"]:
-            raise PostDoesNotExist("Post does not exist!")
+            raise PostDoesNotExist("Post does not exist: %s" % self.identifier)
 
         # If this 'post' comes from an operation, it might carry a patch
         if "body" in post and re.match("^@@", post["body"]):
