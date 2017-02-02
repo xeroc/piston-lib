@@ -241,22 +241,6 @@ class Blockchain(object):
             **kwargs
         )
 
-    def block_time(self, block_num):
-        """ Returns a datetime of the block with the given block
-            number.
-
-            :param int block_num: Block number
-        """
-        return Block(block_num).time()
-
-    def block_timestamp(self, block_num):
-        """ Returns the timestamp of the block with the given block
-            number.
-
-            :param int block_num: Block number
-        """
-        return int(Block(block_num).time().timestamp())
-
     def get_block_from_time(self, timestring, error_margin=10):
         """ Estimate block number from given time
 
