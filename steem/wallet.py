@@ -57,6 +57,13 @@ class Wallet():
         from .storage import configStorage
         self.configStorage = configStorage
 
+        # Prefix?
+        if Wallet.rpc:
+            self.prefix = Wallet.rpc.chain_params["prefix"]
+        else:
+            # If not connected, load prefix from config
+            self.prefix = self.configStorage["prefix"]
+
         Wallet.rpc = stm.Steem.rpc
         # Compatibility after name change from wif->keys
         if "wif" in kwargs and "keys" not in kwargs:
@@ -71,13 +78,6 @@ class Wallet():
                                   MasterPassword)
             self.MasterPassword = MasterPassword
             self.keyStorage = keyStorage
-
-        # Prefix?
-        if Wallet.rpc:
-            self.prefix = Wallet.rpc.chain_params["prefix"]
-        else:
-            # If not connected, load prefix from config
-            self.prefix = self.configStorage["prefix"]
 
     def setKeys(self, loadkeys):
         """ This method is strictly only for in memory keys that are
