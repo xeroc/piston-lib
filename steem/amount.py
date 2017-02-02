@@ -15,12 +15,22 @@ class Amount(object):
                 self.amount = 0.0
 
     def __str__(self):
+        # STEEM
         if self.asset == "SBD":
             prec = 3
         elif self.asset == "STEEM":
             prec = 3
         elif self.asset == "VESTS":
             prec = 6
+
+        # GOLOS
+        elif self.asset == "GESTS":
+            prec = 6
+        elif self.asset == "GBG":
+            prec = 3
+        elif self.asset == "GOLOS":
+            prec = 3
+        # default
         else:
             prec = 6
         return "{:.{prec}f} {}".format(self.amount, self.asset, prec=prec)
