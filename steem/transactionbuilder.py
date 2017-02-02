@@ -81,6 +81,14 @@ class TransactionBuilder(dict):
                 from the wallet as defined in "missing_signatures" key
                 of the transactions.
         """
+
+        # We need to set the default prefix, otherwise pubkeys are
+        # presented wrongly!
+        if self.steem.rpc:
+            operations.default_prefix = self.steem.rpc.chain_params["prefix"]
+        elif "blockchain" in self:
+            operations.default_prefix = self["blockchain"]["prefix"]
+
         try:
             signedtx = Signed_Transaction(**self.json())
         except:
@@ -143,6 +151,7 @@ class TransactionBuilder(dict):
             self["missing_signatures"].extend(
                 [x[0] for x in account_auth_account[permission]["key_auths"]]
             )
+        self["blockchain"] = self.steem.rpc.chain_params
 
     def json(self):
         return dict(self)
