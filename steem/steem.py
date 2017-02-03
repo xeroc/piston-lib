@@ -286,7 +286,7 @@ class Steem(object):
         if meta:
             if original_post["json_metadata"]:
                 import json
-                new_meta = json.loads(original_post["json_metadata"]).update(meta)
+                new_meta = original_post["json_metadata"].update(meta)
             else:
                 new_meta = meta
 
