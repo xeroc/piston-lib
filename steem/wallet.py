@@ -57,6 +57,9 @@ class Wallet():
         from .storage import configStorage
         self.configStorage = configStorage
 
+        # RPC
+        Wallet.rpc = stm.Steem.rpc
+
         # Prefix?
         if Wallet.rpc:
             self.prefix = Wallet.rpc.chain_params["prefix"]
@@ -64,7 +67,6 @@ class Wallet():
             # If not connected, load prefix from config
             self.prefix = self.configStorage["prefix"]
 
-        Wallet.rpc = stm.Steem.rpc
         # Compatibility after name change from wif->keys
         if "wif" in kwargs and "keys" not in kwargs:
             kwargs["keys"] = kwargs["wif"]
@@ -329,10 +331,10 @@ class Wallet():
         # FIXME, this only returns the first associated key.
         # If the key is used by multiple accounts, this
         # will surely lead to undesired behavior
-        try:
+        if self.rpc.chain_params["prefix"] == "STM":
             # STEEM
             names = self.rpc.get_key_references([pub], api="account_by_key")[0]
-        except:
+        else:
             # GOLOS
             names = self.rpc.get_key_references([pub])[0]
         if not names:
