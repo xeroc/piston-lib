@@ -71,9 +71,10 @@ class SteemNodeRPC(GrapheneWebsocketRPC):
             DeprecationWarning
         )
         from steem.account import Account
-        return Account(account).rawhistory(first=first, limit=limit,
-                                           only_ops=only_ops,
-                                           exclude_ops=exclude_ops)
+        return Account(account, steem_instance=self.steem).rawhistory(
+            first=first, limit=limit,
+            only_ops=only_ops,
+            exclude_ops=exclude_ops)
 
     def block_stream(self, start=None, stop=None, mode="irreversible"):
         warnings.warn(

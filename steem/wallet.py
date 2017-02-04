@@ -1,16 +1,14 @@
-from steembase.account import PrivateKey, GraphenePrivateKey
+import logging
+import os
+
 from graphenebase import bip38
-import steem as stm
+from steembase.account import PrivateKey, GraphenePrivateKey
+
+from .account import Account
 from .exceptions import (
-    NoWallet,
     InvalidWifError,
     WalletExists
 )
-import os
-import json
-from appdirs import user_data_dir
-import logging
-from .account import Account
 
 log = logging.getLogger(__name__)
 
@@ -53,12 +51,12 @@ class Wallet():
     keys = {}  # struct with pubkey as key and wif as value
     keyMap = {}  # type:wif pairs to force certain keys
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, rpc, *args, **kwargs):
         from .storage import configStorage
         self.configStorage = configStorage
 
         # RPC
-        Wallet.rpc = stm.Steem.rpc
+        Wallet.rpc = rpc
 
         # Prefix?
         if Wallet.rpc:

@@ -1,13 +1,9 @@
-from datetime import datetime, timedelta
-from steembase import transactions
-from steembase.account import PrivateKey
-from .amount import Amount
-from .storage import configStorage as config
-import steem as stm
-from .utils import (
-    formatTimeFromNow
-)
 import random
+
+from steem.instance import shared_steem_instance
+from steembase import transactions
+
+from .storage import configStorage as config
 
 
 class Dex(object):
@@ -21,9 +17,7 @@ class Dex(object):
     assets = ["STEEM", "SBD"]
 
     def __init__(self, steem_instance=None):
-        if not steem_instance:
-            steem_instance = stm.Steem()
-        self.steem = steem_instance
+        self.steem = steem_instance or shared_steem_instance()
         # ensure market_history is registered
         self.steem.rpc.apis = list(set(self.steem.rpc.apis + ["market_history"]))
         self.steem.rpc.register_apis()

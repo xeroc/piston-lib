@@ -1,6 +1,6 @@
 import math
 
-import steem as stm
+from steem.instance import shared_steem_instance
 
 from .amount import Amount
 
@@ -13,9 +13,7 @@ class Converter(object):
 
     """
     def __init__(self, steem_instance=None):
-        if not steem_instance:
-            steem_instance = stm.Steem()
-        self.steem = steem_instance
+        self.steem = steem_instance or shared_steem_instance()
 
         self.CONTENT_CONSTANT = 2000000000000
 

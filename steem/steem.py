@@ -4,34 +4,31 @@ import random
 import re
 from datetime import datetime, timedelta
 
-import steembase.transactions as transactions
-from steembase import operations
+import pkg_resources  # part of setuptools
 from steemapi.steemnoderpc import SteemNodeRPC, NoAccessApi
 from steembase import memo
+from steembase import operations
 from steembase.account import PrivateKey, PublicKey
+
 from .account import Account
 from .amount import Amount
 from .blockchain import Blockchain
+from .exceptions import (
+    AccountExistsException,
+    MissingKeyError,
+)
+from .post import (
+    Post
+)
 from .storage import configStorage as config
+from .transactionbuilder import TransactionBuilder
 from .utils import (
     resolveIdentifier,
     constructIdentifier,
     derivePermlink,
     formatTimeString
 )
-from .exceptions import (
-    AccountExistsException,
-    AccountDoesNotExistsException,
-    InsufficientAuthorityError,
-    MissingKeyError,
-)
-from .post import (
-    Post,
-    VotingInvalidOnArchivedPost
-)
 from .wallet import Wallet
-from .transactionbuilder import TransactionBuilder
-import pkg_resources  # part of setuptools
 
 log = logging.getLogger(__name__)
 
@@ -103,20 +100,15 @@ class Steem(object):
         This class also deals with edits, votes and reading content.
     """
 
-    wallet = None
-    rpc = None
-    debug = None
-    nobroadcast = None
-    unsigned = None
-    expiration = None
-
     def __init__(self,
                  node="",
                  rpcuser="",
                  rpcpassword="",
                  debug=False,
                  **kwargs):
+
         # More specific set of APIs to register to
+        # Optional API's will be attempted later
         if "apis" not in kwargs:
             kwargs["apis"] = [
                 "database",
@@ -125,30 +117,27 @@ class Steem(object):
                 # "follow",
             ]
 
-        Steem.offline = kwargs.get("offline", False)
+        self.rpc = None
+        self.debug = debug
 
-        if Steem.rpc is None and not Steem.offline:
+        self.offline = kwargs.get("offline", False)
+        self.nobroadcast = kwargs.get("nobroadcast", False)
+        self.unsigned = kwargs.get("unsigned", False)
+        self.expiration = int(kwargs.get("expiration", 30))
+
+        if not self.offline:
             self._connect(node=node,
                           rpcuser=rpcuser,
                           rpcpassword=rpcpassword,
                           **kwargs)
 
-            # Optional APIs
+            # Try Optional APIs
             try:
                 self.rpc.register_apis(["account_by_key", "follow"])
             except NoAccessApi as e:
                 log.info(str(e))
 
-        if Steem.debug is None:
-            Steem.debug = debug
-        if Steem.nobroadcast is None:
-            Steem.nobroadcast = kwargs.get("nobroadcast", False)
-        if Steem.unsigned is None:
-            Steem.unsigned = kwargs.pop("unsigned", False)
-        if Steem.expiration is None:
-            Steem.expiration = int(kwargs.pop("expires", 30))
-
-        Steem.wallet = Wallet(**kwargs)
+        self.wallet = Wallet(self.rpc, **kwargs)
 
     def _connect(self,
                  node="",
@@ -169,7 +158,7 @@ class Steem(object):
         if not rpcpassword and "rpcpassword" in config:
             rpcpassword = config["rpcpassword"]
 
-        Steem.rpc = SteemNodeRPC(node, rpcuser, rpcpassword, **kwargs)
+        self.rpc = SteemNodeRPC(node, rpcuser, rpcpassword, **kwargs)
 
     def finalizeOp(self, ops, account, permission):
         """ This method obtains the required private keys if present in
@@ -263,7 +252,7 @@ class Steem(object):
             :param bool replace: Instead of calculating a *diff*, replace
                                  the post entirely (defaults to ``False``)
         """
-        original_post = Post(identifier)
+        original_post = Post(identifier, steem_instance=self)
 
         if replace:
             newbody = body
@@ -547,7 +536,7 @@ class Steem(object):
 
         account = None
         try:
-            account = Account(account_name)
+            account = Account(account_name, steem_instance=self)
         except:
             pass
         if account:
@@ -657,7 +646,7 @@ class Steem(object):
             memo_wif = self.wallet.getMemoKeyForAccount(account)
             if not memo_wif:
                 raise MissingKeyError("Memo key for %s missing!" % account)
-            to_account = Account(to)
+            to_account = Account(to, steem_instance=self)
             nonce = str(random.getrandbits(64))
             memo = Memo.encode_memo(
                 PrivateKey(memo_wif),
@@ -936,7 +925,7 @@ class Steem(object):
             :param str identifier: Identifier for the post to upvote Takes
                                    the form ``@author/permlink``
         """
-        return Post(self, identifier)
+        return Post(identifier, steem_instance=self)
 
     def get_recommended(self, user):
         """ (obsolete) Get recommended posts for user
@@ -1017,7 +1006,7 @@ class Steem(object):
             :param str identifier: Identifier of a post. Takes an
                                    identifier of the form ``@author/permlink``
         """
-        return Post(identifier).get_comments()
+        return Post(identifier, steem_instance=self).get_comments()
 
     def get_categories(self, sort="trending", begin=None, limit=10):
         """ List categories
@@ -1052,7 +1041,7 @@ class Steem(object):
                 account = config["default_account"]
         if not account:
             raise ValueError("You need to provide an account")
-        a = Account(account)
+        a = Account(account, steem_instance=self)
         info = self.rpc.get_dynamic_global_properties()
         steem_per_mvest = (
             Amount(info["total_vesting_fund_steem"]).amount /
@@ -1070,7 +1059,7 @@ class Steem(object):
         }
 
     def get_account_history(self, account, **kwargs):
-        return Account(account).rawhistory(**kwargs)
+        return Account(account, steem_instance=self).rawhistory(**kwargs)
 
     def decode_memo(self, enc_memo, account):
         """ Try to decode an encrypted memo
@@ -1092,7 +1081,8 @@ class Steem(object):
             To be used in a for loop that returns an instance of `Post()`.
         """
         for c in Blockchain(
-            mode=kwargs.get("mode", "irreversible")
+            mode=kwargs.get("mode", "irreversible"),
+            steem_instance=self,
         ).stream("comment", *args, **kwargs):
             yield Post(c, steem_instance=self)
 
@@ -1101,7 +1091,7 @@ class Steem(object):
 
             :param str account: Account name to get interest for
         """
-        account = Account(account)
+        account = Account(account, steem_instance=self)
         last_payment = formatTimeString(account["sbd_last_interest_payment"])
         next_payment = last_payment + timedelta(days=30)
         interest_rate = self.info()["sbd_interest_rate"] / 100  # the result is in percent!
@@ -1183,7 +1173,7 @@ class Steem(object):
             raise ValueError(
                 "Permission needs to be either 'owner', 'posting', or 'active"
             )
-        account = Account(account)
+        account = Account(account, steem_instance=self)
         if not weight:
             weight = account[permission]["weight_threshold"]
 
@@ -1196,7 +1186,7 @@ class Steem(object):
             ])
         except:
             try:
-                foreign_account = Account(foreign)
+                foreign_account = Account(foreign, steem_instance=self)
                 authority["account_auths"].append([
                     foreign_account["name"],
                     weight
@@ -1244,7 +1234,7 @@ class Steem(object):
             raise ValueError(
                 "Permission needs to be either 'owner', 'posting', or 'active"
             )
-        account = Account(account)
+        account = Account(account, steem_instance=self)
         authority = account[permission]
 
         try:
@@ -1258,7 +1248,7 @@ class Steem(object):
             ))
         except:
             try:
-                foreign_account = Account(foreign)
+                foreign_account = Account(foreign, steem_instance=self)
                 affected_items = list(
                     filter(lambda x: x[0] == foreign_account["name"],
                            authority["account_auths"]))
@@ -1317,7 +1307,7 @@ class Steem(object):
             raise ValueError("You need to provide an account")
 
         PublicKey(key)  # raises exception if invalid
-        account = Account(account)
+        account = Account(account, steem_instance=self)
         op = operations.Account_update(
             **{"account": account["name"],
                "memo_key": key,
@@ -1339,7 +1329,7 @@ class Steem(object):
                 account = config["default_author"]
         if not account:
             raise ValueError("You need to provide an account")
-        account = Account(account)
+        account = Account(account, steem_instance=self)
         op = operations.Account_witness_vote(
             **{"account": account["name"],
                "witness": witness,
@@ -1453,7 +1443,7 @@ class Steem(object):
                 account = config["default_account"]
         if not account:
             raise ValueError("You need to provide an account")
-        account = Account(account)
+        account = Account(account, steem_instance=self)
         op = operations.Account_update(
             **{"account": account["name"],
                "memo_key": account["memo_key"],
@@ -1486,7 +1476,7 @@ class Steem(object):
                 account = config["default_account"]
         if not account:
             raise ValueError("You need to provide an account")
-        account = Account(account)
+        account = Account(account, steem_instance=self)
         author, permlink = resolveIdentifier(identifier)
         op = operations.Comment_options(
             **{
