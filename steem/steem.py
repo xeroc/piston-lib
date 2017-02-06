@@ -626,12 +626,10 @@ class Steem(object):
                         'weight_threshold': 1},
              'posting': {'account_auths': posting_accounts_authority,
                          'key_auths': posting_key_authority,
-                         'weight_threshold': 1}}
+                         'weight_threshold': 1},
+             'prefix': self.rpc.chain_params["prefix"]}
 
-        op = operations.Account_create(
-            **s,
-            prefix=self.rpc.chain_params["prefix"]
-        )
+        op = operations.Account_create(**s)
 
         return self.finalizeOp(op, creator, "active")
 
@@ -912,8 +910,8 @@ class Steem(object):
                 "block_signing_key": signing_key,
                 "props": props,
                 "fee": "0.000 STEEM",
-            },
-            prefix=self.rpc.chain_params["prefix"]
+                "prefix": self.rpc.chain_params["prefix"]
+            }
         )
         return self.finalizeOp(op, account, "active")
 
@@ -1213,8 +1211,8 @@ class Steem(object):
             **{"account": account["name"],
                permission: authority,
                "memo_key": account["memo_key"],
-               "json_metadata": account["json_metadata"]},
-            prefix=self.rpc.chain_params["prefix"]
+               "json_metadata": account["json_metadata"],
+               'prefix': self.rpc.chain_params["prefix"]}
         )
         if permission == "owner":
             return self.finalizeOp(op, account["name"], "owner")

@@ -220,10 +220,9 @@ class Account_create(GrapheneObject):
         if isArgsThisClass(self, args):
             self.data = args[0].data
         else:
-            prefix = kwargs.pop("prefix", default_prefix)
-
             if len(args) == 1 and len(kwargs) == 0:
                 kwargs = args[0]
+            prefix = kwargs.pop("prefix", default_prefix)
 
             assert len(kwargs["new_account_name"]) <= 16, "Account name must be at most 16 chars long"
 
@@ -250,10 +249,9 @@ class Account_update(GrapheneObject):
         if isArgsThisClass(self, args):
             self.data = args[0].data
         else:
-            prefix = kwargs.pop("prefix", default_prefix)
-
             if len(args) == 1 and len(kwargs) == 0:
                 kwargs = args[0]
+            prefix = kwargs.pop("prefix", default_prefix)
 
             meta = ""
             if "json_metadata" in kwargs and kwargs["json_metadata"]:
@@ -397,10 +395,9 @@ class Witness_update(GrapheneObject):
         if isArgsThisClass(self, args):
             self.data = args[0].data
         else:
-            prefix = kwargs.pop("prefix", default_prefix)
-
             if len(args) == 1 and len(kwargs) == 0:
                 kwargs = args[0]
+            prefix = kwargs.pop("prefix", default_prefix)
 
             if not kwargs["block_signing_key"]:
                 kwargs["block_signing_key"] = "STM1111111111111111111111111111111114T1Anm"
