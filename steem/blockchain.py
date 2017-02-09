@@ -201,6 +201,11 @@ class Blockchain(object):
             :param str mode: We here have the choice between
                  * "head": the last block
                  * "irreversible": the block that is confirmed by 2/3 of all block producers and is thus irreversible!
+
+            The dict output is formated such that ``type`` caries the
+            operation type, timestamp and block_num are taken from the
+            block the operation was stored in and the other key depend
+            on the actualy operation.
         """
         if isinstance(opNames, str):
             opNames = [opNames]
