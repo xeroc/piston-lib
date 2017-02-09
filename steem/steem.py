@@ -224,6 +224,14 @@ class Steem(object):
         tx = TransactionBuilder(tx)
         return tx.broadcast()
 
+    def symbol(self, asset):
+        """ This method returns the symbol names used on the blockchain.
+            It is only relevant if we are not on STEEM, but e.g. on
+            GOLOS
+        """
+        assert asset.lower() in ["sbd", "steem"]
+        return self.rpc.chain_params["%s_symbol" % asset.lower()]
+
     def info(self):
         """ Returns the global properties
         """
@@ -418,11 +426,12 @@ class Steem(object):
 
         # If comment_options are used, add a new op to the transaction
         if options:
+            default_max_payout = "1000000.000 %s" % self.symbol("SBD")
             op.append(
                 operations.Comment_options(**{
                     "author": author,
                     "permlink": permlink,
-                    "max_accepted_payout": options.get("max_accepted_payout", "1000000.000 SBD"),
+                    "max_accepted_payout": options.get("max_accepted_payout", default_max_payout),
                     "percent_steem_dollars": int(
                         options.get("percent_steem_dollars", 100) * STEEMIT_1_PERCENT
                     ),
@@ -648,7 +657,7 @@ class Steem(object):
         if not account:
             raise ValueError("You need to provide an account")
 
-        assert asset == "SBD" or asset == "STEEM"
+        assert asset == self.symbol("SBD") or asset == self.symbol("steem")
 
         if memo and memo[0] == "#":
             from steembase import memo as Memo
@@ -724,7 +733,7 @@ class Steem(object):
                "amount": '{:.{prec}f} {asset}'.format(
                    float(amount),
                    prec=3,
-                   asset="STEEM")
+                   asset=self.symbol("steem"))
                }
         )
 
@@ -752,7 +761,7 @@ class Steem(object):
                "amount": '{:.{prec}f} {asset}'.format(
                    float(amount),
                    prec=3,
-                   asset="SBD"
+                   asset=self.symbol("SBD")
                )}
         )
 
@@ -868,8 +877,8 @@ class Steem(object):
             **{
                 "publisher": account,
                 "exchange_rate": {
-                    "base": "%s SBD" % steem_usd_price,
-                    "quote": "%s STEEM" % quote,
+                    "base": "%s %s" % (steem_usd_price, self.symbol("SBD")),
+                    "quote": "%s %s" % (quote, self.symbol("steem")),
                 }
             }
         )
@@ -909,7 +918,7 @@ class Steem(object):
                 "url": url,
                 "block_signing_key": signing_key,
                 "props": props,
-                "fee": "0.000 STEEM",
+                "fee": "0.000 %s" % self.symbol("steem"),
                 "prefix": self.rpc.chain_params["prefix"]
             }
         )
@@ -917,7 +926,10 @@ class Steem(object):
 
     @staticmethod
     def _valid_currency(currency):
-        if currency not in ['STEEM', 'SBD']:
+        if currency not in [
+            Steem.rpc.chain_params["sbd_symbol"],
+            Steem.rpc.chain_params["steem_symbol"]
+        ]:
             raise TypeError("Unsupported currency %s" % currency)
 
     def get_content(self, identifier):
@@ -1056,7 +1068,7 @@ class Steem(object):
             Amount(info["total_vesting_fund_steem"]).amount /
             (Amount(info["total_vesting_shares"]).amount / 1e6)
         )
-        vesting_shares_steem = "%f STEEM" % (Amount(a["vesting_shares"]).amount / 1e6 * steem_per_mvest)
+        vesting_shares_steem = Amount(a["vesting_shares"]).amount / 1e6 * steem_per_mvest
         return {
             "balance": Amount(a["balance"]),
             "vesting_shares": Amount(a["vesting_shares"]),
@@ -1486,11 +1498,12 @@ class Steem(object):
             raise ValueError("You need to provide an account")
         account = Account(account)
         author, permlink = resolveIdentifier(identifier)
+        default_max_payout = "1000000.000 %s" % self.symbol("SBD")
         op = operations.Comment_options(
             **{
                 "author": author,
                 "permlink": permlink,
-                "max_accepted_payout": options.get("max_accepted_payout", "1000000.000 SBD"),
+                "max_accepted_payout": options.get("max_accepted_payout", default_max_payout),
                 "percent_steem_dollars": options.get("percent_steem_dollars", 100) * STEEMIT_1_PERCENT,
                 "allow_votes": options.get("allow_votes", True),
                 "allow_curation_rewards": options.get("allow_curation_rewards", True),

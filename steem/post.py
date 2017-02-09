@@ -87,8 +87,8 @@ class Post(dict):
 
         # Total reward
         post["total_payout_reward"] = (
-            Amount(post.get("total_payout_value", "0 SBD")) +
-            Amount(post.get("total_pending_payout_value", "0 SBD"))
+            Amount(post.get("total_payout_value", "0 %s" % self.steem.symbol("SBD"))) +
+            Amount(post.get("total_pending_payout_value", "0 %s" % self.steem.symbol("SBD")))
         )
 
         # Parse Times
@@ -111,7 +111,7 @@ class Post(dict):
             "promoted",
         ]
         for p in sbd_amounts:
-            post[p] = Amount(post.get(p, "0.000 SBD"))
+            post[p] = Amount(post.get(p, "0.000 %s" % self.steem.symbol("SBD")))
 
         # Try to properly format json meta data
         try:
