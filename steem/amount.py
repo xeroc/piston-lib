@@ -1,172 +1,210 @@
-class Amount(object):
+class Amount(dict):
     """ This class helps deal and calculate with the different assets on the chain.
 
         :param str amountString: Amount string as used by the backend (e.g. "10 SBD")
     """
     def __init__(self, amountString="0 SBD"):
         if isinstance(amountString, Amount):
-            self.amount = amountString.amount
-            self.asset = amountString.asset
+            self["amount"] = amountString["amount"]
+            self["asset"] = amountString["asset"]
+        elif isinstance(amountString, str):
+            self["amount"], self["asset"] = amountString.split(" ")
         else:
-            self.amount, self.asset = amountString.split(" ")
-            if self.amount:
-                self.amount = float(self.amount)
-            else:
-                self.amount = 0.0
+            raise ValueError("Need an instance of 'Amount' or a string with amount and asset")
+
+        self["amount"] = float(self["amount"])
+
+    @property
+    def amount(self):
+        return self["amount"]
+
+    @property
+    def symbol(self):
+        return self["asset"]
+
+    @property
+    def asset(self):
+        return self["asset"]
 
     def __str__(self):
         # STEEM
-        if self.asset == "SBD":
+        if self["asset"] == "SBD":
             prec = 3
-        elif self.asset == "STEEM":
+        elif self["asset"] == "STEEM":
             prec = 3
-        elif self.asset == "VESTS":
+        elif self["asset"] == "VESTS":
             prec = 6
 
         # GOLOS
-        elif self.asset == "GBG":
+        elif self["asset"] == "GBG":
             prec = 3
-        elif self.asset == "GOLOS":
+        elif self["asset"] == "GOLOS":
             prec = 3
-        elif self.asset == "GESTS":
+        elif self["asset"] == "GESTS":
             prec = 6
         # default
         else:
             prec = 6
-        return "{:.{prec}f} {}".format(self.amount, self.asset, prec=prec)
+        return "{:.{prec}f} {}".format(self["amount"], self["asset"], prec=prec)
 
     def __float__(self):
-        return self.amount
+        return self["amount"]
 
     def __int__(self):
-        return int(self.amount)
+        return int(self["amount"])
 
     def __add__(self, other):
-        a = Amount(str(self))
+        a = Amount(self)
         if isinstance(other, Amount):
-            assert other.asset == self.asset
-            a.amount += other.amount
+            assert other.asset == self["asset"]
+            a["amount"] += other["amount"]
         else:
-            a.amount += float(other)
+            a["amount"] += float(other)
         return a
 
     def __sub__(self, other):
-        a = Amount(str(self))
+        a = Amount(self)
         if isinstance(other, Amount):
-            assert other.asset == self.asset
-            a.amount -= other.amount
+            assert other.asset == self["asset"]
+            a["amount"] -= other["amount"]
         else:
-            a.amount -= float(other)
+            a["amount"] -= float(other)
         return a
 
     def __mul__(self, other):
-        a = Amount(str(self))
-        a.amount *= other
+        a = Amount(self)
+        if isinstance(other, Amount):
+            a["amount"] *= other["amount"]
+        else:
+            a["amount"] *= other
         return a
 
     def __floordiv__(self, other):
-        a = Amount(str(self))
-        a.amount //= other
+        a = Amount(self)
+        if isinstance(other, Amount):
+            raise Exception("Cannot divide two Amounts")
+        else:
+            a["amount"] //= other
         return a
 
     def __div__(self, other):
-        a = Amount(str(self))
-        a.amount /= other
+        a = Amount(self)
+        if isinstance(other, Amount):
+            raise Exception("Cannot divide two Amounts")
+        else:
+            a["amount"] /= other
         return a
 
     def __mod__(self, other):
-        a = Amount(str(self))
-        a.amount %= other
+        a = Amount(self)
+        if isinstance(other, Amount):
+            a["amount"] %= other["amount"]
+        else:
+            a["amount"] %= other
         return a
 
     def __pow__(self, other):
-        a = Amount(str(self))
-        a.amount **= other
+        a = Amount(self)
+        if isinstance(other, Amount):
+            a["amount"] **= other["amount"]
+        else:
+            a["amount"] **= other
         return a
 
     def __iadd__(self, other):
         if isinstance(other, Amount):
-            assert other.asset == self.asset
-            self.amount += other.amount
+            assert other.asset == self["asset"]
+            self["amount"] += other["amount"]
         else:
-            self.amount += other
+            self["amount"] += other
         return self
 
     def __isub__(self, other):
         if isinstance(other, Amount):
-            assert other.asset == self.asset
-            self.amount -= other.amount
+            assert other.asset == self["asset"]
+            self["amount"] -= other["amount"]
         else:
-            self.amount -= other
+            self["amount"] -= other
         return self
 
     def __imul__(self, other):
-        self.amount *= other
+        if isinstance(other, Amount):
+            self["amount"] *= other["amount"]
+        else:
+            self["amount"] *= other
         return self
 
     def __idiv__(self, other):
         if isinstance(other, Amount):
-            assert other.asset == self.asset
-            return self.amount / other.amount
+            assert other.asset == self["asset"]
+            return self["amount"] / other["amount"]
         else:
-            self.amount /= other
+            self["amount"] /= other
             return self
 
     def __ifloordiv__(self, other):
-        self.amount //= other
+        if isinstance(other, Amount):
+            self["amount"] //= other["amount"]
+        else:
+            self["amount"] //= other
         return self
 
     def __imod__(self, other):
-        self.amount %= other
+        if isinstance(other, Amount):
+            self["amount"] %= other["amount"]
+        else:
+            self["amount"] %= other
         return self
 
     def __ipow__(self, other):
-        self.amount **= other
+        self["amount"] **= other
         return self
 
     def __lt__(self, other):
         if isinstance(other, Amount):
-            assert other.asset == self.asset
-            return self.amount < other.amount
+            assert other.asset == self["asset"]
+            return self["amount"] < other["amount"]
         else:
-            return self.amount < float(other or 0)
+            return self["amount"] < float(other or 0)
 
     def __le__(self, other):
         if isinstance(other, Amount):
-            assert other.asset == self.asset
-            return self.amount <= other.amount
+            assert other.asset == self["asset"]
+            return self["amount"] <= other["amount"]
         else:
-            return self.amount <= float(other or 0)
+            return self["amount"] <= float(other or 0)
 
     def __eq__(self, other):
         if isinstance(other, Amount):
-            assert other.asset == self.asset
-            return self.amount == other.amount
+            assert other.asset == self["asset"]
+            return self["amount"] == other["amount"]
         else:
-            return self.amount == float(other or 0)
+            return self["amount"] == float(other or 0)
 
     def __ne__(self, other):
         if isinstance(other, Amount):
-            assert other.asset == self.asset
-            return self.amount != other.amount
+            assert other.asset == self["asset"]
+            return self["amount"] != other["amount"]
         else:
-            return self.amount != float(other or 0)
+            return self["amount"] != float(other or 0)
 
     def __ge__(self, other):
         if isinstance(other, Amount):
-            assert other.asset == self.asset
-            return self.amount >= other.amount
+            assert other.asset == self["asset"]
+            return self["amount"] >= other["amount"]
         else:
-            return self.amount >= float(other or 0)
+            return self["amount"] >= float(other or 0)
 
     def __gt__(self, other):
         if isinstance(other, Amount):
-            assert other.asset == self.asset
-            return self.amount > other.amount
+            assert other.asset == self["asset"]
+            return self["amount"] > other["amount"]
         else:
-            return self.amount > float(other or 0)
+            return self["amount"] > float(other or 0)
 
     __repr__ = __str__
+    __truediv__ = __div__
+    __truemul__ = __mul__
 
 
 if __name__ == "__main__":
