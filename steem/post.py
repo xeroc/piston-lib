@@ -86,7 +86,7 @@ class Post(dict):
             self._patch = post["body"]
 
         # Total reward
-        post["total_payout_reward"] = "%.3f SBD" % (
+        post["total_payout_reward"] = (
             Amount(post.get("total_payout_value", "0 SBD")) +
             Amount(post.get("total_pending_payout_value", "0 SBD"))
         )
