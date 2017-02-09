@@ -111,6 +111,13 @@ class Steem(object):
     # existing connection
     rpc = None
 
+    # This parameter should be dealt with separately to make sure we
+    # don't broadcast anything just because the developer forgot to use
+    # the steem_instance parameter properly.
+    # This means that whatever value for ``nobroadcast`` has been handed
+    # over to Steem() last, will be the 'new default'.
+    nobroadcast = None
+
     def __init__(self,
                  node="",
                  rpcuser="",
@@ -127,9 +134,16 @@ class Steem(object):
         self.unsigned = kwargs.pop("unsigned", False)
         self.expiration = int(kwargs.pop("expires", 30))
 
-        # RPC parameters (get, instead of pop to hand them over to RPC/Wallet)
+        # RPC parameters (get, instead of pop to hand them over to Wallet)
         self.offline = kwargs.get("offline", False)
-        self.nobroadcast = kwargs.get("nobroadcast", False)
+
+        if Steem.nobroadcast is not None and "nobroadcast" not in kwargs:
+            self.nobroadcast = Steem.nobroadcast
+        elif "nobroadcast" in kwargs:
+            self.nobroadcast = kwargs.get("nobroadcast")
+        else:
+            self.nobroadcast = False
+        Steem.nobroadcast = self.nobroadcast
 
         if not self.offline:
             # There is a Steem.rpc defined already and no new url is provided
