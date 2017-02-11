@@ -53,15 +53,16 @@ class Wallet():
     keys = {}  # struct with pubkey as key and wif as value
     keyMap = {}  # type:wif pairs to force certain keys
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, steem_instance=None, **kwargs):
         from .storage import configStorage
         self.configStorage = configStorage
 
-        # RPC
-        Wallet.rpc = stm.Steem.rpc
+        if not steem_instance:
+            steem_instance = stm.Steem()
+        Wallet.rpc = steem_instance.rpc
 
         # Prefix?
-        if Wallet.rpc:
+        if self.rpc:
             self.prefix = Wallet.rpc.chain_params["prefix"]
         else:
             # If not connected, load prefix from config
