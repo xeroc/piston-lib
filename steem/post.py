@@ -115,7 +115,7 @@ class Post(dict):
 
         # Try to properly format json meta data
         try:
-            meta_str = post.get("json_metadata", "")
+            meta_str = post.get("json_metadata", "{}")
             post['json_metadata'] = json.loads(meta_str)
         except:
             post['json_metadata'] = dict()
