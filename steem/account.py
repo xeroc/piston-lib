@@ -4,7 +4,7 @@ import math
 import time
 from contextlib import suppress
 
-import steem as stm
+from steem.instance import shared_steem_instance
 
 from .amount import Amount
 from .converter import Converter
@@ -26,12 +26,9 @@ class Account(dict):
         steem_instance=None,
         lazy=False,
     ):
+        self.steem = steem_instance or shared_steem_instance()
         self.cached = False
         self.name = account_name
-
-        if not steem_instance:
-            steem_instance = stm.Steem()
-        self.steem = steem_instance
 
         # caches
         self._converter = None

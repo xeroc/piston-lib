@@ -10,5 +10,6 @@ __all__ = [
     "wallet",
     "dex",
     "transactions",
-    "witness"
+    "witness",
+    "instance",
 ]

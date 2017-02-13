@@ -1,4 +1,5 @@
-import steem as stm
+from steem.instance import shared_steem_instance
+
 from .exceptions import WitnessDoesNotExistsException
 
 
@@ -16,12 +17,9 @@ class Witness(dict):
         steem_instance=None,
         lazy=False
     ):
+        self.steem = steem_instance or shared_steem_instance()
         self.cached = False
         self.witness = witness
-
-        if not steem_instance:
-            steem_instance = stm.Steem()
-        self.steem = steem_instance
 
         if not lazy:
             self.refresh()

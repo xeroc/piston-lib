@@ -1,13 +1,11 @@
 import unittest
 
-from steem.post import (
-    Post,
-    VotingInvalidOnArchivedPost
-)
-from steem.steem import (
-    Steem,
+from steem.post import Post
+from steem.steem import Steem
+from steem.exceptions import (
     MissingKeyError,
-    InsufficientAuthorityError
+    InsufficientAuthorityError,
+    VotingInvalidOnArchivedPost
 )
 
 identifier = "@xeroc/piston"

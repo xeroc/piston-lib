@@ -1,6 +1,6 @@
-import steem as stm
 from steem.account import Account
 from steem.post import Post
+from steem.instance import shared_steem_instance
 from steem.utils import is_comment
 
 
@@ -12,9 +12,7 @@ class Blog(list):
 
     """
     def __init__(self, account_name, steem_instance=None):
-        if not steem_instance:
-            steem_instance = stm.Steem()
-        self.steem = steem_instance
+        self.steem = steem_instance or shared_steem_instance()
         self.name = account_name
         self.refresh()
 
@@ -24,11 +22,11 @@ class Blog(list):
         r = []
         for p in posts:
             post = state["content"][p]
-            r.append(Post(post, steem_instance=self))
+            r.append(Post(post, steem_instance=self.steem))
         super(Blog, self).__init__(r)
 
     def all(self):
-        self.current_index = Account(self.name).virtual_op_count()
+        self.current_index = Account(self.name, steem_instance=self.steem).virtual_op_count()
 
         # prevent duplicates
         self.seen_items = set()
@@ -68,4 +66,4 @@ class Blog(list):
                     hist_uniq.append(item)
 
             for p in hist_uniq:
-                yield Post(p)
+                yield Post(p, steem_instance=self.steem)
