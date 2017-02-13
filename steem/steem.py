@@ -179,7 +179,7 @@ class Steem(object):
                 posting permission. Neither can you use different
                 accounts for different operations!
         """
-        tx = TransactionBuilder()
+        tx = TransactionBuilder(steem_instance=self)
         tx.appendOps(ops)
 
         if self.unsigned:
@@ -200,7 +200,7 @@ class Steem(object):
                 from the wallet as defined in "missing_signatures" key
                 of the transactions.
         """
-        tx = TransactionBuilder(tx)
+        tx = TransactionBuilder(tx, steem_instance=self)
         tx.appendMissingSignatures(wifs)
         tx.sign()
         return tx.json()
@@ -210,7 +210,7 @@ class Steem(object):
 
             :param tx tx: Signed transaction to broadcast
         """
-        tx = TransactionBuilder(tx)
+        tx = TransactionBuilder(tx, steem_instance=self)
         return tx.broadcast()
 
     def symbol(self, asset):
