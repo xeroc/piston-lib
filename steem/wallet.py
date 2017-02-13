@@ -68,7 +68,8 @@ class Wallet():
         # Compatibility after name change from wif->keys
         if "wif" in kwargs and "keys" not in kwargs:
             kwargs["keys"] = kwargs["wif"]
-        elif "keys" in kwargs:
+
+        if "keys" in kwargs:
             self.setKeys(kwargs["keys"])
         else:
             """ If no keys are provided manually we load the SQLite

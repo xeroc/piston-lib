@@ -76,9 +76,9 @@ class Post(dict):
             self._patch = post["body"]
 
         # Total reward
-        post["total_payout_reward"] = "%.3f SBD" % (
-            Amount(post.get("total_payout_value", "0 SBD")) +
-            Amount(post.get("total_pending_payout_value", "0 SBD"))
+        post["total_payout_reward"] = (
+            Amount(post.get("total_payout_value", "0 %s" % self.steem.symbol("SBD"))) +
+            Amount(post.get("total_pending_payout_value", "0 %s" % self.steem.symbol("SBD")))
         )
 
         # Parse Times
@@ -101,11 +101,11 @@ class Post(dict):
             "promoted",
         ]
         for p in sbd_amounts:
-            post[p] = Amount(post.get(p, "0.000 SBD"))
+            post[p] = Amount(post.get(p, "0.000 %s" % self.steem.symbol("SBD")))
 
         # Try to properly format json meta data
         try:
-            meta_str = post.get("json_metadata", "")
+            meta_str = post.get("json_metadata", "{}")
             post['json_metadata'] = json.loads(meta_str)
         except:
             post['json_metadata'] = dict()
