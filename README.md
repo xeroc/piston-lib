@@ -23,10 +23,10 @@ Python 3 library for Steem!
 Installation
 ------------
 
-Install with `python-steem`:
+Install with `pip`:
 
     $ sudo apt-get install libffi-dev libssl-dev python-dev
-    $ python-steem3 install steem
+    $ pip3 install steem
 
 Manual installation:
 
@@ -37,7 +37,7 @@ Manual installation:
 Upgrade
 -------
 
-    $ python-steem install --user --upgrade
+    $ pip install --user --upgrade
 
 Additional dependencies
 -----------------------
