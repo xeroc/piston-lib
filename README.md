@@ -25,8 +25,8 @@ Installation
 
 Install with `python-steem`:
 
-    $ sudo apt-get install libffi-dev libssl-dev python-dev
-    $ python-steem3 install steem
+    $ sudo apt-get install libffi-dev libssl-dev python-dev python3-pip
+    $ pip3 install steem
 
 Manual installation:
 
@@ -37,7 +37,7 @@ Manual installation:
 Upgrade
 -------
 
-    $ python-steem install --user --upgrade
+    $ pip3 install steem --user --upgrade
 
 Additional dependencies
 -----------------------
