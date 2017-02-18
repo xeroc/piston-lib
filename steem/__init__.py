@@ -12,4 +12,5 @@ __all__ = [
     "transactions",
     "witness",
     "instance",
+    "data",
 ]
