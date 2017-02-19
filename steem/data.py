@@ -36,9 +36,9 @@ class SteemData(object):
 
     def info(self):
         # todo print detailed info and some stats
-        print(self.mongo_url)
+        return self.mongo_url
 
 
 if __name__ == '__main__':
     s = SteemData()
-    s.info()
+    print(s.info())
