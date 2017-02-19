@@ -110,6 +110,9 @@ class SteemNodeRPC(GrapheneWebsocketRPC):
         assert chain in known_chains, "The chain you are connecting to is not supported"
         return known_chains.get(chain)
 
+    def get_witness(self, name):
+        return self.get_witness_by_account(name)
+
     def rpcexec(self, payload):
         """ Execute a call by sending the payload.
             It makes use of the GrapheneRPC library.
