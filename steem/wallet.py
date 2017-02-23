@@ -365,12 +365,12 @@ class Wallet():
     def getKeyType(self, account, pub):
         """ Get key type
         """
-        if pub == account["memo_key"]:
-            return "memo"
         for authority in ["owner", "posting", "active"]:
             for key in account[authority]["key_auths"]:
                 if pub == key[0]:
                     return authority
+        if pub == account["memo_key"]:
+            return "memo"
         return None
 
     def getAccounts(self):
