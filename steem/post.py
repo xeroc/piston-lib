@@ -1,21 +1,21 @@
 import json
 import re
 from datetime import datetime
+
+from funcy import walk_values
+from steem.instance import shared_steem_instance
 from steembase.operations import Comment_options
 
-import steem as stm
-from funcy import walk_values
-
 from .amount import Amount
+from .exceptions import (
+    PostDoesNotExist,
+    VotingInvalidOnArchivedPost
+)
 from .utils import (
     resolveIdentifier,
     constructIdentifier,
     remove_from_dict,
     parse_time,
-)
-from .exceptions import (
-    PostDoesNotExist,
-    VotingInvalidOnArchivedPost
 )
 
 
@@ -36,17 +36,7 @@ class Post(dict):
         steem_instance=None,
         lazy=False
     ):
-        # Legacy API compatibility
-        if isinstance(post, stm.Steem) and steem_instance:
-            import warnings
-            tmp = steem_instance
-            steem_instance = post
-            post = tmp
-            warnings.warn("The Post() API has changed! Please read the documentation and update your code")
-
-        if not steem_instance:
-            steem_instance = stm.Steem()
-        self.steem = steem_instance
+        self.steem = steem_instance or shared_steem_instance()
         self.loaded = False
 
         if isinstance(post, str):  # From identifier
@@ -86,9 +76,9 @@ class Post(dict):
             self._patch = post["body"]
 
         # Total reward
-        post["total_payout_reward"] = "%.3f SBD" % (
-            Amount(post.get("total_payout_value", "0 SBD")) +
-            Amount(post.get("total_pending_payout_value", "0 SBD"))
+        post["total_payout_reward"] = (
+            Amount(post.get("total_payout_value", "0 %s" % self.steem.symbol("SBD"))) +
+            Amount(post.get("total_pending_payout_value", "0 %s" % self.steem.symbol("SBD")))
         )
 
         # Parse Times
@@ -111,11 +101,11 @@ class Post(dict):
             "promoted",
         ]
         for p in sbd_amounts:
-            post[p] = Amount(post.get(p, "0.000 SBD"))
+            post[p] = Amount(post.get(p, "0.000 %s" % self.steem.symbol("SBD")))
 
         # Try to properly format json meta data
         try:
-            meta_str = post.get("json_metadata", "")
+            meta_str = post.get("json_metadata", "{}")
             post['json_metadata'] = json.loads(meta_str)
         except:
             post['json_metadata'] = dict()

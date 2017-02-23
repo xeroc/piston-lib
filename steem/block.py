@@ -1,4 +1,5 @@
-import steem as stm
+from steem.instance import shared_steem_instance
+
 from .exceptions import BlockDoesNotExistsException
 from .utils import parse_time
 
@@ -17,12 +18,9 @@ class Block(dict):
         steem_instance=None,
         lazy=False
     ):
+        self.steem = steem_instance or shared_steem_instance()
         self.cached = False
         self.block = block
-
-        if not steem_instance:
-            steem_instance = stm.Steem()
-        self.steem = steem_instance
 
         if isinstance(block, Block):
             super(Block, self).__init__(block)

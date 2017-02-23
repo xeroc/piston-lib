@@ -1,15 +1,17 @@
-from .account import Account
-from steembase.operations import Operation
-from steembase.account import PrivateKey, PublicKey
-from steembase.signedtransactions import Signed_Transaction
+import logging
+
+from steem.instance import shared_steem_instance
 from steembase import transactions, operations
+from steembase.account import PrivateKey
+from steembase.operations import Operation
+from steembase.signedtransactions import Signed_Transaction
+
+from .account import Account
 from .exceptions import (
     InsufficientAuthorityError,
     MissingKeyError,
     InvalidKeyFormat
 )
-import steem as stm
-import logging
 log = logging.getLogger(__name__)
 
 
@@ -19,9 +21,7 @@ class TransactionBuilder(dict):
     """
 
     def __init__(self, tx={}, steem_instance=None):
-        if not steem_instance:
-            steem_instance = stm.Steem()
-        self.steem = steem_instance
+        self.steem = steem_instance or shared_steem_instance()
 
         self.op = []
         self.wifs = []
@@ -127,7 +127,7 @@ class TransactionBuilder(dict):
             unsigned/partial transaction in order to simplify later
             signing (e.g. for multisig or coldstorage)
         """
-        accountObj = Account(account)
+        accountObj = Account(account, steem_instance=self.steem)
         authority = accountObj[permission]
         # We add a required_authorities to be able to identify
         # how to sign later. This is an array, because we
@@ -136,7 +136,7 @@ class TransactionBuilder(dict):
             account: authority
         }})
         for account_auth in authority["account_auths"]:
-            account_auth_account = Account(account_auth[0])
+            account_auth_account = Account(account_auth[0], steem_instance=self.steem)
             self["required_authorities"].update({
                 account_auth[0]: account_auth_account.get(permission)
             })
@@ -147,7 +147,7 @@ class TransactionBuilder(dict):
         ]
         # Add one recursion of keys from account_auths:
         for account_auth in authority["account_auths"]:
-            account_auth_account = Account(account_auth[0])
+            account_auth_account = Account(account_auth[0], steem_instance=self.steem)
             self["missing_signatures"].extend(
                 [x[0] for x in account_auth_account[permission]["key_auths"]]
             )

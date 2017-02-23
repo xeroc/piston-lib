@@ -71,9 +71,10 @@ class SteemNodeRPC(GrapheneWebsocketRPC):
             DeprecationWarning
         )
         from steem.account import Account
-        return Account(account).rawhistory(first=first, limit=limit,
-                                           only_ops=only_ops,
-                                           exclude_ops=exclude_ops)
+        return Account(account, steem_instance=self.steem).rawhistory(
+            first=first, limit=limit,
+            only_ops=only_ops,
+            exclude_ops=exclude_ops)
 
     def block_stream(self, start=None, stop=None, mode="irreversible"):
         warnings.warn(
@@ -101,10 +102,12 @@ class SteemNodeRPC(GrapheneWebsocketRPC):
 
     def get_network(self):
         """ Identify the connected network. This call returns a
-            dictionary with keys chain_id, core_symbol and prefix
+            dictionary with keys chain_id, prefix, and other chain
+            specific settings
         """
         props = self.get_dynamic_global_properties()
         chain = props["current_supply"].split(" ")[1]
+        assert chain in known_chains, "The chain you are connecting to is not supported"
         return known_chains.get(chain)
 
     def rpcexec(self, payload):

@@ -1,6 +1,8 @@
 import time
+
+from steem.instance import shared_steem_instance
+
 from .block import Block
-import steem as stm
 from .utils import parse_time
 
 virtual_operations = [
@@ -33,9 +35,7 @@ class Blockchain(object):
         steem_instance=None,
         mode="irreversible"
     ):
-        if not steem_instance:
-            steem_instance = stm.Steem()
-        self.steem = steem_instance
+        self.steem = steem_instance or shared_steem_instance()
 
         if mode == "irreversible":
             self.mode = 'last_irreversible_block_num'
@@ -69,7 +69,7 @@ class Blockchain(object):
     def get_current_block(self):
         """ This call returns the current block
         """
-        return Block(self.get_current_block_num())
+        return Block(self.get_current_block_num(), steem_instance=self.steem)
 
     def block_time(self, block_num):
         """ Returns a datetime of the block with the given block
@@ -77,7 +77,7 @@ class Blockchain(object):
 
             :param int block_num: Block number
         """
-        return Block(block_num).time()
+        return Block(block_num, steem_instance=self.steem).time()
 
     def block_timestamp(self, block_num):
         """ Returns the timestamp of the block with the given block
@@ -85,7 +85,7 @@ class Blockchain(object):
 
             :param int block_num: Block number
         """
-        return int(Block(block_num).time().timestamp())
+        return int(Block(block_num, steem_instance=self.steem).time().timestamp())
 
     def blocks(self, start=None, stop=None):
         """ Yields blocks starting from ``start``.
@@ -201,6 +201,11 @@ class Blockchain(object):
             :param str mode: We here have the choice between
                  * "head": the last block
                  * "irreversible": the block that is confirmed by 2/3 of all block producers and is thus irreversible!
+
+            The dict output is formated such that ``type`` caries the
+            operation type, timestamp and block_num are taken from the
+            block the operation was stored in and the other key depend
+            on the actualy operation.
         """
         if isinstance(opNames, str):
             opNames = [opNames]

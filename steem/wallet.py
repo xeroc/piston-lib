@@ -1,16 +1,14 @@
-from steembase.account import PrivateKey, GraphenePrivateKey
+import logging
+import os
+
 from graphenebase import bip38
-import steem as stm
+from steembase.account import PrivateKey, GraphenePrivateKey
+
+from .account import Account
 from .exceptions import (
-    NoWallet,
     InvalidWifError,
     WalletExists
 )
-import os
-import json
-from appdirs import user_data_dir
-import logging
-from .account import Account
 
 log = logging.getLogger(__name__)
 
@@ -53,9 +51,12 @@ class Wallet():
     keys = {}  # struct with pubkey as key and wif as value
     keyMap = {}  # type:wif pairs to force certain keys
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, rpc, *args, **kwargs):
         from .storage import configStorage
         self.configStorage = configStorage
+
+        # RPC
+        Wallet.rpc = rpc
 
         # Prefix?
         if Wallet.rpc:
@@ -64,11 +65,11 @@ class Wallet():
             # If not connected, load prefix from config
             self.prefix = self.configStorage["prefix"]
 
-        Wallet.rpc = stm.Steem.rpc
         # Compatibility after name change from wif->keys
         if "wif" in kwargs and "keys" not in kwargs:
             kwargs["keys"] = kwargs["wif"]
-        elif "keys" in kwargs:
+
+        if "keys" in kwargs:
             self.setKeys(kwargs["keys"])
         else:
             """ If no keys are provided manually we load the SQLite
@@ -329,10 +330,10 @@ class Wallet():
         # FIXME, this only returns the first associated key.
         # If the key is used by multiple accounts, this
         # will surely lead to undesired behavior
-        try:
+        if self.rpc.chain_params["prefix"] == "STM":
             # STEEM
             names = self.rpc.get_key_references([pub], api="account_by_key")[0]
-        except:
+        else:
             # GOLOS
             names = self.rpc.get_key_references([pub])[0]
         if not names:
@@ -364,12 +365,12 @@ class Wallet():
     def getKeyType(self, account, pub):
         """ Get key type
         """
-        if pub == account["memo_key"]:
-            return "memo"
         for authority in ["owner", "posting", "active"]:
             for key in account[authority]["key_auths"]:
                 if pub == key[0]:
                     return authority
+        if pub == account["memo_key"]:
+            return "memo"
         return None
 
     def getAccounts(self):
