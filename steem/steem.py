@@ -1248,7 +1248,7 @@ class Steem(object):
         authority = account[permission]
 
         try:
-            pubkey = PublicKey(foreign)
+            pubkey = PublicKey(foreign, prefix=self.rpc.chain_params["prefix"])
             affected_items = list(
                 filter(lambda x: x[0] == str(pubkey),
                        authority["key_auths"]))
