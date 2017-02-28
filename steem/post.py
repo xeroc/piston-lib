@@ -104,10 +104,13 @@ class Post(dict):
             post[p] = Amount(post.get(p, "0.000 %s" % self.steem.symbol("SBD")))
 
         # Try to properly format json meta data
+
         try:
             meta_str = post.get("json_metadata", "{}")
             post['json_metadata'] = json.loads(meta_str)
         except:
+            post['json_metadata'] = dict()
+        if not post['json_metadata']:
             post['json_metadata'] = dict()
 
         post["tags"] = []
