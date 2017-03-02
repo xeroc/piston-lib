@@ -4,7 +4,7 @@ import math
 import time
 from contextlib import suppress
 
-from steem.instance import shared_steem_instance
+from piston.instance import shared_steem_instance
 
 from .amount import Amount
 from .converter import Converter

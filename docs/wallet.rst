@@ -1,5 +1,5 @@
 Wallet
 ~~~~~~~~~~~~~~~~~~~
 
-.. autoclass:: steem.wallet.Wallet
+.. autoclass:: piston.wallet.Wallet
    :members:

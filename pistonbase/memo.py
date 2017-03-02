@@ -2,7 +2,7 @@ import sys
 import hashlib
 from binascii import hexlify, unhexlify
 from Crypto.Cipher import AES
-from steembase.account import PrivateKey, PublicKey
+from pistonbase.account import PrivateKey, PublicKey
 from graphenebase.base58 import base58encode, base58decode
 import struct
 
@@ -79,7 +79,7 @@ def encode_memo(priv, pub, nonce, message, **kwargs):
         :rtype: hex
 
     """
-    from steembase import transactions
+    from pistonbase import transactions
     shared_secret = get_shared_secret(priv, pub)
     aes, check = init_aes(shared_secret, nonce)
     raw = bytes(message, 'utf8')

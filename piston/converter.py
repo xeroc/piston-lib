@@ -1,6 +1,6 @@
 import math
 
-from steem.instance import shared_steem_instance
+from piston.instance import shared_steem_instance
 
 from .amount import Amount
 

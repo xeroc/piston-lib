@@ -5,10 +5,10 @@ import re
 from datetime import datetime, timedelta
 
 import pkg_resources  # part of setuptools
-from steemapi.steemnoderpc import SteemNodeRPC, NoAccessApi
-from steembase import memo
-from steembase import operations
-from steembase.account import PrivateKey, PublicKey
+from pistonapi.steemnoderpc import SteemNodeRPC, NoAccessApi
+from pistonbase import memo
+from pistonbase import operations
+from pistonbase.account import PrivateKey, PublicKey
 
 from .account import Account
 from .amount import Amount
@@ -81,7 +81,7 @@ class Steem(object):
 
         .. code-block:: python
 
-            from steem import Steem
+            from piston import Steem
             steem = Steem()
             steem.post("Testing steem library", "I am testing steem", category="spam")
 
@@ -552,7 +552,7 @@ class Steem(object):
             raise AccountExistsException
 
         " Generate new keys from password"
-        from steembase.account import PasswordKey, PublicKey
+        from pistonbase.account import PasswordKey, PublicKey
         if password:
             posting_key = PasswordKey(account_name, password, role="posting")
             active_key = PasswordKey(account_name, password, role="active")
@@ -649,7 +649,7 @@ class Steem(object):
         assert asset == self.symbol("SBD") or asset == self.symbol("steem")
 
         if memo and memo[0] == "#":
-            from steembase import memo as Memo
+            from pistonbase import memo as Memo
             memo_wif = self.wallet.getMemoKeyForAccount(account)
             if not memo_wif:
                 raise MissingKeyError("Memo key for %s missing!" % account)

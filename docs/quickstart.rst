@@ -10,7 +10,7 @@ Let's start by creating an instance to the Steem network.
 
 .. code-block:: python
 
-    from steem import Steem
+    from piston import Steem
     steem = Steem()
 
 .. note:: Per default, this call connects to the API node offered by SteemIt
@@ -58,7 +58,7 @@ A full example for our notification daemon looks like this:
 
 .. code-block:: python
 
-    from steem import Steem
+    from piston import Steem
     import os
     import sendgrid
     steem = Steem()

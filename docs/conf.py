@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 #
-# python-steem documentation build configuration file, created by
+# piston-lib documentation build configuration file, created by
 # sphinx-quickstart on Fri Jun  5 14:06:38 2015.
 #
 # This file is execfile()d with the current directory set to its
@@ -48,7 +48,7 @@ source_suffix = '.rst'
 master_doc = 'index'
 
 # General information about the project.
-project = 'python-steem'
+project = 'piston-lib'
 copyright = '2017, ChainSquad GmbH'
 author = 'Fabian Schuh'
 
@@ -202,7 +202,7 @@ html_static_path = ['_static']
 #html_search_scorer = 'scorer.js'
 
 # Output file base name for HTML help builder.
-htmlhelp_basename = 'python-steemdoc'
+htmlhelp_basename = 'piston-libdoc'
 
 # -- Options for LaTeX output ---------------------------------------------
 
@@ -224,7 +224,7 @@ latex_elements = {
 # (source start file, target name, title,
 #  author, documentclass [howto, manual, or own class]).
 latex_documents = [
-  (master_doc, 'python-steem.tex', 'python-steem Documentation',
+  (master_doc, 'piston-lib.tex', 'piston-lib Documentation',
    author, 'manual'),
 ]
 
@@ -254,7 +254,7 @@ latex_documents = [
 # One entry per manual page. List of tuples
 # (source start file, name, description, authors, manual section).
 man_pages = [
-    (master_doc, 'python-steem', 'python-steem Documentation',
+    (master_doc, 'piston-lib', 'piston-lib Documentation',
      [author], 1)
 ]
 
@@ -268,8 +268,8 @@ man_pages = [
 # (source start file, target name, title, author,
 #  dir menu entry, description, category)
 texinfo_documents = [
-  (master_doc, 'python-steem', 'python-steem Documentation',
-   author, 'python-steem', 'One line description of project.',
+  (master_doc, 'piston-lib', 'piston-lib Documentation',
+   author, 'piston-lib', 'One line description of project.',
    'Miscellaneous'),
 ]
 

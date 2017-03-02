@@ -5,8 +5,8 @@ To build your own transactions and sign them
 
 .. code-block:: python
 
-   from steem.transactionbuilder import TransactionBuilder
-   from steembase.operations import Vote
+   from piston.transactionbuilder import TransactionBuilder
+   from pistonbase.operations import Vote
    tx = TransactionBuilder()
    tx.appendOps(Vote(
        **{"voter": voter,
@@ -18,5 +18,5 @@ To build your own transactions and sign them
    tx.sign()
    tx.broadcast()
 
-.. autoclass:: steem.transactionbuilder.TransactionBuilder
+.. autoclass:: piston.transactionbuilder.TransactionBuilder
    :members:

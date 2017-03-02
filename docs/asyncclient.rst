@@ -8,11 +8,11 @@ Asynchronous Steem Client
 Configuration
 #############
 
-.. autoclass:: steemapi.steemasyncclient.Config
+.. autoclass:: pistonapi.steemasyncclient.Config
     :members:
 
 SteemAsyncClient
 ################
 
-.. autoclass:: steemapi.steemasyncclient.SteemAsyncClient
+.. autoclass:: pistonapi.steemasyncclient.SteemAsyncClient
     :members:

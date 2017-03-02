@@ -3,8 +3,8 @@ import re
 from datetime import datetime
 
 from funcy import walk_values
-from steem.instance import shared_steem_instance
-from steembase.operations import Comment_options
+from piston.instance import shared_steem_instance
+from pistonbase.operations import Comment_options
 
 from .amount import Amount
 from .exceptions import (

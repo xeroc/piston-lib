@@ -11,5 +11,5 @@ websockets.
 
 Defintion
 =========
-.. autoclass:: steemapi.steemnoderpc.SteemNodeRPC
+.. autoclass:: pistonapi.steemnoderpc.SteemNodeRPC
     :members: rpcexec, __getattr__

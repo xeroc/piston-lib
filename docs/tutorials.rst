@@ -9,7 +9,7 @@ The most easy auto-reply bot can be coded with just a few lines of code:
 
 .. code-block:: python
 
-   from steem import Steem
+   from piston import Steem
    import os
    import json
    steem = Steem(wif="<posting-key-for-default-author>")
@@ -26,7 +26,7 @@ This example code shows all comments starting at block 1893850.
 
 .. code-block:: python
 
-   from steem.blockchain import Blockchain
+   from piston.blockchain import Blockchain
    from pprint import pprint
 
    for a in blockchain.blocks()
@@ -37,7 +37,7 @@ Operation Stream
 
 .. code-block:: python
 
-   from steem.blockchain import Blockchain
+   from piston.blockchain import Blockchain
    from pprint import pprint
 
    for a in blockchain.ops()
@@ -49,8 +49,8 @@ Decentralized Exchange
 .. code-block:: python
 
     from pprint import pprint
-    from steem import Steem
-    from steem.dex import Dex
+    from piston import Steem
+    from piston.dex import Dex
 
     steem = Steem()
     dex = Dex(steem)

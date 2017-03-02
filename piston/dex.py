@@ -1,7 +1,7 @@
 import random
 
-from steem.instance import shared_steem_instance
-from steembase import transactions
+from piston.instance import shared_steem_instance
+from pistonbase import transactions
 
 from .storage import configStorage as config
 

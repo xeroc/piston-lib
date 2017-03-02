@@ -2,7 +2,7 @@ import logging
 import os
 
 from graphenebase import bip38
-from steembase.account import PrivateKey, GraphenePrivateKey
+from pistonbase.account import PrivateKey, GraphenePrivateKey
 
 from .account import Account
 from .exceptions import (

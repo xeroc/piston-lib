@@ -1,10 +1,10 @@
-Welcome to python-steem's documentation!
+Welcome to piston-lib's documentation!
 ===============================================
 
 Library
 -------
 
-The ``steem``-library can be used to interface with the STEEM
+The ``piston``-library can be used to interface with the STEEM
 blockchain. It comes with
 
 * it's own wallet,
@@ -26,7 +26,7 @@ Getting Started
    contribute
 
 
-Python-Steem Libraries
+Piston-lib's Modules
 ----------------------
 
 .. toctree::

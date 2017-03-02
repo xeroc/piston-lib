@@ -3,7 +3,7 @@ import time
 from . import exceptions
 from .exceptions import NoAccessApi, RPCError
 from grapheneapi.graphenewsrpc import GrapheneWebsocketRPC
-from steembase.chains import known_chains
+from pistonbase.chains import known_chains
 import logging
 import warnings
 warnings.filterwarnings('default', module=__name__)
@@ -70,7 +70,7 @@ class SteemNodeRPC(GrapheneWebsocketRPC):
             "The block_stream() call has been moved to `steem.account.Account.rawhistory()`",
             DeprecationWarning
         )
-        from steem.account import Account
+        from piston.account import Account
         return Account(account, steem_instance=self.steem).rawhistory(
             first=first, limit=limit,
             only_ops=only_ops,
@@ -81,7 +81,7 @@ class SteemNodeRPC(GrapheneWebsocketRPC):
             "The block_stream() call has been moved to `steem.blockchain.Blockchain.blocks()`",
             DeprecationWarning
         )
-        from steem.blockchain import Blockchain
+        from piston.blockchain import Blockchain
         return Blockchain(mode=mode).blocks(start, stop)
 
     def stream(self, opNames, *args, **kwargs):
@@ -89,7 +89,7 @@ class SteemNodeRPC(GrapheneWebsocketRPC):
             "The stream() call has been moved to `steem.blockchain.Blockchain.stream()`",
             DeprecationWarning
         )
-        from steem.blockchain import Blockchain
+        from piston.blockchain import Blockchain
         return Blockchain(mode=kwargs.get("mode", "irreversible")).stream(opNames, *args, **kwargs)
 
     def list_accounts(self, start=None, step=1000, limit=None, **kwargs):
@@ -97,7 +97,7 @@ class SteemNodeRPC(GrapheneWebsocketRPC):
             "The list_accounts() call has been moved to `steem.blockchain.Blockchain.get_all_accounts()`",
             DeprecationWarning
         )
-        from steem.blockchain import Blockchain
+        from piston.blockchain import Blockchain
         return Blockchain(mode=kwargs.get("mode", "irreversible")).get_all_accounts(start=start, steps=step, **kwargs)
 
     def get_network(self):

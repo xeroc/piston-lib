@@ -12,18 +12,18 @@ except LookupError:
 VERSION = '0.4.4'
 
 setup(
-    name='steem',
+    name='piston-lib',
     version=VERSION,
     description='Python library for STEEM',
     long_description=open('README.md').read(),
-    download_url='https://github.com/xeroc/python-steem/tarball/' + VERSION,
+    download_url='https://github.com/xeroc/piston-lib/tarball/' + VERSION,
     author='Fabian Schuh',
     author_email='<Fabian@chainsquad.com>',
     maintainer='Fabian Schuh',
     maintainer_email='<Fabian@chainsquad.com>',
-    url='http://pysteem.com',
-    keywords=['steem', 'library', 'api', 'rpc'],
-    packages=["steem", "steemapi", "steembase"],
+    url='http://piston.rocks',
+    keywords=['steem', 'library', 'api', 'rpc', 'transactions'],
+    packages=["piston", "pistonapi", "pistonbase"],
     classifiers=[
         'License :: OSI Approved :: MIT License',
         'Operating System :: OS Independent',
@@ -34,7 +34,7 @@ setup(
         'Topic :: Office/Business :: Financial',
     ],
     install_requires=[
-        "graphenelib",
+        "graphenelib==0.5.0",
         "websockets==2.0",
         "scrypt==0.7.1",
         "diff-match-patch==20121119",
@@ -44,9 +44,6 @@ setup(
         "funcy",
         # "python-dateutil",
         # "secp256k1==0.13.2"
-    ],
-    dependency_links=[
-        "git+https://github.com/xeroc/python-graphenelib@minimal#egg=graphenelib"
     ],
     setup_requires=['pytest-runner'],
     tests_require=['pytest'],

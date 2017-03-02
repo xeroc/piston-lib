@@ -1,5 +1,5 @@
 Dex
 ~~~
 
-.. autoclass:: steem.dex.Dex
+.. autoclass:: piston.dex.Dex
     :members:
