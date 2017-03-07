@@ -1,6 +1,6 @@
-from steembase import transactions
+from pistonbase import transactions
 from graphenebase.account import PrivateKey, PublicKey, Address
-from steembase import memo as Memo
+from pistonbase import memo as Memo
 import random
 import unittest
 

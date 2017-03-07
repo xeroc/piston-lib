@@ -208,7 +208,7 @@ class Wallet():
     def addPrivateKey(self, wif):
         """ Add a private key to the wallet database
         """
-        # it could be either graphenebase or steembase so we can't check the type directly
+        # it could be either graphenebase or pistonbase so we can't check the type directly
         if isinstance(wif, PrivateKey) or isinstance(wif, GraphenePrivateKey):
             wif = str(wif)
         try:

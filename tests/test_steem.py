@@ -1,8 +1,8 @@
 import unittest
 
-from steem.post import Post
-from steem.steem import Steem
-from steem.exceptions import (
+from piston.post import Post
+from piston.steem import Steem
+from piston.exceptions import (
     MissingKeyError,
     InsufficientAuthorityError,
     VotingInvalidOnArchivedPost

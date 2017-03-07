@@ -354,7 +354,7 @@ class Steem(object):
 
         # Default "app"
         if "app" not in meta:
-            version = pkg_resources.require("steem")[0].version
+            version = pkg_resources.require("piston-lib")[0].version
             meta["app"] = "pysteem/{}".format(version)
 
         # Identify the comment options
@@ -485,7 +485,7 @@ class Steem(object):
         """ Create new account in Steem
 
             The brainkey/password can be used to recover all generated keys (see
-            `steembase.account` for more details.
+            `pistonbase.account` for more details.
 
             By default, this call will use ``default_author`` to
             register a new name ``account_name`` with all keys being
