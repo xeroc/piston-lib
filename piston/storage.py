@@ -70,7 +70,7 @@ class DataDir(object):
     def check_legacy_v2(self):
         """ Look for legacy wallet and move to new directory
         """
-        appname = "piston"
+        appname = "steem"
         appauthor = "Fabian Schuh"
         storageDatabase = "steem.sqlite"
         data_dir = user_data_dir(appname, appauthor)
