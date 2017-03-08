@@ -4,7 +4,7 @@ log = logging.getLogger(__name__)
 try:
     import pymongo
     from pymongo.errors import ConnectionFailure
-except ModuleNotFoundError:
+except ImportError:
     mongo_error = """pysteem does not ship with MongoDB driver by default. Please install it by running:\n
     pip install pymongo
     """

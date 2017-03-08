@@ -22,4 +22,4 @@ Definition
 ##########
 
 .. autoclass:: pistonapi.steemwalletrpc.SteemWalletRPC
-    :members: _confirm, rpcexec, __getattr__
+    :members: rpcexec, __getattr__
