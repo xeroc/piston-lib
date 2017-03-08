@@ -40,7 +40,7 @@ class DataDir(object):
 
     appname = "piston"
     appauthor = "ChainSquad GmbH"
-    storageDatabase = "piston.sqlite"
+    storageDatabase = "wallet.sqlite"
 
     data_dir = user_data_dir(appname, appauthor)
     sqlDataBaseFile = os.path.join(data_dir, storageDatabase)
@@ -76,12 +76,15 @@ class DataDir(object):
         data_dir = user_data_dir(appname, appauthor)
         sqlDataBaseFile = os.path.join(data_dir, storageDatabase)
 
-        if os.path.isdir(data_dir) and not os.path.isdir(self.data_dir):
+        if os.path.isdir(data_dir) and not os.path.exists(self.sqlDataBaseFile):
             # Move whole directory
-            shutil.copytree(data_dir, self.data_dir)
+            try:
+                shutil.copytree(data_dir, self.data_dir)
+            except FileExistsError:
+                pass
             # Copy piston.sql to steem.sql (no deletion!)
             shutil.copy(sqlDataBaseFile, self.sqlDataBaseFile)
-            log.info("Your settings have been moved to {}".format(self.data_dir))
+            log.info("Your settings have been moved to {}".format(self.sqlDataBaseFile))
 
     def mkdir_p(self):
         """ Ensure that the directory in which the data is stored
