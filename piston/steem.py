@@ -108,13 +108,12 @@ class Steem(object):
                  **kwargs):
 
         # More specific set of APIs to register to
-        # Optional API's will be attempted later
         if "apis" not in kwargs:
             kwargs["apis"] = [
                 "database",
                 "network_broadcast",
-                # "account_by_key",
-                # "follow",
+                "account_by_key",
+                "follow",
             ]
 
         self.rpc = None
@@ -130,12 +129,6 @@ class Steem(object):
                           rpcuser=rpcuser,
                           rpcpassword=rpcpassword,
                           **kwargs)
-
-            # Try Optional APIs
-            try:
-                self.rpc.register_apis(["account_by_key", "follow"])
-            except NoAccessApi as e:
-                log.info(str(e))
 
         self.wallet = Wallet(self.rpc, **kwargs)
 

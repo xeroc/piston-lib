@@ -330,12 +330,7 @@ class Wallet():
         # FIXME, this only returns the first associated key.
         # If the key is used by multiple accounts, this
         # will surely lead to undesired behavior
-        if self.rpc.chain_params["prefix"] == "STM":
-            # STEEM
-            names = self.rpc.get_key_references([pub], api="account_by_key")[0]
-        else:
-            # GOLOS
-            names = self.rpc.get_key_references([pub])[0]
+        names = self.rpc.get_key_references([pub], api="account_by_key")[0]
         if not names:
             return None
         else:
