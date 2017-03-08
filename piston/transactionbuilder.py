@@ -1,10 +1,10 @@
 import logging
 
-from steem.instance import shared_steem_instance
-from steembase import transactions, operations
-from steembase.account import PrivateKey
-from steembase.operations import Operation
-from steembase.signedtransactions import Signed_Transaction
+from piston.instance import shared_steem_instance
+from pistonbase import transactions, operations
+from pistonbase.account import PrivateKey
+from pistonbase.operations import Operation
+from pistonbase.signedtransactions import Signed_Transaction
 
 from .account import Account
 from .exceptions import (

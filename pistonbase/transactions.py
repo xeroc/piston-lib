@@ -6,7 +6,7 @@ import json
 import struct
 import time
 
-from steembase.account import PublicKey
+from pistonbase.account import PublicKey
 from .signedtransactions import Signed_Transaction as GrapheneSigned_Transaction
 
 # Import all operations so they can be loaded from this module

@@ -2,7 +2,7 @@ import logging
 import os
 
 from graphenebase import bip38
-from steembase.account import PrivateKey, GraphenePrivateKey
+from pistonbase.account import PrivateKey, GraphenePrivateKey
 
 from .account import Account
 from .exceptions import (
@@ -208,7 +208,7 @@ class Wallet():
     def addPrivateKey(self, wif):
         """ Add a private key to the wallet database
         """
-        # it could be either graphenebase or steembase so we can't check the type directly
+        # it could be either graphenebase or pistonbase so we can't check the type directly
         if isinstance(wif, PrivateKey) or isinstance(wif, GraphenePrivateKey):
             wif = str(wif)
         try:
@@ -330,12 +330,7 @@ class Wallet():
         # FIXME, this only returns the first associated key.
         # If the key is used by multiple accounts, this
         # will surely lead to undesired behavior
-        if self.rpc.chain_params["prefix"] == "STM":
-            # STEEM
-            names = self.rpc.get_key_references([pub], api="account_by_key")[0]
-        else:
-            # GOLOS
-            names = self.rpc.get_key_references([pub])[0]
+        names = self.rpc.get_key_references([pub], api="account_by_key")[0]
         if not names:
             return None
         else:

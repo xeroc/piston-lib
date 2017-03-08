@@ -38,9 +38,9 @@ class DataDir(object):
          in the `backups/` directory every now and then.
     """
 
-    appname = "steem"
-    appauthor = "Fabian Schuh"
-    storageDatabase = "steem.sqlite"
+    appname = "piston"
+    appauthor = "ChainSquad GmbH"
+    storageDatabase = "wallet.sqlite"
 
     data_dir = user_data_dir(appname, appauthor)
     sqlDataBaseFile = os.path.join(data_dir, storageDatabase)
@@ -48,6 +48,7 @@ class DataDir(object):
     def __init__(self):
         #: Storage
         self.check_legacy_v1()
+        self.check_legacy_v2()
         self.mkdir_p()
 
     def check_legacy_v1(self):
@@ -65,6 +66,25 @@ class DataDir(object):
             # Copy piston.sql to steem.sql (no deletion!)
             shutil.copy(sqlDataBaseFile, self.sqlDataBaseFile)
             log.info("Your settings have been moved to {}".format(self.data_dir))
+
+    def check_legacy_v2(self):
+        """ Look for legacy wallet and move to new directory
+        """
+        appname = "steem"
+        appauthor = "Fabian Schuh"
+        storageDatabase = "steem.sqlite"
+        data_dir = user_data_dir(appname, appauthor)
+        sqlDataBaseFile = os.path.join(data_dir, storageDatabase)
+
+        if os.path.isdir(data_dir) and not os.path.exists(self.sqlDataBaseFile):
+            # Move whole directory
+            try:
+                shutil.copytree(data_dir, self.data_dir)
+            except FileExistsError:
+                pass
+            # Copy piston.sql to steem.sql (no deletion!)
+            shutil.copy(sqlDataBaseFile, self.sqlDataBaseFile)
+            log.info("Your settings have been moved to {}".format(self.sqlDataBaseFile))
 
     def mkdir_p(self):
         """ Ensure that the directory in which the data is stored
@@ -238,7 +258,7 @@ class Configuration(DataDir):
         "format": "markdown",
         "limit": 10,
         "list_sorting": "trending",
-        "node": "wss://this.piston.rocks",
+        "node": "wss://this.piston.rocks,wss://steemd.steemit.com,wss://node.steem.ws",
         "post_category": "steem",
         "rpcpassword": "",
         "rpcuser": "",
@@ -322,12 +342,17 @@ class Configuration(DataDir):
         cursor.execute(*query)
         result = cursor.fetchone()
         if result:
-            return result[0]
+            value = result[0]
         else:
             if key in self.config_defaults:
-                return self.config_defaults[key]
+                value = self.config_defaults[key]
             else:
                 return None
+        # arrays are "," separated (especially for nodes)
+        if isinstance(value, str) and "," in value:
+            return value.split(",")
+        else:
+            return value
 
     def get(self, key, default=None):
         """ Return the key if exists or a default value

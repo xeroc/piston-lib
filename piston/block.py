@@ -1,4 +1,4 @@
-from steem.instance import shared_steem_instance
+from piston.instance import shared_steem_instance
 
 from .exceptions import BlockDoesNotExistsException
 from .utils import parse_time

@@ -1,5 +1,5 @@
 Converter
 ~~~~~~~~~
 
-.. autoclass:: steem.converter.Converter
+.. autoclass:: piston.converter.Converter
    :members:

@@ -5,10 +5,10 @@ import re
 from datetime import datetime, timedelta
 
 import pkg_resources  # part of setuptools
-from steemapi.steemnoderpc import SteemNodeRPC, NoAccessApi
-from steembase import memo
-from steembase import operations
-from steembase.account import PrivateKey, PublicKey
+from pistonapi.steemnoderpc import SteemNodeRPC, NoAccessApi
+from pistonbase import memo
+from pistonbase import operations
+from pistonbase.account import PrivateKey, PublicKey
 
 from .account import Account
 from .amount import Amount
@@ -81,7 +81,7 @@ class Steem(object):
 
         .. code-block:: python
 
-            from steem import Steem
+            from piston import Steem
             steem = Steem()
             steem.post("Testing steem library", "I am testing steem", category="spam")
 
@@ -108,13 +108,12 @@ class Steem(object):
                  **kwargs):
 
         # More specific set of APIs to register to
-        # Optional API's will be attempted later
         if "apis" not in kwargs:
             kwargs["apis"] = [
                 "database",
                 "network_broadcast",
-                # "account_by_key",
-                # "follow",
+                "account_by_key",
+                "follow",
             ]
 
         self.rpc = None
@@ -130,12 +129,6 @@ class Steem(object):
                           rpcuser=rpcuser,
                           rpcpassword=rpcpassword,
                           **kwargs)
-
-            # Try Optional APIs
-            try:
-                self.rpc.register_apis(["account_by_key", "follow"])
-            except NoAccessApi as e:
-                log.info(str(e))
 
         self.wallet = Wallet(self.rpc, **kwargs)
 
@@ -354,7 +347,7 @@ class Steem(object):
 
         # Default "app"
         if "app" not in meta:
-            version = pkg_resources.require("steem")[0].version
+            version = pkg_resources.require("piston-lib")[0].version
             meta["app"] = "pysteem/{}".format(version)
 
         # Identify the comment options
@@ -485,7 +478,7 @@ class Steem(object):
         """ Create new account in Steem
 
             The brainkey/password can be used to recover all generated keys (see
-            `steembase.account` for more details.
+            `pistonbase.account` for more details.
 
             By default, this call will use ``default_author`` to
             register a new name ``account_name`` with all keys being
@@ -552,7 +545,7 @@ class Steem(object):
             raise AccountExistsException
 
         " Generate new keys from password"
-        from steembase.account import PasswordKey, PublicKey
+        from pistonbase.account import PasswordKey, PublicKey
         if password:
             posting_key = PasswordKey(account_name, password, role="posting")
             active_key = PasswordKey(account_name, password, role="active")
@@ -649,7 +642,7 @@ class Steem(object):
         assert asset == self.symbol("SBD") or asset == self.symbol("steem")
 
         if memo and memo[0] == "#":
-            from steembase import memo as Memo
+            from pistonbase import memo as Memo
             memo_wif = self.wallet.getMemoKeyForAccount(account)
             if not memo_wif:
                 raise MissingKeyError("Memo key for %s missing!" % account)
@@ -1248,7 +1241,7 @@ class Steem(object):
         authority = account[permission]
 
         try:
-            pubkey = PublicKey(foreign)
+            pubkey = PublicKey(foreign, prefix=self.rpc.chain_params["prefix"])
             affected_items = list(
                 filter(lambda x: x[0] == str(pubkey),
                        authority["key_auths"]))

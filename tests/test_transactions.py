@@ -1,9 +1,9 @@
 import unittest
 from binascii import hexlify
 from pprint import pprint
-from steembase.account import PrivateKey
-from steembase.transactions import Signed_Transaction
-from steembase import operations
+from pistonbase.account import PrivateKey
+from pistonbase.transactions import Signed_Transaction
+from pistonbase import operations
 from collections import OrderedDict
 
 wif = "5KQwrPbwdL6PhXujxW37FSSQZ1JiwsST4cqQzDeyXtP79zkvFD3"

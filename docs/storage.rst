@@ -1,14 +1,14 @@
 Storage
 ~~~~~~~~~
 
-.. autoclass:: steem.storage.DataDir
+.. autoclass:: piston.storage.DataDir
    :members:
 
-.. autoclass:: steem.storage.Key
+.. autoclass:: piston.storage.Key
    :members:
 
-.. autoclass:: steem.storage.Configuration
+.. autoclass:: piston.storage.Configuration
    :members:
 
-.. autoclass:: steem.storage.MasterPassword
+.. autoclass:: piston.storage.MasterPassword
    :members:

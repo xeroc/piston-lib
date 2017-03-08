@@ -5,7 +5,7 @@ Read blockchain related data-
 
 .. code-block:: python
 
-   from steem.blockchain import Blockchain
+   from piston.blockchain import Blockchain
    chain = Blockchain()
 
 Read current block and blockchain info
@@ -29,5 +29,5 @@ Monitor for new blocks ..
    for operations in chain.ops():
        print(operations)
 
-.. autoclass:: steem.blockchain.Blockchain
+.. autoclass:: piston.blockchain.Blockchain
    :members:

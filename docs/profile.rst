@@ -1,5 +1,5 @@
 Profile
 ~~~~~~~~~
 
-.. autoclass:: steem.profile.Profile
+.. autoclass:: piston.profile.Profile
    :members:

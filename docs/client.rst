@@ -7,11 +7,11 @@ Steem Client
 Configuration
 #############
 
-.. autoclass:: steemapi.steemclient.ExampleConfig
+.. autoclass:: pistonapi.steemclient.ExampleConfig
     :members:
 
 SteemClient
 ##############
 
-.. autoclass:: steemapi.steemclient.SteemClient
+.. autoclass:: pistonapi.steemclient.SteemClient
     :members:

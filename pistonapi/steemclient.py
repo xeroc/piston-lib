@@ -1,5 +1,5 @@
-from steemapi.steemwalletrpc import SteemWalletRPC
-from steemapi.steemnoderpc import SteemNodeRPC
+from pistonapi.steemwalletrpc import SteemWalletRPC
+from pistonapi.steemnoderpc import SteemNodeRPC
 
 import logging as log
 

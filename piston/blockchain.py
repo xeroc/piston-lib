@@ -1,6 +1,6 @@
 import time
 
-from steem.instance import shared_steem_instance
+from piston.instance import shared_steem_instance
 
 from .block import Block
 from .utils import parse_time

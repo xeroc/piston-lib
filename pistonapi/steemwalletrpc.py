@@ -20,7 +20,7 @@ class SteemWalletRPC(GrapheneAPI):
 
         .. code-block:: python
 
-            from steemrpc import SteemRPC
+            from pistonrpc import SteemRPC
             rpc = SteemRPC("localhost", 8092, "", "")
 
         any call available to that port can be issued using the instance

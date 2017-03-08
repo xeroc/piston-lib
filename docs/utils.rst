@@ -1,5 +1,5 @@
 Utilities
 ~~~~~~~~~~~~~~~~~~~
 
-.. autoclass:: steem.utils
+.. autoclass:: piston.utils
    :members:

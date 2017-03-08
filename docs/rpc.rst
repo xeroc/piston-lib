@@ -21,5 +21,5 @@ cli_wallet that has the required private keys imported. We here assume:
 Definition
 ##########
 
-.. autoclass:: steemapi.steemwalletrpc.SteemWalletRPC
-    :members: _confirm, rpcexec, __getattr__
+.. autoclass:: pistonapi.steemwalletrpc.SteemWalletRPC
+    :members: rpcexec, __getattr__

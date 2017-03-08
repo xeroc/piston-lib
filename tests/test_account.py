@@ -1,5 +1,5 @@
 import unittest
-from steem.account import Account
+from piston.account import Account
 
 testaccount = "xeroc"
 

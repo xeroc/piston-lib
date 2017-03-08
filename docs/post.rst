@@ -1,5 +1,5 @@
 Posts
 ~~~~~
 
-.. autoclass:: steem.post.Post
+.. autoclass:: piston.post.Post
    :members:

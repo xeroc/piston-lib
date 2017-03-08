@@ -16,7 +16,7 @@ clean-pyc:
 	find . -name '*~' -exec rm -f {} +
 
 lint:
-	flake8 steemapi/ steembase/
+	flake8 pistonapi/ pistonbase/ piston/
 
 test:
 	python3 setup.py test
@@ -45,4 +45,4 @@ dist:
 release: clean check dist steem-changelog git
 
 steem-changelog:
-	git show -s --pretty=format: $(TAG) | tail -n +4 | piston post --file "-" --author chainsquad --permlink "python-steem-changelog-$(TAGSTEEM)" --category steem --title "[Changelog] python-steem $(TAG)" --tags python-steem changelog
+	git show -s --pretty=format: $(TAG) | tail -n +4 | piston post --file "-" --author chainsquad --permlink "piston-lib-changelog-$(TAGSTEEM)" --category steem --title "[Changelog] piston-lib $(TAG)" --tags piston-lib changelog

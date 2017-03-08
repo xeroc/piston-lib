@@ -44,7 +44,7 @@ class Operation(GrapheneOperation):
         return "Unknown Operation ID %d" % i
 
     def _getklass(self, name):
-        module = __import__("steembase.operations", fromlist=["operations"])
+        module = __import__("pistonbase.operations", fromlist=["operations"])
         class_ = getattr(module, name)
         return class_
 

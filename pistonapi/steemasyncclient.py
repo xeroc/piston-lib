@@ -146,11 +146,11 @@ class SteemAsyncClient(object):
 
         .. code-block:: python
 
-            from steemasyncclient import SteemAsyncClient, Config
+            from pistonasyncclient import SteemAsyncClient, Config
 
             @asyncio.coroutine
             def print_block_number(steem):
-               res = yield from steem.database.get_dynamic_global_properties()
+               res = yield from piston.database.get_dynamic_global_properties()
                print(res["head_block_number"])
 
             steem = SteemAsyncClient(Config(witness_url="ws://localhost:8090",

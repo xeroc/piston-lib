@@ -1,7 +1,7 @@
-from steem.account import Account
-from steem.post import Post
-from steem.instance import shared_steem_instance
-from steem.utils import is_comment
+from piston.account import Account
+from piston.post import Post
+from piston.instance import shared_steem_instance
+from piston.utils import is_comment
 
 
 class Blog(list):

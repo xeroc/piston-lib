@@ -5,8 +5,8 @@ Read data about a witness
 
 .. code-block:: python
 
-   from steem.witness import Witness
+   from piston.witness import Witness
    Witness("chainsquad.com")
 
-.. autoclass:: steem.witness.Witness
+.. autoclass:: piston.witness.Witness
    :members:

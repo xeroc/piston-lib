@@ -3,8 +3,8 @@ import re
 from datetime import datetime
 
 from funcy import walk_values
-from steem.instance import shared_steem_instance
-from steembase.operations import Comment_options
+from piston.instance import shared_steem_instance
+from pistonbase.operations import Comment_options
 
 from .amount import Amount
 from .exceptions import (
@@ -104,10 +104,13 @@ class Post(dict):
             post[p] = Amount(post.get(p, "0.000 %s" % self.steem.symbol("SBD")))
 
         # Try to properly format json meta data
+
         try:
             meta_str = post.get("json_metadata", "{}")
             post['json_metadata'] = json.loads(meta_str)
         except:
+            post['json_metadata'] = dict()
+        if not post['json_metadata']:
             post['json_metadata'] = dict()
 
         post["tags"] = []

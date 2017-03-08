@@ -1,5 +1,5 @@
-Contributing to python-steem 
-============================
+Contributing to piston-lib 
+==========================
 
 We welcome your contributions to our project.
 

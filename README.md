@@ -5,9 +5,9 @@ Python 3 library for Steem!
 
 **Stable**
 
-[![docs master](https://readthedocs.org/projects/python-steem/badge/?version=latest)](http://python-steem.readthedocs.io/en/latest/)
-[![Travis master](https://travis-ci.org/xeroc/python-steem.png?branch=master)](https://travis-ci.org/xeroc/python-steem)
-[![codecov](https://codecov.io/gh/xeroc/python-steem/branch/master/graph/badge.svg)](https://codecov.io/gh/xeroc/python-steem)
+[![docs master](https://readthedocs.org/projects/piston-lib/badge/?version=latest)](http://piston-lib.readthedocs.io/en/latest/)
+[![Travis master](https://travis-ci.org/xeroc/piston-lib.png?branch=master)](https://travis-ci.org/xeroc/piston-lib)
+[![codecov](https://codecov.io/gh/xeroc/piston-lib/branch/master/graph/badge.svg)](https://codecov.io/gh/xeroc/piston-lib)
 
 
 [![PyPI](https://img.shields.io/pypi/dm/steem.svg?maxAge=2592000)]()
@@ -16,9 +16,9 @@ Python 3 library for Steem!
 
 **Develop**
 
-[![docs develop](https://readthedocs.org/projects/python-steem/badge/?version=develop)](http://python-steem.readthedocs.io/en/develop/)
-[![Travis develop](https://travis-ci.org/xeroc/python-steem.png?branch=develop)](https://travis-ci.org/xeroc/python-steem)
-[![codecov develop](https://codecov.io/gh/xeroc/python-steem/branch/develop/graph/badge.svg)](https://codecov.io/gh/xeroc/python-steem)
+[![docs develop](https://readthedocs.org/projects/piston-lib/badge/?version=develop)](http://piston-lib.readthedocs.io/en/develop/)
+[![Travis develop](https://travis-ci.org/xeroc/piston-lib.png?branch=develop)](https://travis-ci.org/xeroc/piston-lib)
+[![codecov develop](https://codecov.io/gh/xeroc/piston-lib/branch/develop/graph/badge.svg)](https://codecov.io/gh/xeroc/piston-lib)
 
 Installation
 ------------
@@ -30,8 +30,8 @@ Install with `pip3`:
 
 Manual installation:
 
-    $ git clone https://github.com/xeroc/python-steem/
-    $ cd python-steem
+    $ git clone https://github.com/xeroc/piston-lib/
+    $ cd piston-lib
     $ python3 setup.py install --user
 
 Upgrade
@@ -50,7 +50,7 @@ Documentation
 -------------
 
 Thanks to readthedocs.io, the documentation can be viewed on
-[pysteem.com](http://pysteem.com)
+[piston.rocks](http://piston.rocks)
 
 Documentation is written with the help of sphinx and can be compile to
 html with:

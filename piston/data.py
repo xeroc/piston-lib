@@ -4,7 +4,7 @@ log = logging.getLogger(__name__)
 try:
     import pymongo
     from pymongo.errors import ConnectionFailure
-except ModuleNotFoundError:
+except ImportError:
     mongo_error = """pysteem does not ship with MongoDB driver by default. Please install it by running:\n
     pip install pymongo
     """
@@ -36,9 +36,9 @@ class SteemData(object):
 
     def info(self):
         # todo print detailed info and some stats
-        print(self.mongo_url)
+        return self.mongo_url
 
 
 if __name__ == '__main__':
     s = SteemData()
-    s.info()
+    print(s.info())
