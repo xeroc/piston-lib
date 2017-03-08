@@ -9,7 +9,7 @@ except LookupError:
     ascii = codecs.lookup('ascii')
     codecs.register(lambda name, enc=ascii: {True: enc}.get(name == 'mbcs'))
 
-VERSION = '0.4.4'
+VERSION = '0.5.0'
 
 setup(
     name='piston-lib',
@@ -21,7 +21,7 @@ setup(
     author_email='<Fabian@chainsquad.com>',
     maintainer='Fabian Schuh',
     maintainer_email='<Fabian@chainsquad.com>',
-    url='http://piston.rocks',
+    url='http://lib.piston.rocks',
     keywords=['steem', 'library', 'api', 'rpc', 'transactions'],
     packages=["piston", "pistonapi", "pistonbase"],
     classifiers=[
