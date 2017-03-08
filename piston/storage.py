@@ -255,7 +255,7 @@ class Configuration(DataDir):
         "format": "markdown",
         "limit": 10,
         "list_sorting": "trending",
-        "node": "wss://this.piston.rocks",
+        "node": "wss://this.piston.rocks,wss://steemd.steemit.com,wss://node.steem.ws",
         "post_category": "steem",
         "rpcpassword": "",
         "rpcuser": "",
@@ -339,12 +339,17 @@ class Configuration(DataDir):
         cursor.execute(*query)
         result = cursor.fetchone()
         if result:
-            return result[0]
+            value = result[0]
         else:
             if key in self.config_defaults:
-                return self.config_defaults[key]
+                value = self.config_defaults[key]
             else:
                 return None
+        # arrays are "," separated (especially for nodes)
+        if isinstance(value, str) and "," in value:
+            return value.split(",")
+        else:
+            return value
 
     def get(self, key, default=None):
         """ Return the key if exists or a default value
