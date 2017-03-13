@@ -110,7 +110,7 @@ class Post(dict):
             post['json_metadata'] = json.loads(meta_str)
         except:
             post['json_metadata'] = dict()
-        if not post['json_metadata']:
+        if not post['json_metadata'] or post["json_metadata"] == '""':
             post['json_metadata'] = dict()
 
         post["tags"] = []
