@@ -75,12 +75,6 @@ class Post(dict):
             self._patched = True
             self._patch = post["body"]
 
-        # Total reward
-        post["total_payout_reward"] = (
-            Amount(post.get("total_payout_value", "0 %s" % self.steem.symbol("SBD"))) +
-            Amount(post.get("total_pending_payout_value", "0 %s" % self.steem.symbol("SBD")))
-        )
-
         # Parse Times
         parse_times = ["active",
                        "cashout_time",
@@ -93,7 +87,7 @@ class Post(dict):
 
         # Parse Amounts
         sbd_amounts = [
-            "total_payout_reward",
+            "total_payout_value",
             "max_accepted_payout",
             "pending_payout_value",
             "curator_payout_value",
@@ -169,7 +163,7 @@ class Post(dict):
                 author, permlink
             ), category
 
-    def get_comments(self, sort="total_payout_reward"):
+    def get_comments(self, sort="total_payout_value"):
         """ Return **first-level** comments of the post.
         """
         post_author, post_permlink = resolveIdentifier(self.identifier)
@@ -181,9 +175,9 @@ class Post(dict):
             r = sorted(r, key=lambda x: float(
                 x["total_payout_value"]
             ), reverse=True)
-        elif sort == "total_payout_reward":
+        elif sort == "total_payout_value":
             r = sorted(r, key=lambda x: float(
-                x["total_payout_reward"]
+                x["total_payout_value"]
             ), reverse=True)
         else:
             r = sorted(r, key=lambda x: x[sort])
@@ -233,7 +227,7 @@ class Post(dict):
         """
         if not self.loaded:
             self.refresh()
-        return self['total_payout_reward']
+        return self['total_payout_value']
 
     @property
     def meta(self):
