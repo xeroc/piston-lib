@@ -1054,10 +1054,15 @@ class Steem(object):
             Amount(info["total_vesting_fund_steem"]).amount /
             (Amount(info["total_vesting_shares"]).amount / 1e6)
         )
-        vesting_shares_steem = Amount(a["vesting_shares"]) / 1e6 * steem_per_mvest
+        vesting_shares = Amount(a["vesting_shares"])
+        vesting_shares_steem = Amount("%f %s" % (
+            float(vesting_shares) / 1e6 * steem_per_mvest,
+            "STEEM"
+        ))
+
         return {
             "balance": Amount(a["balance"]),
-            "vesting_shares": Amount(a["vesting_shares"]),
+            "vesting_shares": vesting_shares,
             "sbd_balance": Amount(a["sbd_balance"]),
             "savings_balance": Amount(a["savings_balance"]),
             "savings_sbd_balance": Amount(a["savings_sbd_balance"]),
