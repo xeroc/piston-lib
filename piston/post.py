@@ -215,10 +215,6 @@ class Post(dict):
             :param float weight: Weight for posting (-100.0 - +100.0)
             :param str voter: Voting account
         """
-        # Test if post is archived, if so, voting is worthless but just
-        # pollutes the blockchain and account history
-        if getattr(self, "mode") == "archived":
-            raise VotingInvalidOnArchivedPost
         return self.steem.vote(self.identifier, weight, voter=voter)
 
     @property
