@@ -230,7 +230,7 @@ class Blockchain(object):
                     r = {
                         "type": op["op"][0],
                         "timestamp": op.get("timestamp"),
-                        "block_num": op.get("block_num")
+                        "block_num": op.get("block")
                     }
                     r.update(op["op"][1])
                     yield r

@@ -38,16 +38,31 @@ class TransactionBuilder(dict):
         self.constructTx()
 
     def appendSigner(self, account, permission):
+        """ Try to obtain the wif key from the wallet by telling which account
+            and permission is supposed to sign the transaction
+        """
+        assert permission in ["active", "owner", "posting"], "Invalid permission"
         account = Account(account, steem_instance=self.steem)
-        if permission == "active":
-            wif = self.steem.wallet.getActiveKeyForAccount(account["name"])
-        elif permission == "posting":
-            wif = self.steem.wallet.getPostingKeyForAccount(account["name"])
-        elif permission == "owner":
-            wif = self.steem.wallet.getOwnerKeyForAccount(account["name"])
-        else:
-            raise ValueError("Invalid permission")
-        self.wifs.append(wif)
+        required_treshold = account[permission]["weight_threshold"]
+
+        def fetchkeys(account, level=0):
+            if level > 2:
+                return []
+            r = []
+            for authority in account[permission]["key_auths"]:
+                wif = self.steem.wallet.getPrivateKeyForPublicKey(authority[0])
+                if wif:
+                    r.append([wif, authority[1]])
+
+            if sum([x[1] for x in r]) < required_treshold:
+                # go one level deeper
+                for authority in account[permission]["account_auths"]:
+                    auth_account = Account(authority[0], steem_instance=self.steem)
+                    r.extend(fetchkeys(auth_account, level + 1))
+
+            return r
+        keys = fetchkeys(account)
+        self.wifs.extend([x[0] for x in keys])
 
     def appendWif(self, wif):
         if wif:
@@ -100,6 +115,15 @@ class TransactionBuilder(dict):
         signedtx.sign(self.wifs, chain=self.steem.rpc.chain_params)
         self["signatures"].extend(signedtx.json().get("signatures"))
 
+    def verify_authority(self):
+        """ Verify the authority of the signed transaction
+        """
+        try:
+            if not self.steem.rpc.verify_authority(self.json()):
+                raise InsufficientAuthorityError
+        except Exception as e:
+            raise e
+
     def broadcast(self):
         """ Broadcast a transaction to the Steem network
 
@@ -121,6 +145,13 @@ class TransactionBuilder(dict):
             raise e
 
         return self
+
+    def clear(self):
+        """ Clear the transaction builder and start from scratch
+        """
+        self.ops = []
+        self.wifs = []
+        super(TransactionBuilder, self).__init__({})
 
     def addSigningInformation(self, account, permission):
         """ This is a private method that adds side information to a
