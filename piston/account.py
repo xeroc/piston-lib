@@ -184,36 +184,6 @@ class Account(dict):
 
         return filtered_items
 
-    def export(self, load_extras=True):
-        """ This method returns a dictionary that is type-safe to store as JSON or in a database.
-
-            :param bool load_extras: Fetch extra information related to the account (this might take a while).
-        """
-        self.refresh()
-
-        extras = dict()
-        if load_extras:
-            followers = self.get_followers()
-            following = self.get_following()
-            extras = {
-                "followers": followers,
-                "followers_count": len(followers),
-                "following": following,
-                "following_count": len(following),
-                "curation_stats": self.curation_stats(),
-                "withdrawal_routes": self.get_withdraw_routes(),
-                "conversion_requests": self.get_conversion_requests(),
-            }
-
-        return {
-            **self,
-            **extras,
-            "profile": self.profile,
-            "sp": self.sp,
-            "rep": self.rep,
-            "balances": self.get_balances(as_float=True),
-        }
-
     def history(self, filter_by=None, start=0):
         """
         Take all elements from start to last from history, oldest first.

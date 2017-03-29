@@ -9,7 +9,7 @@ except LookupError:
     ascii = codecs.lookup('ascii')
     codecs.register(lambda name, enc=ascii: {True: enc}.get(name == 'mbcs'))
 
-VERSION = '0.5.1'
+VERSION = '0.5.2'
 
 setup(
     name='piston-lib',
@@ -18,9 +18,9 @@ setup(
     long_description=open('README.md').read(),
     download_url='https://github.com/xeroc/piston-lib/tarball/' + VERSION,
     author='Fabian Schuh',
-    author_email='<Fabian@chainsquad.com>',
+    author_email='Fabian@chainsquad.com',
     maintainer='Fabian Schuh',
-    maintainer_email='<Fabian@chainsquad.com>',
+    maintainer_email='Fabian@chainsquad.com',
     url='http://lib.piston.rocks',
     keywords=['steem', 'library', 'api', 'rpc', 'transactions'],
     packages=["piston", "pistonapi", "pistonbase"],
