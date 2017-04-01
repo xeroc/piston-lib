@@ -35,12 +35,12 @@ setup(
     ],
     install_requires=[
         "graphenelib>=0.5.0",
-        "websockets==2.0",
-        "scrypt==0.7.1",
-        "diff-match-patch==20121119",
-        "appdirs==1.4.0",
-        "python-frontmatter==0.2.1",
-        "pycrypto==2.6.1",
+        "websockets>=2.0",
+        "scrypt>=0.7.1",
+        "diff-match-patch>=20121119",
+        "appdirs>=1.4.0",
+        "python-frontmatter>=0.2.1",
+        "pycrypto>=2.6.1",
         "funcy",
         # "python-dateutil",
         # "secp256k1==0.13.2"
