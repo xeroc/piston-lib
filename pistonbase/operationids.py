@@ -39,3 +39,4 @@ operations["custom_binary_operation"] = 35
 operations["decline_voting_rights_operation"] = 36
 operations["reset_account_operation"] = 37
 operations["set_reset_account_operation"] = 38
+operations["account_create_with_delegation"] = 41
