@@ -2,7 +2,7 @@ import os
 import re
 import sys
 import time
-from datetime import datetime, timezone
+from datetime import datetime
 
 import frontmatter
 
@@ -177,8 +177,7 @@ def parse_time(block_time):
     """
     return datetime.strptime(
         block_time,
-        '%Y-%m-%dT%H:%M:%S',
-        tzinfo=timezone.utc,
+        '%Y-%m-%dT%H:%M:%S'
     )
 
 
