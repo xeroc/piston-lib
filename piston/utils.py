@@ -2,7 +2,7 @@ import os
 import re
 import sys
 import time
-from datetime import datetime
+from datetime import datetime, timezone
 
 import frontmatter
 
@@ -114,7 +114,7 @@ def strfage(time, fmt=None):
     """ Format time/age
     """
     if not hasattr(time, "days"):  # dirty hack
-        now = datetime.now()
+        now = datetime.utcnow()
         if isinstance(time, str):
             time = datetime.strptime(time, '%Y-%m-%dT%H:%M:%S')
         time = (now - time)
@@ -175,7 +175,11 @@ def time_elapsed(posting_time):
 def parse_time(block_time):
     """Take a string representation of time from the blockchain, and parse it into datetime object.
     """
-    return datetime.strptime(block_time, '%Y-%m-%dT%H:%M:%S')
+    return datetime.strptime(
+        block_time,
+        '%Y-%m-%dT%H:%M:%S',
+        tzinfo=timezone.utc,
+    )
 
 
 def time_diff(time1, time2):
