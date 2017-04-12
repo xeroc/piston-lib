@@ -471,6 +471,8 @@ class Steem(object):
                        posting_key=None,
                        memo_key=None,
                        password=None,
+                       fee=None,
+                       delegation='0.000000 VESTS',
                        additional_owner_keys=[],
                        additional_active_keys=[],
                        additional_posting_keys=[],
@@ -607,7 +609,13 @@ class Steem(object):
             posting_accounts_authority.append([k, 1])
 
         props = self.rpc.get_chain_properties()
-        fee = props["account_creation_fee"]
+        # the Account_create operation expects a string
+        # so this is a little hacky, but it's the easiest way to deal
+        # with STEEM/Graphene amounts.
+        # HF18 requires the fee to be multiplied by 30
+        if fee is None:
+            f = Amount(props["account_creation_fee"])
+            fee = str(Amount('{} STEEM'.format(f.amount * 30)))
         s = {'creator': creator,
              'fee': fee,
              'json_metadata': json_meta,
@@ -622,9 +630,10 @@ class Steem(object):
              'posting': {'account_auths': posting_accounts_authority,
                          'key_auths': posting_key_authority,
                          'weight_threshold': 1},
-             'prefix': self.rpc.chain_params["prefix"]}
+             'prefix': self.rpc.chain_params["prefix"],
+             'delegation': delegation}
 
-        op = operations.Account_create(**s)
+        op = operations.Account_create_with_delegation(**s)
 
         return self.finalizeOp(op, creator, "active")
 
