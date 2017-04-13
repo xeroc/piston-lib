@@ -714,7 +714,23 @@ class Testcases(unittest.TestCase):
                 "percent_steem_dollars": 10000,
                 "allow_votes": True,
                 "allow_curation_rewards": True,
-                "extensions": []
+                "extensions": [
+                    [
+                        0,
+                        {
+                            "beneficiaries": [
+                                {
+                                    "weight": 2000,
+                                    "account": "good-karma"
+                                },
+                                {
+                                    "weight": 5000,
+                                    "account": "null"
+                                }
+                            ]
+                        }
+                    ]
+                ],
             }
         )
         ops = [operations.Operation(op)]
@@ -728,10 +744,11 @@ class Testcases(unittest.TestCase):
         txWire = hexlify(bytes(tx)).decode("ascii")
         compare = (
             "f68585abf4dce7c804570113057865726f6306706973746f6e"
-            "00ca9a3b000000000353424400000000102701010000011f20"
-            "feacc3f917dfa2d6082afb5ab5aab82d7df1428130c7b7eec4"
-            "56d259e59fc54ee582a5a86073508f69ffebea4283f13d1a89"
-            "6243754a4a82fa18077f832225"
+            "00ca9a3b000000000353424400000000102701010100020a67"
+            "6f6f642d6b61726d61d007046e756c6c881300011f59634e65"
+            "55fec7c01cb7d4921601c37c250c6746022cc35eaefdd90405"
+            "d7771b2f65b44e97b7f3159a6d52cb20640502d2503437215f"
+            "0907b2e2213940f34f2c"
         )
         self.assertEqual(compare[:-130], txWire[:-130])
 
@@ -746,7 +763,23 @@ class Testcases(unittest.TestCase):
                 "percent_steem_dollars": 10000,
                 "allow_votes": True,
                 "allow_curation_rewards": True,
-                "extensions": []
+                "extensions": [
+                    [
+                        0,
+                        {
+                            "beneficiaries": [
+                                {
+                                    "weight": 2000,
+                                    "account": "good-karma"
+                                },
+                                {
+                                    "weight": 5000,
+                                    "account": "null"
+                                }
+                            ]
+                        }
+                    ]
+                ],
             }
         )
         ops = [operations.Operation(op)]
