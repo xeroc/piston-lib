@@ -210,6 +210,37 @@ class Witness_props(GrapheneObject):
             ]))
 
 
+class Beneficiary(GrapheneObject):
+    def __init__(self, *args, **kwargs):
+        if isArgsThisClass(self, args):
+            self.data = args[0].data
+        else:
+            if len(args) == 1 and len(kwargs) == 0:
+                kwargs = args[0]
+            super().__init__(OrderedDict([
+                ('account', String(kwargs["account"])),
+                ('weight', Int16(kwargs["weight"])),
+            ]))
+
+
+class Beneficiaries(GrapheneObject):
+    def __init__(self, kwargs):
+        super().__init__(OrderedDict([
+            ('beneficiaries',
+                Array([Beneficiary(o) for o in kwargs["beneficiaries"]])),
+        ]))
+
+
+class CommentOptionExtensions(Static_variant):
+    def __init__(self, o):
+        id = o[0]
+        if id == 0:
+            data = Beneficiaries(o[1])
+        else:
+            raise Exception("Unknown CommentOptionExtension")
+        super().__init__(data, id)
+
+
 ########################################################
 # Actual Operations
 ########################################################
@@ -507,6 +538,10 @@ class Comment_options(GrapheneObject):
         else:
             if len(args) == 1 and len(kwargs) == 0:
                 kwargs = args[0]
+            if "extensions" in kwargs and kwargs["extensions"]:
+                extensions = Array([CommentOptionExtensions(o) for o in kwargs["extensions"]])
+            else:
+                extensions = Array([])
             super().__init__(OrderedDict([
                 ('author', String(kwargs["author"])),
                 ('permlink', String(kwargs["permlink"])),
@@ -514,5 +549,5 @@ class Comment_options(GrapheneObject):
                 ('percent_steem_dollars', Uint16(int(kwargs["percent_steem_dollars"]))),
                 ('allow_votes', Bool(bool(kwargs["allow_votes"]))),
                 ('allow_curation_rewards', Bool(bool(kwargs["allow_curation_rewards"]))),
-                ('extensions', Array([])),
+                ('extensions', extensions),
             ]))
