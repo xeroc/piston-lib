@@ -103,9 +103,9 @@ class Post(dict):
             meta_str = post.get("json_metadata", "{}")
             post['json_metadata'] = json.loads(meta_str)
         except:
-            post['json_metadata'] = dict()
-        if not post['json_metadata'] or post["json_metadata"] == '""':
-            post['json_metadata'] = dict()
+            post['json_metadata'] = {"error": "invalid format"}
+        if not isinstance(post['json_metadata'], dict):
+            post['json_metadata'] = {"error": "invalid format"}
 
         post["tags"] = []
         if post["depth"] == 0:

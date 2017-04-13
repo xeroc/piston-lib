@@ -9,7 +9,7 @@ except LookupError:
     ascii = codecs.lookup('ascii')
     codecs.register(lambda name, enc=ascii: {True: enc}.get(name == 'mbcs'))
 
-VERSION = '0.5.2'
+VERSION = '0.5.3'
 
 setup(
     name='piston-lib',
@@ -34,13 +34,13 @@ setup(
         'Topic :: Office/Business :: Financial',
     ],
     install_requires=[
-        "graphenelib>=0.5.0",
-        "websockets==2.0",
-        "scrypt==0.7.1",
-        "diff-match-patch==20121119",
-        "appdirs==1.4.0",
-        "python-frontmatter==0.2.1",
-        "pycrypto==2.6.1",
+        "graphenelib>=0.5.1",
+        "websockets>=2.0",
+        "scrypt>=0.7.1",
+        "diff-match-patch>=20121119",
+        "appdirs>=1.4.0",
+        "python-frontmatter>=0.2.1",
+        "pycrypto>=2.6.1",
         "funcy",
         # "python-dateutil",
         # "secp256k1==0.13.2"
