@@ -26,7 +26,7 @@ Installation
 Install with `pip3`:
 
     $ sudo apt-get install libffi-dev libssl-dev python-dev python3-pip
-    $ pip3 install steem
+    $ pip3 install piston-lib
 
 Manual installation:
 
