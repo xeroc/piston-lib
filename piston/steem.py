@@ -371,9 +371,9 @@ class Steem(object):
         if not category and tags:
             # extract the first tag
             category = tags[0]
-            tags = list(set(tags))
+            tags = list(set(tags[1:]))
             # do not use the first tag in tags
-            meta.update({"tags": tags[1:]})
+            meta.update({"tags": tags})
         elif tags:
             # store everything in tags
             tags = list(set(tags))
