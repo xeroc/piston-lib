@@ -29,7 +29,7 @@ This example code shows all comments starting at block 1893850.
    from piston.blockchain import Blockchain
    from pprint import pprint
 
-   for a in blockchain.blocks()
+   for a in blockchain.blocks():
        pprint(a)
 
 Operation Stream
@@ -40,7 +40,7 @@ Operation Stream
    from piston.blockchain import Blockchain
    from pprint import pprint
 
-   for a in blockchain.ops()
+   for a in blockchain.ops():
        pprint(a)
 
 Decentralized Exchange
