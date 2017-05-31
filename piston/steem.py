@@ -364,6 +364,8 @@ class Steem(object):
             options["allow_votes"] = meta.pop("allow_votes", None)
         if "allow_curation_rewards" in meta:
             options["allow_curation_rewards"] = meta.pop("allow_curation_rewards", None)
+        if "extensions" in meta:
+            options["extensions"] = meta.pop("extensions", [])
 
         # deal with the category and tags
         if isinstance(tags, str):
