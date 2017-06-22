@@ -11,11 +11,45 @@ def constructIdentifier(author, slug):
     return "@%s/%s" % (author, slug)
 
 
+rus_d = {
+    'а': 'a', 'б': 'b', 'в': 'v', 'г': 'g', 'д': 'd',
+    'е': 'e', 'ё': 'e', 'ж': 'zh', 'з': 'z', 'и': 'i',
+    'й': 'ij', 'к': 'k', 'л': 'l', 'м': 'm', 'н': 'n',
+    'о': 'o', 'п': 'p', 'р': 'r', 'с': 's', 'т': 't',
+    'у': 'u', 'ф': 'f', 'х': 'h', 'ц': 'c', 'ч': 'ch',
+    'ш': 'sh', 'щ': 'sh', 'ъ': 'xx', 'ы': 'y', 'ь': 'x',
+    'э': 'e', 'ю': 'yu', 'я': 'ya',
+
+    'А': "A", 'Б': "B", 'В': "V", 'Г': "G", 'Д': "D",
+    'Е': "E", 'Ё': "E", 'Ж': "ZH", 'З': "Z", 'И': "I",
+    'Й': "IJ", 'К': "K", 'Л': "L", 'М': "M", 'Н': "N",
+    'О': "O", 'П': "P", 'Р': "R", 'С': "S", 'Т': "T",
+    'У': "U", 'Ф': "F", 'Х': "H", 'Ц': "C", 'Ч': "CH",
+    'Ш': "SH", 'Щ': "SH", 'Ъ': "XX", 'Ы': "Y", 'Ь': "X",
+    'Э': "E", 'Ю': "YU", 'Я': "YA",
+}
+
+
 def sanitizePermlink(permlink):
     permlink = permlink.strip()
     permlink = re.sub("_|\s|\.", "-", permlink)
     permlink = re.sub("[^\w-]", "", permlink)
+    pattern = re.compile('|'.join(rus_d.keys()))
+    permlink = pattern.sub(lambda x: rus_d[x.group()], permlink)
     permlink = re.sub("[^a-zA-Z0-9-]", "", permlink)
+    permlink = permlink.lower()
+    return permlink
+
+
+def sanitizePermlinkCategory(permlink):
+    permlink = permlink.strip()
+    permlink = re.sub("_|\s|\.", "-", permlink)
+    permlink = re.sub("[^\w-]", "", permlink)
+    pattern = re.compile('|'.join(rus_d.keys()))
+    new_permlink = pattern.sub(lambda x: rus_d[x.group()], permlink)
+    if new_permlink != permlink:
+        permlink = 'ru--%s' % new_permlink
+    permlink = re.sub("[^a-z\A-Z0-9-]", "", permlink)
     permlink = permlink.lower()
     return permlink
 
@@ -30,6 +64,18 @@ def derivePermlink(title, parent_permlink=None):
         permlink += title
 
     return sanitizePermlink(permlink)
+
+
+def derivePermlinkCategory(title, parent_permlink=None):
+    permlink = ""
+    if parent_permlink:
+        permlink += "re-"
+        permlink += parent_permlink
+        permlink += "-" + formatTime(time.time())
+    else:
+        permlink += title
+
+    return sanitizePermlinkCategory(permlink)
 
 
 def resolveIdentifier(identifier):

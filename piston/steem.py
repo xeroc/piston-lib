@@ -26,6 +26,7 @@ from .utils import (
     resolveIdentifier,
     constructIdentifier,
     derivePermlink,
+    derivePermlinkCategory,
     formatTimeString
 )
 from .wallet import Wallet
@@ -387,7 +388,7 @@ class Steem(object):
             if not permlink:
                 permlink = derivePermlink(title, parent_permlink)
         elif category and not reply_identifier:
-            parent_permlink = derivePermlink(category)
+            parent_permlink = derivePermlinkCategory(category)
             parent_author = ""
             if not permlink:
                 permlink = derivePermlink(title)
