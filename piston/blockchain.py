@@ -108,6 +108,9 @@ class Blockchain(object):
 
             # Get chain properies to identify the
             head_block = self.get_current_block_num()
+            
+            if(stop):
+                head_block = min(stop, head_block)
 
             # Blocks from start until head block
             for blocknum in range(start, head_block + 1):
