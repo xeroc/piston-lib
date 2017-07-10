@@ -234,7 +234,7 @@ class Post(dict):
     def time_elapsed(self):
         """Return a timedelta on how old the post is.
         """
-        return datetime.utcnow() - self['created']
+        return datetime.utcnow() - datetime.strptime(self['created'], '%Y-%m-%dT%H:%M:%S')
 
     def is_main_post(self):
         """ Retuns True if main post, and False if this is a comment (reply).
