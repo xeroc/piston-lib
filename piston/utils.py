@@ -49,7 +49,7 @@ def sanitizePermlinkCategory(permlink):
     new_permlink = pattern.sub(lambda x: rus_d[x.group()], permlink)
     if new_permlink != permlink:
         permlink = 'ru--%s' % new_permlink
-    permlink = re.sub("[^a-z\A-Z0-9-]", "", permlink)
+    permlink = re.sub("[^a-zA-Z0-9-]", "", permlink)
     permlink = permlink.lower()
     return permlink
 
