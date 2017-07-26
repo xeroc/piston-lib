@@ -224,7 +224,8 @@ class Dex(object):
             expiration=7 * 24 * 60 * 60,
             killfill=False,
             account=None,
-            orderid=None):
+            orderid=None,
+            with_broadcast=True):
         """ Places a buy order in a given market (buy ``quote``, sell
             ``base`` in market ``quote_base``). If successful, the
             method will return the order creating (signed) transaction.
@@ -236,6 +237,7 @@ class Dex(object):
             :param bool killfill: flag that indicates if the order shall be killed if it is not filled (defaults to False)
             :param str account: (optional) the source account for the transfer if not ``default_account``
             :param int orderid: (optional) a 32bit orderid for tracking of the created order (random by default)
+            :param boolean with_broadcast: (optional) broadcast to blockchain
 
             Prices/Rates are denoted in 'base', i.e. the STEEM:SBD market
             is priced in SBD per STEEM.
@@ -262,7 +264,7 @@ class Dex(object):
             "fill_or_kill": killfill,
             "expiration": transactions.formatTimeFromNow(expiration)
         })
-        return self.steem.finalizeOp(op, account, "active")
+        return self.steem.finalizeOp(op, account, "active", with_broadcast)
 
     def sell(self,
              amount,
@@ -271,7 +273,8 @@ class Dex(object):
              expiration=7 * 24 * 60 * 60,
              killfill=False,
              account=None,
-             orderid=None):
+             orderid=None,
+             with_broadcast=True):
         """ Places a sell order in a given market (sell ``quote``, buy
             ``base`` in market ``quote_base``). If successful, the
             method will return the order creating (signed) transaction.
@@ -283,6 +286,7 @@ class Dex(object):
             :param bool killfill: flag that indicates if the order shall be killed if it is not filled (defaults to False)
             :param str account: (optional) the source account for the transfer if not ``default_account``
             :param int orderid: (optional) a 32bit orderid for tracking of the created order (random by default)
+            :param boolean with_broadcast: (optional) broadcast to blockchain
 
             Prices/Rates are denoted in 'base', i.e. the STEEM:SBD market
             is priced in SBD per STEEM.
@@ -308,13 +312,14 @@ class Dex(object):
             "fill_or_kill": killfill,
             "expiration": transactions.formatTimeFromNow(expiration)
         })
-        return self.steem.finalizeOp(op, account, "active")
+        return self.steem.finalizeOp(op, account, "active", with_broadcast)
 
-    def cancel(self, orderid, account=None):
+    def cancel(self, orderid, account=None, with_broadcast=True):
         """ Cancels an order you have placed in a given market.
 
             :param int orderid: the 32bit orderid
             :param str account: (optional) the source account for the transfer if not ``default_account``
+            :param boolean with_broadcast: (optional) broadcast to blockchain
         """
         if not account:
             if "default_account" in config:
@@ -326,7 +331,7 @@ class Dex(object):
             "owner": account,
             "orderid": orderid,
         })
-        return self.steem.finalizeOp(op, account, "active")
+        return self.steem.finalizeOp(op, account, "active", with_broadcast)
 
     def get_lowest_ask(self):
         """ Return the lowest ask.
