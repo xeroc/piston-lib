@@ -277,7 +277,7 @@ class Post(dict):
             return item
         return walk_values(decompose_amounts, safe_dict)
 
-    def set_comment_options(self, options, with_broadcast=True):
+    def set_comment_options(self, options):
         op = Comment_options(
             **{"author": self["author"],
                "permlink": self["permlink"],
@@ -295,4 +295,4 @@ class Post(dict):
                    options.get("extensions", []),
                }
         )
-        return self.steem.finalizeOp(op, self["author"], "posting", with_broadcast)
+        return self.steem.finalizeOp(op, self["author"], "posting")

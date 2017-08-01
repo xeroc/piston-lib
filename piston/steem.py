@@ -158,7 +158,7 @@ class Steem(object):
 
         self.rpc = SteemNodeRPC(node, rpcuser, rpcpassword, **kwargs)
 
-    def finalizeOp(self, ops, account, permission, with_broadcast=True):
+    def finalizeOp(self, ops, account, permission):
         """ This method obtains the required private keys if present in
             the wallet, finalizes the transaction, signs it and
             broadacasts it
@@ -176,7 +176,6 @@ class Steem(object):
                 that require active permission with ops that require
                 posting permission. Neither can you use different
                 accounts for different operations!
-            :param boolean with_broadcast: (optional) broadcast to blockchain
         """
         tx = TransactionBuilder(steem_instance=self)
         tx.appendOps(ops)
@@ -188,10 +187,7 @@ class Steem(object):
             tx.appendSigner(account, permission)
             tx.sign()
 
-        if with_broadcast:
-            return tx.broadcast()
-        else:
-            return tx
+        return tx.broadcast()
 
     def sign(self, tx, wifs=[]):
         """ Sign a provided transaction witht he provided key(s)
@@ -306,8 +302,7 @@ class Steem(object):
              meta={},
              reply_identifier=None,
              category=None,
-             tags=[],
-             with_broadcast=True):
+             tags=[]):
         """ New post
 
             :param str title: Title of the reply post
@@ -338,7 +333,6 @@ class Steem(object):
             :param array tags: The tags to flag the post with. If no
                 category is used, then the first tag will be used as
                 category
-            :param boolean with_broadcast: (optional) broadcast to blockchain
         """
 
         if not author and config["default_author"]:
@@ -434,13 +428,12 @@ class Steem(object):
                     "allow_curation_rewards": options.get("allow_curation_rewards", True),
                     "extensions": options.get("extensions", [])}))
 
-        return self.finalizeOp(op, author, "posting", with_broadcast)
+        return self.finalizeOp(op, author, "posting")
 
     def vote(self,
              identifier,
              weight,
-             voter=None,
-             with_broadcast=True):
+             voter=None):
         """ Vote for a post
 
             :param str identifier: Identifier for the post to upvote Takes
@@ -448,7 +441,6 @@ class Steem(object):
             :param float weight: Voting weight. Range: -100.0 - +100.0. May
                                  not be 0.0
             :param str voter: Voter to use for voting. (Optional)
-            :param boolean with_broadcast: (optional) broadcast to blockchain
 
             If ``voter`` is not defines, the ``default_voter`` will be taken or
             a ValueError will be raised
@@ -472,7 +464,7 @@ class Steem(object):
                "weight": int(weight * STEEMIT_1_PERCENT)}
         )
 
-        return self.finalizeOp(op, voter, "posting", with_broadcast)
+        return self.finalizeOp(op, voter, "posting")
 
     def create_account(self,
                        account_name,
@@ -492,7 +484,6 @@ class Steem(object):
                        additional_active_accounts=[],
                        additional_posting_accounts=[],
                        storekeys=True,
-                       with_broadcast=True
                        ):
         """ Create new account in Steem
 
@@ -539,7 +530,6 @@ class Steem(object):
             :param array additional_active_accounts: Additional acctive account names
             :param array additional_posting_accounts: Additional posting account names
             :param bool storekeys: Store new keys in the wallet (default: ``True``)
-            :param boolean with_broadcast: (optional) broadcast to blockchain
             :raises AccountExistsException: if the account already exists on the blockchain
 
         """
@@ -649,9 +639,9 @@ class Steem(object):
 
         op = operations.Account_create_with_delegation(**s)
 
-        return self.finalizeOp(op, creator, "active", with_broadcast)
+        return self.finalizeOp(op, creator, "active")
 
-    def transfer(self, to, amount, asset, memo="", account=None, with_broadcast=True):
+    def transfer(self, to, amount, asset, memo="", account=None):
         """ Transfer SBD or STEEM to another account.
 
             :param str to: Recipient
@@ -659,7 +649,6 @@ class Steem(object):
             :param str asset: Asset to transfer (``SBD`` or ``STEEM``)
             :param str memo: (optional) Memo, may begin with `#` for encrypted messaging
             :param str account: (optional) the source account for the transfer if not ``default_account``
-            :param boolean with_broadcast: (optional) broadcast to blockchain
         """
         if not account:
             if "default_account" in config:
@@ -695,14 +684,13 @@ class Steem(object):
                "memo": memo
                }
         )
-        return self.finalizeOp(op, account, "active", with_broadcast)
+        return self.finalizeOp(op, account, "active")
 
-    def withdraw_vesting(self, amount, account=None, with_broadcast=True):
+    def withdraw_vesting(self, amount, account=None):
         """ Withdraw VESTS from the vesting account.
 
             :param float amount: number of VESTS to withdraw over a period of 104 weeks
             :param str account: (optional) the source account for the transfer if not ``default_account``
-            :param boolean with_broadcast: (optional) broadcast to blockchain
         """
         if not account:
             if "default_account" in config:
@@ -720,15 +708,14 @@ class Steem(object):
                }
         )
 
-        return self.finalizeOp(op, account, "active", with_broadcast)
+        return self.finalizeOp(op, account, "active")
 
-    def transfer_to_vesting(self, amount, to=None, account=None, with_broadcast=True):
+    def transfer_to_vesting(self, amount, to=None, account=None):
         """ Vest STEEM
 
             :param float amount: number of STEEM to vest
             :param str to: (optional) the source account for the transfer if not ``default_account``
             :param str account: (optional) the source account for the transfer if not ``default_account``
-            :param boolean with_broadcast: (optional) broadcast to blockchain
         """
         if not account:
             if "default_account" in config:
@@ -749,15 +736,14 @@ class Steem(object):
                }
         )
 
-        return self.finalizeOp(op, account, "active", with_broadcast)
+        return self.finalizeOp(op, account, "active")
 
-    def convert(self, amount, account=None, requestid=None, with_broadcast=True):
+    def convert(self, amount, account=None, requestid=None):
         """ Convert SteemDollars to Steem (takes one week to settle)
 
             :param float amount: number of VESTS to withdraw over a period of 104 weeks
             :param str account: (optional) the source account for the transfer if not ``default_account``
             :param str requestid: (optional) identifier for tracking the conversion`
-            :param boolean with_broadcast: (optional) broadcast to blockchain
         """
         if not account and "default_account" in config:
             account = config["default_account"]
@@ -778,9 +764,9 @@ class Steem(object):
                )}
         )
 
-        return self.finalizeOp(op, account, "active", with_broadcast)
+        return self.finalizeOp(op, account, "active")
 
-    def transfer_to_savings(self, amount, currency, memo, to=None, account=None, with_broadcast=True):
+    def transfer_to_savings(self, amount, currency, memo, to=None, account=None):
         """ Transfer SBD or STEEM into a 'savings' account.
 
             :param float amount: STEEM or SBD amount
@@ -788,7 +774,6 @@ class Steem(object):
             :param str memo: (optional) Memo
             :param str to: (optional) the source account for the transfer if not ``default_account``
             :param str account: (optional) the source account for the transfer if not ``default_account``
-            :param boolean with_broadcast: (optional) broadcast to blockchain
         """
         self._valid_currency(currency)
 
@@ -812,10 +797,9 @@ class Steem(object):
                 "memo": memo,
             }
         )
-        return self.finalizeOp(op, account, "active", with_broadcast)
+        return self.finalizeOp(op, account, "active")
 
-    def transfer_from_savings(self, amount, currency, memo, request_id=None, to=None, account=None,
-                              with_broadcast=True):
+    def transfer_from_savings(self, amount, currency, memo, request_id=None, to=None, account=None):
         """ Withdraw SBD or STEEM from 'savings' account.
 
             :param float amount: STEEM or SBD amount
@@ -824,7 +808,6 @@ class Steem(object):
             :param str request_id: (optional) identifier for tracking or cancelling the withdrawal
             :param str to: (optional) the source account for the transfer if not ``default_account``
             :param str account: (optional) the source account for the transfer if not ``default_account``
-            :param boolean with_broadcast: (optional) broadcast to blockchain
         """
         self._valid_currency(currency)
 
@@ -854,14 +837,13 @@ class Steem(object):
                 "memo": memo,
             }
         )
-        return self.finalizeOp(op, account, "active", with_broadcast)
+        return self.finalizeOp(op, account, "active")
 
-    def transfer_from_savings_cancel(self, request_id, account=None, with_broadcast=True):
+    def transfer_from_savings_cancel(self, request_id, account=None):
         """ Cancel a withdrawal from 'savings' account.
 
             :param str request_id: Identifier for tracking or cancelling the withdrawal
             :param str account: (optional) the source account for the transfer if not ``default_account``
-            :param boolean with_broadcast: (optional) broadcast to blockchain
         """
         if not account:
             if "default_account" in config:
@@ -875,15 +857,14 @@ class Steem(object):
                 "request_id": request_id,
             }
         )
-        return self.finalizeOp(op, account, "active", with_broadcast)
+        return self.finalizeOp(op, account, "active")
 
-    def witness_feed_publish(self, steem_usd_price, quote="1.000", account=None, with_broadcast=True):
+    def witness_feed_publish(self, steem_usd_price, quote="1.000", account=None):
         """ Publish a feed price as a witness.
 
             :param float steem_usd_price: Price of STEEM in USD (implied price)
             :param float quote: (optional) Quote Price. Should be 1.000, unless we are adjusting the feed to support the peg.
             :param str account: (optional) the source account for the transfer if not ``default_account``
-            :param boolean with_broadcast: (optional) broadcast to blockchain
         """
         if not account:
             if "default_account" in config:
@@ -900,16 +881,15 @@ class Steem(object):
                 }
             }
         )
-        return self.finalizeOp(op, account, "active", with_broadcast)
+        return self.finalizeOp(op, account, "active")
 
-    def witness_update(self, signing_key, url, props, account=None, with_broadcast=True):
+    def witness_update(self, signing_key, url, props, account=None):
         """ Update witness
 
             :param pubkey signing_key: Signing key
             :param str url: URL
             :param dict props: Properties
             :param str account: (optional) witness account name
-            :param boolean with_broadcast: (optional) broadcast to blockchain
 
              Properties:::
 
@@ -941,7 +921,7 @@ class Steem(object):
                 "prefix": self.rpc.chain_params["prefix"]
             }
         )
-        return self.finalizeOp(op, account, "active", with_broadcast)
+        return self.finalizeOp(op, account, "active")
 
     @staticmethod
     def _valid_currency(currency):
@@ -1153,7 +1133,7 @@ class Steem(object):
         }
 
     def set_withdraw_vesting_route(self, to, percentage=100,
-                                   account=None, auto_vest=False, with_broadcast=True):
+                                   account=None, auto_vest=False):
         """ Set up a vesting withdraw route. When vesting shares are
             withdrawn, they will be routed to these accounts based on the
             specified weights.
@@ -1165,7 +1145,6 @@ class Steem(object):
             :param bool auto_vest: Set to true if the from account
                 should receive the VESTS as VESTS, or false if it should
                 receive them as STEEM. (defaults to ``False``)
-            :param boolean with_broadcast: (optional) broadcast to blockchain
         """
         if not account:
             if "default_account" in config:
@@ -1181,7 +1160,7 @@ class Steem(object):
                }
         )
 
-        return self.finalizeOp(op, account, "active", with_broadcast)
+        return self.finalizeOp(op, account, "active")
 
     def _test_weights_treshold(self, authority):
         weights = 0
@@ -1193,7 +1172,7 @@ class Steem(object):
             raise ValueError("Threshold too restrictive!")
 
     def allow(self, foreign, weight=None, permission="posting",
-              account=None, threshold=None, with_broadcast=True):
+              account=None, threshold=None):
         """ Give additional access to an account by some other public
             key or account.
 
@@ -1208,7 +1187,6 @@ class Steem(object):
                 to (defaults to ``default_author``)
             :param int threshold: The threshold that needs to be reached
                 by signatures to be able to interact
-            :param boolean with_broadcast: (optional) broadcast to blockchain
         """
         if not account:
             if "default_author" in config:
@@ -1254,12 +1232,12 @@ class Steem(object):
                'prefix': self.rpc.chain_params["prefix"]}
         )
         if permission == "owner":
-            return self.finalizeOp(op, account["name"], "owner", with_broadcast)
+            return self.finalizeOp(op, account["name"], "owner")
         else:
-            return self.finalizeOp(op, account["name"], "active", with_broadcast)
+            return self.finalizeOp(op, account["name"], "active")
 
     def disallow(self, foreign, permission="posting",
-                 account=None, threshold=None, with_broadcast=True):
+                 account=None, threshold=None):
         """ Remove additional access to an account by some other public
             key or account.
 
@@ -1270,7 +1248,6 @@ class Steem(object):
                 to (defaults to ``default_author``)
             :param int threshold: The threshold that needs to be reached
                 by signatures to be able to interact
-            :param boolean with_broadcast: (optional) broadcast to blockchain
         """
         if not account:
             if "default_author" in config:
@@ -1334,11 +1311,11 @@ class Steem(object):
                "json_metadata": account["json_metadata"]}
         )
         if permission == "owner":
-            return self.finalizeOp(op, account["name"], "owner", with_broadcast)
+            return self.finalizeOp(op, account["name"], "owner")
         else:
-            return self.finalizeOp(op, account["name"], "active", with_broadcast)
+            return self.finalizeOp(op, account["name"], "active")
 
-    def update_memo_key(self, key, account=None, with_broadcast=True):
+    def update_memo_key(self, key, account=None):
         """ Update an account's memo public key
 
             This method does **not** add any private keys to your
@@ -1347,7 +1324,6 @@ class Steem(object):
             :param str key: New memo public key
             :param str account: (optional) the account to allow access
                 to (defaults to ``default_author``)
-            :param boolean with_broadcast: (optional) broadcast to blockchain
         """
         if not account:
             if "default_author" in config:
@@ -1362,9 +1338,9 @@ class Steem(object):
                "memo_key": key,
                "json_metadata": account["json_metadata"]}
         )
-        return self.finalizeOp(op, account["name"], "active", with_broadcast)
+        return self.finalizeOp(op, account["name"], "active")
 
-    def approve_witness(self, witness, account=None, approve=True, with_broadcast=True):
+    def approve_witness(self, witness, account=None, approve=True):
         """ Vote **for** a witness. This method adds a witness to your
             set of approved witnesses. To remove witnesses see
             ``disapprove_witness``.
@@ -1372,7 +1348,6 @@ class Steem(object):
             :param str witness: witness to approve
             :param str account: (optional) the account to allow access
                 to (defaults to ``default_author``)
-            :param boolean with_broadcast: (optional) broadcast to blockchain
         """
         if not account:
             if "default_author" in config:
@@ -1385,7 +1360,7 @@ class Steem(object):
                "witness": witness,
                "approve": approve,
                })
-        return self.finalizeOp(op, account["name"], "active", with_broadcast)
+        return self.finalizeOp(op, account["name"], "active")
 
     def disapprove_witness(self, witness, account=None, approve=True):
         """ Remove vote for a witness. This method removes
@@ -1398,14 +1373,13 @@ class Steem(object):
         """
         return self.approve_witness(witness=witness, account=account, approve=False)
 
-    def custom_json(self, id, json, required_auths=[], required_posting_auths=[], with_broadcast=True):
+    def custom_json(self, id, json, required_auths=[], required_posting_auths=[]):
         """ Create a custom json operation
 
             :param str id: identifier for the custom json (max length 32 bytes)
             :param json json: the json data to put into the custom_json operation
             :param list required_auths: (optional) required auths
             :param list required_posting_auths: (optional) posting auths
-            :param boolean with_broadcast: (optional) broadcast to blockchain
         """
         account = None
         if len(required_auths):
@@ -1419,15 +1393,14 @@ class Steem(object):
                "required_auths": required_auths,
                "required_posting_auths": required_posting_auths,
                "id": id})
-        return self.finalizeOp(op, account, "posting", with_broadcast)
+        return self.finalizeOp(op, account, "posting")
 
-    def resteem(self, identifier, account=None, with_broadcast=True):
+    def resteem(self, identifier, account=None):
         """ Resteem a post
 
             :param str identifier: post identifier (@<account>/<permlink>)
             :param str account: (optional) the account to allow access
                 to (defaults to ``default_author``)
-            :param boolean with_broadcast: (optional) broadcast to blockchain
         """
         if not account:
             if "default_author" in config:
@@ -1442,31 +1415,28 @@ class Steem(object):
                    "author": author,
                    "permlink": permlink
                    }],
-            required_posting_auths=[account],
-            with_broadcast=with_broadcast
+            required_posting_auths=[account]
         )
 
-    def unfollow(self, unfollow, what=["blog"], account=None, with_broadcast=True):
+    def unfollow(self, unfollow, what=["blog"], account=None):
         """ Unfollow another account's blog
 
             :param str unfollow: Follow this account
             :param list what: List of states to follow (defaults to ``['blog']``)
             :param str account: (optional) the account to allow access
                 to (defaults to ``default_account``)
-            :param boolean with_broadcast: (optional) broadcast to blockchain
         """
         # FIXME: removing 'blog' from the array requires to first read
         # the follow.what from the blockchain
-        return self.follow(unfollow, what=[], account=account, with_broadcast=with_broadcast)
+        return self.follow(unfollow, what=[], account=account)
 
-    def follow(self, follow, what=["blog"], account=None, with_broadcast=True):
+    def follow(self, follow, what=["blog"], account=None):
         """ Follow another account's blog
 
             :param str follow: Follow this account
             :param list what: List of states to follow (defaults to ``['blog']``)
             :param str account: (optional) the account to allow access
                 to (defaults to ``default_account``)
-            :param boolean with_broadcast: (optional) broadcast to blockchain
         """
         if not account:
             if "default_account" in config:
@@ -1479,21 +1449,19 @@ class Steem(object):
                 'follower': account,
                 'following': follow,
                 'what': what}],
-            required_posting_auths=[account],
-            with_broadcast=with_broadcast
+            required_posting_auths=[account]
         )
 
     def reblog(self, *args, **kwargs):
         """ See resteem() """
         self.resteem(*args, **kwargs)
 
-    def update_account_profile(self, profile, account=None, with_broadcast=True):
+    def update_account_profile(self, profile, account=None):
         """ Update an account's meta data (json_meta)
 
             :param dict json: The meta data to use (i.e. use Profile() from account.py)
             :param str account: (optional) the account to allow access
                 to (defaults to ``default_account``)
-            :param boolean with_broadcast: (optional) broadcast to blockchain
         """
         if not account:
             if "default_author" in config:
@@ -1506,16 +1474,15 @@ class Steem(object):
                "memo_key": account["memo_key"],
                "json_metadata": profile}
         )
-        return self.finalizeOp(op, account["name"], "active", with_broadcast)
+        return self.finalizeOp(op, account["name"], "active")
 
-    def comment_options(self, identifier, options, account=None, with_broadcast=True):
+    def comment_options(self, identifier, options, account=None):
         """ Set the comment options
 
             :param str identifier: Post identifier
             :param dict options: The options to define.
             :param str account: (optional) the account to allow access
                 to (defaults to ``default_account``)
-            :param boolean with_broadcast: (optional) broadcast to blockchain
 
             For the options, you have these defaults:::
 
@@ -1547,4 +1514,4 @@ class Steem(object):
                 "allow_curation_rewards": options.get("allow_curation_rewards", True),
             }
         )
-        return self.finalizeOp(op, account["name"], "posting", with_broadcast)
+        return self.finalizeOp(op, account["name"], "posting")
