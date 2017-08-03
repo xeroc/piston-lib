@@ -364,6 +364,8 @@ class Steem(object):
             options["allow_votes"] = meta.pop("allow_votes", None)
         if "allow_curation_rewards" in meta:
             options["allow_curation_rewards"] = meta.pop("allow_curation_rewards", None)
+        if "extensions" in meta:
+            options["extensions"] = meta.pop("extensions", [])
 
         # deal with the category and tags
         if isinstance(tags, str):
@@ -422,7 +424,8 @@ class Steem(object):
                         options.get("percent_steem_dollars", 100) * STEEMIT_1_PERCENT
                     ),
                     "allow_votes": options.get("allow_votes", True),
-                    "allow_curation_rewards": options.get("allow_curation_rewards", True)}))
+                    "allow_curation_rewards": options.get("allow_curation_rewards", True),
+                    "extensions": options.get("extensions", [])}))
 
         return self.finalizeOp(op, author, "posting")
 
