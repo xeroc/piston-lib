@@ -1027,29 +1027,6 @@ class Steem(object):
         """
         return Post(identifier, steem_instance=self).get_comments()
 
-    def get_categories(self, sort="trending", begin=None, limit=10):
-        """ List categories
-
-            :param str sort: Sort categories by "trending", "best",
-                             "active", or "recent"
-            :param str begin: Show categories after this
-                              identifier of the form ``@author/permlink``
-            :param int limit: Limit categories by ``x``
-        """
-        if sort == "trending":
-            func = self.rpc.get_trending_categories
-        elif sort == "best":
-            func = self.rpc.get_best_categories
-        elif sort == "active":
-            func = self.rpc.get_active_categories
-        elif sort == "recent":
-            func = self.rpc.get_recent_categories
-        else:
-            log.error("Invalid choice of '--sort' (%s)!" % sort)
-            return
-
-        return func(begin, limit)
-
     def get_balances(self, account=None):
         """ Get the balance of an account
 
