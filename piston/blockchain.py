@@ -261,14 +261,14 @@ class Blockchain(object):
         timestring_timestamp = parse_time(timestring).timestamp()
         delta = known_block_timestamp - timestring_timestamp
         block_delta = delta / 3
-        guess_block = known_block - block_delta
+        guess_block = known_block.block - block_delta
         guess_block_timestamp = self.block_timestamp(guess_block)
         error = timestring_timestamp - guess_block_timestamp
         while abs(error) > error_margin:
             guess_block += error / 3
             guess_block_timestamp = self.block_timestamp(guess_block)
             error = timestring_timestamp - guess_block_timestamp
-        return int(guess_block)
+        return int(guess_block.block)
 
     def get_all_accounts(self, start='', stop='', steps=1e6, **kwargs):
         """ Yields account names between start and stop.
