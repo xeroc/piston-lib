@@ -108,7 +108,7 @@ class Blockchain(object):
 
             # Get chain properies to identify the
             head_block = self.get_current_block_num()
-            
+
             if(stop):
                 head_block = min(stop, head_block)
 
