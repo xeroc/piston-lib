@@ -376,11 +376,11 @@ class Steem(object):
             category = tags[0]
             tags = list(set(tags[1:]))
             # do not use the first tag in tags
-            meta.update({"tags": tags})
+            # meta.update({"tags": tags})
         elif tags:
             # store everything in tags
             tags = list(set(tags))
-            meta.update({"tags": tags})
+            # meta.update({"tags": tags})
 
         # Deal with replies
         if reply_identifier and not category:
