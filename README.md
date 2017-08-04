@@ -50,7 +50,7 @@ Documentation
 -------------
 
 Thanks to readthedocs.io, the documentation can be viewed on
-[piston.rocks](http://piston.rocks)
+[lib.piston.rocks](http://lib.piston.rocks)
 
 Documentation is written with the help of sphinx and can be compile to
 html with:
