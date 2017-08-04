@@ -279,6 +279,7 @@ class Account_create_with_delegation(GrapheneObject):
                 ('extensions', Array([])),
             ]))
 
+
 class Account_create(GrapheneObject):
     def __init__(self, *args, **kwargs):
         if isArgsThisClass(self, args):
@@ -583,4 +584,33 @@ class Comment_options(GrapheneObject):
                 ('allow_votes', Bool(bool(kwargs["allow_votes"]))),
                 ('allow_curation_rewards', Bool(bool(kwargs["allow_curation_rewards"]))),
                 ('extensions', extensions),
+            ]))
+
+
+class Claim_reward_balance(GrapheneObject):
+    def __init__(self, *args, **kwargs):
+        if isArgsThisClass(self, args):
+            self.data = args[0].data
+        else:
+            if len(args) == 1 and len(kwargs) == 0:
+                kwargs = args[0]
+            super().__init__(OrderedDict([
+                ('account', String(kwargs["account"])),
+                ('reward_steem', Amount(kwargs["reward_steem"])),
+                ('reward_sbd', Amount(kwargs["reward_sbd"])),
+                ('reward_vests', Amount(kwargs["reward_vests"])),
+            ]))
+
+
+class Delegate_vesting_shares(GrapheneObject):
+    def __init__(self, *args, **kwargs):
+        if isArgsThisClass(self, args):
+            self.data = args[0].data
+        else:
+            if len(args) == 1 and len(kwargs) == 0:
+                kwargs = args[0]
+            super().__init__(OrderedDict([
+                ('delegator', String(kwargs["delegator"])),
+                ('delegatee', String(kwargs["delegatee"])),
+                ('vesting_shares', Amount(kwargs["vesting_shares"])),
             ]))

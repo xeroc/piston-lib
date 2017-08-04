@@ -113,9 +113,6 @@ class Testcases(unittest.TestCase):
     def test_get_posts(self):
         steem.get_posts()
 
-    def test_get_categories(self):
-        steem.get_categories(sort="trending")
-
     def test_get_balances(self):
         steem.get_balances(testaccount)
 

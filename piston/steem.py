@@ -1027,29 +1027,6 @@ class Steem(object):
         """
         return Post(identifier, steem_instance=self).get_comments()
 
-    def get_categories(self, sort="trending", begin=None, limit=10):
-        """ List categories
-
-            :param str sort: Sort categories by "trending", "best",
-                             "active", or "recent"
-            :param str begin: Show categories after this
-                              identifier of the form ``@author/permlink``
-            :param int limit: Limit categories by ``x``
-        """
-        if sort == "trending":
-            func = self.rpc.get_trending_categories
-        elif sort == "best":
-            func = self.rpc.get_best_categories
-        elif sort == "active":
-            func = self.rpc.get_active_categories
-        elif sort == "recent":
-            func = self.rpc.get_recent_categories
-        else:
-            log.error("Invalid choice of '--sort' (%s)!" % sort)
-            return
-
-        return func(begin, limit)
-
     def get_balances(self, account=None):
         """ Get the balance of an account
 
@@ -1514,3 +1491,66 @@ class Steem(object):
             }
         )
         return self.finalizeOp(op, account["name"], "posting")
+
+    def claim_reward_balance(self,
+                             reward_steem=None,
+                             reward_sbd=None,
+                             reward_vests=None,
+                             account=None):
+        """ Claim reward balances.
+
+        By default, this will claim ``all`` outstanding balances. To bypass this behaviour,
+        set desired claim amount by setting any of `reward_steem`, `reward_sbd` or `reward_vests`.
+
+        :param str reward_steem: Amount of STEEM you would like to claim.
+        :param str reward_sbd: Amount of SBD you would like to claim.
+        :param str reward_vests: Amount of VESTS you would like to claim.
+        :param str account: The source account for the claim if not ``default_account`` is used.
+
+        """
+        if not account:
+            account = config["default_account"]
+        if not account:
+            raise ValueError("You need to provide an account")
+
+        account = Account(account)
+
+        # if no values were set by user, claim all outstanding balances on account
+        if not reward_steem:
+            reward_steem = account['reward_steem_balance']
+        if not reward_sbd:
+            reward_sbd = account['reward_sbd_balance']
+        if not reward_vests:
+            reward_vests = account['reward_vesting_balance']
+
+        op = operations.Claim_reward_balance(
+            **{
+                "account": account["name"],
+                "reward_steem": str(reward_steem),
+                "reward_sbd": str(reward_sbd),
+                "reward_vests": str(reward_vests),
+            }
+        )
+        return self.finalizeOp(op, account["name"], "posting")
+
+    def delegate_vesting_shares(self, to_account: str, vesting_shares: str, account=None):
+        """ Delegate SP to another account.
+
+        :param str to_account: Account we are delegating shares to (delegatee).
+        :param str vesting_shares: Amount of VESTS to delegate eg. `10000 VESTS`.
+        :param str account: The source account for the claim if not ``default_account`` is used.
+
+        """
+        if not account:
+            account = config["default_account"]
+        if not account:
+            raise ValueError("You need to provide an account")
+
+        op = operations.Delegate_vesting_shares(
+            **{
+                "delegator": account,
+                "delegatee": to_account,
+                "vesting_shares": str(Amount(vesting_shares)),
+            }
+        )
+        return self.finalizeOp(op, account, "active")
