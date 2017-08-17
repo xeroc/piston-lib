@@ -9,7 +9,7 @@ except LookupError:
     ascii = codecs.lookup('ascii')
     codecs.register(lambda name, enc=ascii: {True: enc}.get(name == 'mbcs'))
 
-VERSION = '0.5.5'
+VERSION = '0.5.6'
 
 setup(
     name='piston-lib',
@@ -42,6 +42,7 @@ setup(
         "python-frontmatter>=0.2.1",
         "pycrypto>=2.6.1",
         "funcy",
+        "python-dateutil>=2.6.1",
         # "python-dateutil",
         # "secp256k1==0.13.2"
     ],

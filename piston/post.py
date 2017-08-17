@@ -1,6 +1,7 @@
 import json
 import re
 from datetime import datetime
+from dateutil.parser import parse
 
 from funcy import walk_values
 from piston.instance import shared_steem_instance
@@ -234,7 +235,9 @@ class Post(dict):
     def time_elapsed(self):
         """Return a timedelta on how old the post is.
         """
-        return datetime.utcnow() - self['created']
+        # Note: Instead of parse() function from dateutil module
+        # we can use the parse_time() function from utils.py:221
+        return datetime.utcnow() - parse(self['created'])
 
     def is_main_post(self):
         """ Retuns True if main post, and False if this is a comment (reply).
@@ -288,7 +291,7 @@ class Post(dict):
                    options.get("allow_votes", self["allow_votes"]),
                "allow_curation_rewards":
                    options.get("allow_curation_rewards", self["allow_curation_rewards"]),
-                "extensions":
+               "extensions":
                    options.get("extensions", []),
                }
         )
