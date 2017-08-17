@@ -26,6 +26,7 @@ from .utils import (
     resolveIdentifier,
     constructIdentifier,
     derivePermlink,
+    derivePermlinkCategory,
     formatTimeString
 )
 from .wallet import Wallet
@@ -375,11 +376,11 @@ class Steem(object):
             category = tags[0]
             tags = list(set(tags[1:]))
             # do not use the first tag in tags
-            meta.update({"tags": tags})
+            # meta.update({"tags": tags})
         elif tags:
             # store everything in tags
             tags = list(set(tags))
-            meta.update({"tags": tags})
+            # meta.update({"tags": tags})
 
         # Deal with replies
         if reply_identifier and not category:
@@ -387,7 +388,7 @@ class Steem(object):
             if not permlink:
                 permlink = derivePermlink(title, parent_permlink)
         elif category and not reply_identifier:
-            parent_permlink = derivePermlink(category)
+            parent_permlink = derivePermlinkCategory(category)
             parent_author = ""
             if not permlink:
                 permlink = derivePermlink(title)
