@@ -353,7 +353,7 @@ class Steem(object):
         # Default "app"
         if "app" not in meta:
             version = pkg_resources.require("piston-lib")[0].version
-            meta["app"] = "pysteem/{}".format(version)
+            meta["app"] = "piston-lib/{}".format(version)
 
         # Identify the comment options
         options = {}
