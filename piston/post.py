@@ -237,7 +237,7 @@ class Post(dict):
         """
         # Note: Instead of parse() function from dateutil module
         # we can use the parse_time() function from utils.py:221
-        return datetime.utcnow() - parse(self['created'])
+        return datetime.utcnow() - self['created']
 
     def is_main_post(self):
         """ Retuns True if main post, and False if this is a comment (reply).
