@@ -177,7 +177,9 @@ class Blockchain(object):
             # Blocks from start until head block
             for blocknum in range(start, head_block + 1):
                 # Get full block
-                yield from self.get_ops_in_block(blocknum, only_virtual_ops)
+                ops = self.get_ops_in_block(blocknum, only_virtual_ops)
+                if ops:
+                    yield from ops
 
             # Set new start
             start = head_block + 1
