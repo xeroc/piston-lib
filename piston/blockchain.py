@@ -178,8 +178,9 @@ class Blockchain(object):
             for blocknum in range(start, head_block + 1):
                 # Get full block
                 ops = self.get_ops_in_block(blocknum, only_virtual_ops)
-                if ops:
-                    yield from ops
+                for op in ops:
+                    if op:
+                        yield op
 
             # Set new start
             start = head_block + 1
@@ -194,17 +195,13 @@ class Blockchain(object):
         """ Get all the operations from the block
         """
         block = self.steem.rpc.get_block(blocknum)
-        if not block:
-            yield
-        ops = list()
         for i, tx in enumerate(block.get("transactions", [])):
             for j, op in enumerate(tx.get("operations", [])):
-                ops.append({
+                yield {
                     "block": blocknum,
                     "op": op,
                     "timestamp": block["timestamp"],
-                })
-        yield from ops
+                }
 
     def stream(self, opNames=[], *args, **kwargs):
         """ Yield specific operations (e.g. comments) only
