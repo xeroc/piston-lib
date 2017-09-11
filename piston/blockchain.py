@@ -195,6 +195,8 @@ class Blockchain(object):
         """ Get all the operations from the block
         """
         block = self.steem.rpc.get_block(blocknum)
+        if not block:
+            yield
         for i, tx in enumerate(block.get("transactions", [])):
             for j, op in enumerate(tx.get("operations", [])):
                 yield {
