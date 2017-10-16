@@ -195,15 +195,17 @@ class Blockchain(object):
         """ Get all the operations from the block
         """
         block = self.steem.rpc.get_block(blocknum)
+        ret = list()
         if not block:
-            yield
+            return ret
         for i, tx in enumerate(block.get("transactions", [])):
             for j, op in enumerate(tx.get("operations", [])):
-                yield {
+                ret.append({
                     "block": blocknum,
                     "op": op,
                     "timestamp": block["timestamp"],
-                }
+                })
+        return ret
 
     def stream(self, opNames=[], *args, **kwargs):
         """ Yield specific operations (e.g. comments) only
