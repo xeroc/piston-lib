@@ -216,7 +216,7 @@ class Steem(object):
             It is only relevant if we are not on STEEM, but e.g. on
             GOLOS
         """
-        assert asset.lower() in ["sbd", "steem"]
+        assert asset.lower() in ["sbd", "steem", "vests"]
         return self.rpc.chain_params["%s_symbol" % asset.lower()]
 
     def info(self):
@@ -703,7 +703,7 @@ class Steem(object):
                "vesting_shares": '{:.{prec}f} {asset}'.format(
                    float(amount),
                    prec=6,
-                   asset="VESTS"
+                   asset=self.symbol("VESTS")
                ),
                }
         )
