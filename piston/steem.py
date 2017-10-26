@@ -907,7 +907,7 @@ class Steem(object):
             raise ValueError("You need to provide an account")
 
         try:
-            PublicKey(signing_key)
+            PublicKey(signing_key, prefix=self.rpc.chain_params["prefix"])
         except Exception as e:
             raise e
 
