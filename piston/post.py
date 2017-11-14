@@ -110,10 +110,13 @@ class Post(dict):
 
         post["tags"] = []
         if post["depth"] == 0:
-            post["tags"] = (
-                [post["parent_permlink"]] +
-                post["json_metadata"].get("tags", [])
-            )
+            post["tags"] = post["json_metadata"].get("tags", [])
+
+            if isinstance(post["tags"], str):
+                post["tags"] = post["tags"].split()
+
+            if post["parent_permlink"] not in post["tags"]:
+                post["tags"].insert(0, post["parent_permlink"])
 
         # Retrieve the root comment
         self.openingPostIdentifier, self.category = self._getOpeningPost(post)
