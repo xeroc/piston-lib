@@ -177,7 +177,10 @@ class Blockchain(object):
             # Blocks from start until head block
             for blocknum in range(start, head_block + 1):
                 # Get full block
-                yield from self.steem.rpc.get_ops_in_block(blocknum, only_virtual_ops)
+                ops = self.get_ops_in_block(blocknum, only_virtual_ops)
+                for op in ops:
+                    if op:
+                        yield op
 
             # Set new start
             start = head_block + 1
@@ -187,6 +190,22 @@ class Blockchain(object):
 
             # Sleep for one block
             time.sleep(block_interval)
+
+    def get_ops_in_block(self, blocknum, only_virtual_ops=False):
+        """ Get all the operations from the block
+        """
+        block = self.steem.rpc.get_block(blocknum)
+        ret = list()
+        if not block:
+            return ret
+        for i, tx in enumerate(block.get("transactions", [])):
+            for j, op in enumerate(tx.get("operations", [])):
+                ret.append({
+                    "block": blocknum,
+                    "op": op,
+                    "timestamp": block["timestamp"],
+                })
+        return ret
 
     def stream(self, opNames=[], *args, **kwargs):
         """ Yield specific operations (e.g. comments) only
@@ -268,7 +287,7 @@ class Blockchain(object):
             guess_block += error / 3
             guess_block_timestamp = self.block_timestamp(guess_block)
             error = timestring_timestamp - guess_block_timestamp
-        return int(guess_block.block)
+        return int(guess_block)
 
     def get_all_accounts(self, start='', stop='', steps=1e6, **kwargs):
         """ Yields account names between start and stop.
