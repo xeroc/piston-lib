@@ -1067,7 +1067,7 @@ class Steem(object):
         """ Try to decode an encrypted memo
         """
         assert enc_memo[0] == "#", "decode memo requires memos to start with '#'"
-        keys = memo.involved_keys(enc_memo)
+        keys = memo.involved_keys(enc_memo, prefix=self.rpc.chain_params["prefix"])
         wif = None
         for key in keys:
             wif = self.wallet.getPrivateKeyForPublicKey(str(key))

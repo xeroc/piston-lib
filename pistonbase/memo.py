@@ -152,11 +152,11 @@ def decode_memo(priv, message):
         raise ValueError(message)
 
 
-def involved_keys(message):
+def involved_keys(message, prefix=default_prefix):
     " decode structure "
     raw = base58decode(message[1:])
-    from_key = PublicKey(raw[:66])
+    from_key = PublicKey(raw[:66], prefix=prefix)
     raw = raw[66:]
-    to_key = PublicKey(raw[:66])
+    to_key = PublicKey(raw[:66], prefix=prefix)
 
     return [from_key, to_key]
