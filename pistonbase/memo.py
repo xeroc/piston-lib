@@ -99,6 +99,7 @@ def encode_memo(priv, pub, nonce, message, **kwargs):
         "from_priv": repr(priv),
         "to_pub": repr(pub),
         "shared_secret": shared_secret,
+        "prefix": prefix,
     }
     tx = transactions.Memo(**s)
     return "#" + base58encode(hexlify(bytes(tx)).decode("ascii"))
