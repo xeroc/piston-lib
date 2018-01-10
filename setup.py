@@ -40,9 +40,9 @@ setup(
         "diff-match-patch>=20121119",
         "appdirs>=1.4.0",
         "python-frontmatter>=0.2.1",
-        "pycrypto>=2.6.1",
         "funcy",
         "python-dateutil>=2.6.1",
+        "pycryptodome"
         # "python-dateutil",
         # "secp256k1==0.13.2"
     ],
