@@ -1,7 +1,7 @@
 # UNMAINTAINED
 
 This library is unmaintained, do not build productive buisness with it!
-Please not the disclaimer in the license file!
+Please note the disclaimer in the license file!
 
 
 Python Library for Steem
