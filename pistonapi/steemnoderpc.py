@@ -1,33 +1,24 @@
 import re
 import time
 from . import exceptions
-from .exceptions import NoAccessApi, RPCError
-from grapheneapi.graphenewsrpc import GrapheneWebsocketRPC
 from pistonbase.chains import known_chains
+from .steemwsrpc import SteemWSRPC
+from .steemhttprpc import SteemHTTPRPC
+from .exceptions import NoAccessApi, RPCError
 import logging
 import warnings
 warnings.filterwarnings('default', module=__name__)
 log = logging.getLogger(__name__)
 
 
-class SteemNodeRPC(GrapheneWebsocketRPC):
-    """ This class allows to call API methods synchronously, without
-        callbacks. It logs in and registers to the APIs:
-
-        * database
-        * history
+class SteemNodeRPC(SteemHTTPRPC, SteemWSRPC):
+    """ This class deals with the connection to the API. Either it is a
+        websocket connection straight to the backend, or to a jussi
+        proxy.
 
         :param str urls: Either a single Websocket URL, or a list of URLs
         :param str user: Username for Authentication
         :param str password: Password for Authentication
-        :param Array apis: List of APIs to register to (default: ["database", "network_broadcast"])
-
-        Available APIs
-
-              * database
-              * network_node
-              * network_broadcast
-              * history
 
         Usage:
 
@@ -49,15 +40,23 @@ class SteemNodeRPC(GrapheneWebsocketRPC):
             "apis",
             ["database", "network_broadcast"]
         )
-        super(SteemNodeRPC, self).__init__(urls, user, password, **kwargs)
+        self._urls = urls
+        self.rpc.__init__(self, self._urls, **kwargs)
         self.chain_params = self.get_network()
 
-    def register_apis(self, apis=None):
-        for api in (apis or self.apis):
-            api = api.replace("_api", "")
-            self.api_id[api] = self.get_api_by_name("%s_api" % api, api_id=1)
-            if not self.api_id[api] and not isinstance(self.api_id[api], int):
-                raise NoAccessApi("No permission to access %s API. " % api)
+    @property
+    def rpc(self):
+        if isinstance(self._urls, (list, set)):
+            first_url = self._urls[0]
+        else:
+            first_url = self._urls
+
+        if first_url[:2] == "ws":
+            # Websocket connection
+            return SteemWSRPC
+        else:
+            # RPC/HTTP connection
+            return SteemHTTPRPC
 
     def get_account(self, name):
         account = self.get_accounts([name])
@@ -120,8 +119,7 @@ class SteemNodeRPC(GrapheneWebsocketRPC):
             :raises RPCError: if the server returns an error
         """
         try:
-            # Forward call to GrapheneWebsocketRPC and catch+evaluate errors
-            return super(SteemNodeRPC, self).rpcexec(payload)
+            return self.rpc.rpcexec(self, payload)
         except RPCError as e:
             msg = exceptions.decodeRPCErrorMsg(e).strip()
             if msg == "Account already transacted this block.":
@@ -153,4 +151,4 @@ class SteemNodeRPC(GrapheneWebsocketRPC):
         """ Map all methods to RPC calls and pass through the arguments.
             It makes use of the GrapheneRPC library.
         """
-        return super(SteemNodeRPC, self).__getattr__(name)
+        return self.rpc.__getattr__(self, name)
