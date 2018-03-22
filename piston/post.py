@@ -1,5 +1,6 @@
 import json
 import re
+import string
 from datetime import datetime
 from dateutil.parser import parse
 
@@ -173,18 +174,17 @@ class Post(dict):
         post_author, post_permlink = resolveIdentifier(self.identifier)
         posts = self.steem.rpc.get_content_replies(post_author, post_permlink)
         r = []
+
+        transtab = ''.maketrans('','', ''.join(set(string.printable) - set(string.digits) - set(['.'])))
+
         for post in posts:
             r.append(Post(post, steem_instance=self.steem))
-        if sort == "total_payout_value":
+        if sort.endswith("value"):
             r = sorted(r, key=lambda x: float(
-                x["total_payout_value"]
-            ), reverse=True)
-        elif sort == "total_payout_value":
-            r = sorted(r, key=lambda x: float(
-                x["total_payout_value"]
+                x.get(sort, '0').translate(transtab)
             ), reverse=True)
         else:
-            r = sorted(r, key=lambda x: x[sort])
+            r = sorted(r, key=lambda x: x.get(sort,x))
         return(r)
 
     def reply(self, body, title="", author="", meta=None):
